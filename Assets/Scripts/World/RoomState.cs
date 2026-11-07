@@ -17,6 +17,7 @@ namespace CoopGame
         {
             Instance = this;
             changes = GetChangeDetector(ChangeDetector.Source.SimulationState);
+            Dbg.Interact("(0) RoomState Spawned HasStateAuthority=" + HasStateAuthority + " lamba=" + LampOn + " kapı=" + DoorOpen);
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
@@ -27,17 +28,21 @@ namespace CoopGame
         /// <summary>Yalnızca host çağırır (PlayerAvatar RPC'si doğruladıktan sonra).</summary>
         public void Toggle(InteractId id)
         {
-            if (!HasStateAuthority) return;
+            if (!HasStateAuthority) { Dbg.Interact("(3b) Toggle ATLANDI: HasStateAuthority=false"); return; }
+            bool l0 = LampOn, d0 = DoorOpen;
             if (id == InteractId.LampButton) LampOn = !LampOn;
             else if (id == InteractId.DoorButton) DoorOpen = !DoorOpen;
+            // (3b) Host durumu değiştirdi mi
+            Dbg.Interact("(3b) Toggle " + id + ": lamba " + l0 + "→" + (bool)LampOn + ", kapı " + d0 + "→" + (bool)DoorOpen);
         }
 
         public override void Render()
         {
+            // (4a) Ağ durumu bu cihazda değişti mi (hem host hem client)
             foreach (var change in changes.DetectChanges(this))
             {
-                if (change == nameof(LampOn)) Debug.Log("[Room] Lamba: " + (LampOn ? "açık" : "kapalı"));
-                else if (change == nameof(DoorOpen)) Debug.Log("[Room] Kapı: " + (DoorOpen ? "açık" : "kapalı"));
+                if (change == nameof(LampOn)) Dbg.Interact("(4a) durum okundu: LampOn=" + LampOn);
+                else if (change == nameof(DoorOpen)) Dbg.Interact("(4a) durum okundu: DoorOpen=" + DoorOpen);
             }
         }
     }

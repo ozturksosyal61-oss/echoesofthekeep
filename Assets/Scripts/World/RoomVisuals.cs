@@ -13,6 +13,8 @@ namespace CoopGame
 
         Vector3 doorClosedPos;
         Material lampMat;
+        bool hasLast, lastLamp, lastOpen;
+        RoomState lastState;
 
         void Awake()
         {
@@ -26,6 +28,14 @@ namespace CoopGame
             var s = RoomState.Instance;
             bool lamp = s != null && s.LampOn;
             bool open = s != null && s.DoorOpen;
+
+            // (4b) Görsel, değişen durumu okudu mu
+            if (!hasLast || s != lastState || lamp != lastLamp || open != lastOpen)
+            {
+                Dbg.Interact("(4b) RoomVisuals: state=" + (s != null ? "var" : "YOK") + " lamba=" + lamp + " kapı=" + open +
+                             " (lampLight.enabled→" + lamp + ", doorCollider.enabled→" + !open + ")");
+                hasLast = true; lastState = s; lastLamp = lamp; lastOpen = open;
+            }
 
             lampLight.enabled = lamp;
             var glow = lamp ? new Color(1f, 0.9f, 0.5f) : new Color(0.2f, 0.2f, 0.2f);

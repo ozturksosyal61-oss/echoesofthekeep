@@ -84,17 +84,32 @@ namespace CoopGame
 
         // ---- Etkileşim: istemci → host (RPC), host doğrular, RoomState (state authority host) günceller ----
 
-        public void RequestInteract(InteractId id) => RPC_Interact((int)id);
+        public void RequestInteract(InteractId id)
+        {
+            // (2a) RPC gönderilmeden önce: yetki durumu
+            Dbg.Interact("(2a) RPC gönderiliyor id=" + id + " avatar=" + name +
+                         " HasInputAuthority=" + Object.HasInputAuthority + " HasStateAuthority=" + Object.HasStateAuthority +
+                         " inputAuth=p" + Object.InputAuthority.PlayerId + " stateAuth=p" + Object.StateAuthority.PlayerId +
+                         " RoomState.Instance=" + (RoomState.Instance != null));
+            RPC_Interact((int)id);
+            Dbg.Interact("(2b) RPC_Interact çağrısı döndü (host'a iletilmiş olmalı)");
+        }
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
         void RPC_Interact(int id)
         {
+            // (3a) Host RPC'yi aldı mı
             var target = Interactable.Find((InteractId)id);
             var state = RoomState.Instance;
-            if (target == null || state == null) return;
+            Dbg.Interact("(3a) RPC ALINDI id=" + (InteractId)id + " gönderen=p" + Object.InputAuthority.PlayerId +
+                         " avatarKonum=" + transform.position.ToString("F1") + " oda=" + Room +
+                         " target=" + (target != null) + " state=" + (state != null));
+            if (target == null || state == null) { Dbg.Interact("(3a) REDDEDİLDİ: target/state yok"); return; }
             // Host doğrulaması: aynı odada ve yeterince yakın mı.
-            if (Layout.RoomOf(target.transform.position) != Room) return;
-            if (Vector3.Distance(transform.position, target.transform.position) > Interactable.ServerRange) return;
+            int targetRoom = Layout.RoomOf(target.transform.position);
+            float dist = Vector3.Distance(transform.position, target.transform.position);
+            if (targetRoom != Room) { Dbg.Interact("(3a) REDDEDİLDİ: farklı oda hedef=" + targetRoom + " avatar=" + Room); return; }
+            if (dist > Interactable.ServerRange) { Dbg.Interact("(3a) REDDEDİLDİ: uzak d=" + dist.ToString("F1")); return; }
             state.Toggle((InteractId)id);
         }
     }
