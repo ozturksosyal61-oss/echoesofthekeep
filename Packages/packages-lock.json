@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.photonengine.voice-fusion": {
+      "version": "https://github.com/Photon-Server/Photon-UPM.git#fusion/v2/voice-for-fusion",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1b93daae7984009cedc51f761a198d145fcf44ad"
+    },
     "com.unity.ext.nunit": {
       "version": "2.1.0",
       "depth": 2,
@@ -22,6 +29,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.nuget.mono-cecil": {
+      "version": "1.10.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.test-framework": {
       "version": "1.8.0",
       "depth": 1,
@@ -30,6 +44,18 @@
         "com.unity.ext.nunit": "2.1.0",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
+      }
+    },
+    "com.unity.ugui": {
+      "version": "2.6.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.ui": "1.0.0",
+        "com.unity.modules.imgui": "1.0.0",
+        "com.unity.modules.audio": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0",
+        "com.unity.modules.physics": "1.0.0"
       }
     },
     "com.unity.modules.accessibility": {
