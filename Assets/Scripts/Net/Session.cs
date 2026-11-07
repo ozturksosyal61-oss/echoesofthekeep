@@ -34,7 +34,7 @@ namespace CoopGame
             var prefab = Resources.Load<NetworkRunner>("NetworkRunner");
             var runner = Object.Instantiate(prefab);
             Object.DontDestroyOnLoad(runner.gameObject);
-            runner.ProvideInput = false;
+            runner.ProvideInput = true;
 
             var args = new StartGameArgs
             {

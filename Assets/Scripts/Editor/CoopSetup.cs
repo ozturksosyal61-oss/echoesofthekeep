@@ -50,10 +50,14 @@ namespace CoopGame.EditorTools
 
         static GameObject CreateAvatarPrefab()
         {
-            var root = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            root.name = "PlayerAvatar";
+            var root = new GameObject("PlayerAvatar");
+            var cc = root.AddComponent<CharacterController>();
+            cc.height = 1.8f; cc.radius = 0.35f; cc.center = new Vector3(0f, 0.9f, 0f); cc.stepOffset = 0.3f;
             root.AddComponent<NetworkObject>();
+            var ncc = root.AddComponent<NetworkCharacterController>();
+            ncc.maxSpeed = 5f; ncc.acceleration = 40f; ncc.braking = 30f; ncc.rotationSpeed = 12f;
             root.AddComponent<PlayerAvatar>();
+            BuildModel(root.transform);
             root.AddComponent<VoiceNetworkObject>();
 
             var speakerGo = new GameObject("Speaker");
@@ -67,6 +71,92 @@ namespace CoopGame.EditorTools
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, AvatarPath);
             Object.DestroyImmediate(root);
             return prefab;
+        }
+
+        // ---------- Avatar modeli + yürüme animasyonu (primitiflerden, Animator ile) ----------
+
+        static Transform Part(Transform parent, string name, PrimitiveType type, Vector3 pos, Vector3 scale)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            Object.DestroyImmediate(go.GetComponent<Collider>()); // çarpışmayı yalnızca CharacterController yapar
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = pos;
+            go.transform.localScale = scale;
+            return go.transform;
+        }
+
+        static Transform Pivot(Transform parent, string name, Vector3 pos)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = pos;
+            return go.transform;
+        }
+
+        static void BuildModel(Transform root)
+        {
+            var model = new GameObject("Model").transform;
+            model.SetParent(root, false);
+            Part(model, "Body", PrimitiveType.Cube, new Vector3(0, 1.15f, 0), new Vector3(0.6f, 0.7f, 0.35f));
+            Part(model, "Head", PrimitiveType.Sphere, new Vector3(0, 1.75f, 0), new Vector3(0.4f, 0.4f, 0.4f));
+            Part(model, "Nose", PrimitiveType.Cube, new Vector3(0, 1.75f, 0.22f), new Vector3(0.1f, 0.1f, 0.14f)); // yön işareti
+            foreach (var side in new[] { ("LegL", -0.15f), ("LegR", 0.15f) })
+            {
+                var piv = Pivot(model, side.Item1, new Vector3(side.Item2, 0.8f, 0));
+                Part(piv, "Mesh", PrimitiveType.Cube, new Vector3(0, -0.4f, 0), new Vector3(0.2f, 0.8f, 0.2f));
+            }
+            foreach (var side in new[] { ("ArmL", -0.4f), ("ArmR", 0.4f) })
+            {
+                var piv = Pivot(model, side.Item1, new Vector3(side.Item2, 1.45f, 0));
+                Part(piv, "Mesh", PrimitiveType.Cube, new Vector3(0, -0.3f, 0), new Vector3(0.15f, 0.6f, 0.15f));
+            }
+
+            var controller = BuildAnimator();
+            var animator = model.gameObject.AddComponent<Animator>();
+            animator.runtimeAnimatorController = controller;
+        }
+
+        static AnimationClip MakeClip(string name, params (string path, float[] values)[] curves)
+        {
+            var clip = new AnimationClip { name = name };
+            const float len = 0.8f;
+            foreach (var c in curves)
+            {
+                var curve = new AnimationCurve();
+                for (int i = 0; i < c.values.Length; i++)
+                    curve.AddKey(len * i / (c.values.Length - 1), c.values[i]);
+                for (int i = 0; i < curve.length; i++) AnimationUtility.SetKeyLeftTangentMode(curve, i, AnimationUtility.TangentMode.Auto);
+                clip.SetCurve(c.path, typeof(Transform), "localEulerAnglesRaw.x", curve);
+            }
+            var s = AnimationUtility.GetAnimationClipSettings(clip);
+            s.loopTime = true;
+            AnimationUtility.SetAnimationClipSettings(clip, s);
+            return clip;
+        }
+
+        static UnityEditor.Animations.AnimatorController BuildAnimator()
+        {
+            const string path = "Assets/Prefabs/Avatar.controller";
+            var idle = MakeClip("Idle",
+                ("ArmL", new[] { 0f, 3f, 0f, -3f, 0f }), ("ArmR", new[] { 0f, -3f, 0f, 3f, 0f }));
+            var walk = MakeClip("Walk",
+                ("LegL", new[] { 0f, 35f, 0f, -35f, 0f }), ("LegR", new[] { 0f, -35f, 0f, 35f, 0f }),
+                ("ArmL", new[] { 0f, -30f, 0f, 30f, 0f }), ("ArmR", new[] { 0f, 30f, 0f, -30f, 0f }));
+            AssetDatabase.CreateAsset(idle, "Assets/Prefabs/Idle.anim");
+            AssetDatabase.CreateAsset(walk, "Assets/Prefabs/Walk.anim");
+
+            var ctrl = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPath(path);
+            ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
+            var sm = ctrl.layers[0].stateMachine;
+            var sIdle = sm.AddState("Idle"); sIdle.motion = idle;
+            var sWalk = sm.AddState("Walk"); sWalk.motion = walk;
+            sm.defaultState = sIdle;
+            var t1 = sIdle.AddTransition(sWalk);
+            t1.hasExitTime = false; t1.duration = 0.1f; t1.AddCondition(UnityEditor.Animations.AnimatorConditionMode.Greater, 0.3f, "Speed");
+            var t2 = sWalk.AddTransition(sIdle);
+            t2.hasExitTime = false; t2.duration = 0.1f; t2.AddCondition(UnityEditor.Animations.AnimatorConditionMode.Less, 0.3f, "Speed");
+            return ctrl;
         }
 
         static void CreateRunnerPrefab()
@@ -134,9 +224,11 @@ namespace CoopGame.EditorTools
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            // Düz kamera: sabit, zemine hafif aşağı bakar.
+            // Üçüncü şahıs takip kamerası (yerel avatarı bulur).
             var cam = MakeCamera(new Vector3(0, 4, -9), new Vector3(0, 0.5f, 0), new Color(0.55f, 0.75f, 0.95f));
             cam.name = "Main Camera";
+            cam.gameObject.AddComponent<FollowCamera>();
+            new GameObject("InputRelay").AddComponent<InputRelay>();
 
             var lightGo = new GameObject("Directional Light");
             var light = lightGo.AddComponent<Light>();
@@ -146,8 +238,26 @@ namespace CoopGame.EditorTools
             var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor.name = "Floor";
             floor.transform.position = new Vector3(0, -0.5f, 0);
-            floor.transform.localScale = new Vector3(14, 1, 10);
+            floor.transform.localScale = new Vector3(80, 1, 80);
             floor.GetComponent<Renderer>().sharedMaterial.color = new Color(0.35f, 0.4f, 0.35f);
+
+            // Engeller: küpler ve duvarlar (statik collider)
+            var obstacleColor = new Color(0.6f, 0.55f, 0.5f);
+            void Block(string n, Vector3 pos, Vector3 scale)
+            {
+                var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                b.name = n; b.transform.position = pos; b.transform.localScale = scale;
+                b.GetComponent<Renderer>().sharedMaterial.color = obstacleColor;
+                b.isStatic = true;
+            }
+            Block("Cube1", new Vector3(0, 0.75f, 6), new Vector3(1.5f, 1.5f, 1.5f));
+            Block("Cube2", new Vector3(-6, 1f, 3), new Vector3(2f, 2f, 2f));
+            Block("Cube3", new Vector3(7, 0.5f, -5), new Vector3(1f, 1f, 1f));
+            Block("Cube4", new Vector3(4, 1.25f, 10), new Vector3(2.5f, 2.5f, 2.5f));
+            Block("WallN", new Vector3(0, 1.5f, 20), new Vector3(16, 3, 0.6f));
+            Block("WallE", new Vector3(12, 1.5f, 0), new Vector3(0.6f, 3, 14));
+            Block("WallL", new Vector3(-10, 1.5f, -8), new Vector3(8, 3, 0.6f));
+            Block("Ramp", new Vector3(-4, 0.15f, -12), new Vector3(3, 0.3f, 3));
 
             var session = new GameObject("GameSession").AddComponent<GameSession>();
             var sso = new SerializedObject(session);
@@ -162,12 +272,39 @@ namespace CoopGame.EditorTools
             var labels = new Text[2];
             for (int i = 0; i < 2; i++)
             {
-                float y = -700 - i * 90;
+                float y = 500 - i * 80;
                 var dot = MakeImage(canvas, "SpeakDot" + (i == 0 ? "A" : "B"), new Vector2(-380, y), new Vector2(50, 50));
                 dots[i] = dot;
                 labels[i] = MakeText(canvas, "SpeakLabel" + (i == 0 ? "A" : "B"), i == 0 ? "A" : "B", 44, new Vector2(-150, y), new Vector2(380, 70), TextAnchor.MiddleLeft);
             }
-            var leave = MakeButton(canvas, "LeaveButton", "Çık", new Vector2(330, -770), new Vector2(300, 110));
+            // Bakış alanı: ekranın sağ yarısı (arkada), sanal joystick sol altta, Çık butonu en üstte.
+            var lookGo = new GameObject("LookPad", typeof(RectTransform));
+            var lrt = lookGo.GetComponent<RectTransform>();
+            lrt.SetParent(canvas, false);
+            lrt.anchorMin = new Vector2(0.5f, 0f); lrt.anchorMax = new Vector2(1f, 1f);
+            lrt.offsetMin = lrt.offsetMax = Vector2.zero;
+            lookGo.AddComponent<Image>().color = new Color(0, 0, 0, 0);
+            lookGo.AddComponent<LookPad>();
+            lookGo.transform.SetAsFirstSibling();
+
+            var stickBg = MakeImage(canvas, "Joystick", new Vector2(-330, -650), new Vector2(360, 360));
+            stickBg.color = new Color(1, 1, 1, 0.15f);
+            var handle = MakeImage(stickBg.rectTransform, "Handle", Vector2.zero, new Vector2(140, 140));
+            handle.color = new Color(1, 1, 1, 0.45f);
+            handle.raycastTarget = false;
+            var js = stickBg.gameObject.AddComponent<VirtualJoystick>();
+            var jso = new SerializedObject(js);
+            SetRef(jso, "handle", handle.rectTransform);
+            jso.ApplyModifiedPropertiesWithoutUndo();
+
+            var perfText = MakeText(canvas, "PerfText", "FPS -", 34, new Vector2(-300, 910), new Vector2(480, 60), TextAnchor.MiddleLeft);
+            perfText.raycastTarget = false;
+            var perf = new GameObject("PerfHud").AddComponent<PerfHud>();
+            var pso = new SerializedObject(perf);
+            SetRef(pso, "label", perfText);
+            pso.ApplyModifiedPropertiesWithoutUndo();
+
+            var leave = MakeButton(canvas, "LeaveButton", "Çık", new Vector2(380, 880), new Vector2(240, 100));
 
             var hud = new GameObject("GameHud").AddComponent<GameHud>();
             var so = new SerializedObject(hud);
