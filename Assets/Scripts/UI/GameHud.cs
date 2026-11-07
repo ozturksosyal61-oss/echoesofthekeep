@@ -11,6 +11,7 @@ namespace CoopGame
     {
         [SerializeField] Text roleText;
         [SerializeField] Text infoText;
+        [SerializeField] Text roomText;
         [SerializeField] Image[] speakDots;   // [0]=A, [1]=B
         [SerializeField] Text[] speakLabels;
         [SerializeField] Button leaveButton;
@@ -49,8 +50,15 @@ namespace CoopGame
             if (runner.LocalPlayer != PlayerRef.None)
                 roleText.text = "Rol: " + Roles.Name(Roles.Index(runner, runner.LocalPlayer));
 
-            infoText.text = "Oda: " + Session.Code + "   Oyuncu: " + count + "/" + Session.MaxPlayers +
+            infoText.text = "Kod: " + Session.Code + "   Oyuncu: " + count + "/" + Session.MaxPlayers +
                             (micGranted ? "" : "\nMikrofon kapalı (izin yok)");
+
+            // Bulunduğun alan + paylaşılan durum (diğer odadaki etkileşimin sonucunu da görebil).
+            var me = PlayerAvatar.Local;
+            var st = RoomState.Instance;
+            roomText.text = (me != null ? Layout.RoomName(me.Room) : "-") +
+                            "\nLamba: " + (st != null && st.LampOn ? "açık" : "kapalı") +
+                            "   Kapı: " + (st != null && st.DoorOpen ? "açık" : "kapalı");
 
             for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = Roles.Name(i); }
             foreach (var avatar in FindObjectsByType<PlayerAvatar>(FindObjectsSortMode.None))

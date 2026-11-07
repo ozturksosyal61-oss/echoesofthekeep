@@ -17,6 +17,7 @@ namespace CoopGame.EditorTools
     {
         const string AvatarPath = "Assets/Prefabs/PlayerAvatar.prefab";
         const string RunnerPath = "Assets/Resources/NetworkRunner.prefab";
+        const string RoomStatePath = "Assets/Prefabs/RoomState.prefab";
         const string LobbyPath = "Assets/Scenes/Lobby.unity";
         const string GamePath = "Assets/Scenes/Game.unity";
         const string ApkPath = "Builds/Android/CoopGame-dev.apk";
@@ -30,6 +31,7 @@ namespace CoopGame.EditorTools
 
             var avatar = CreateAvatarPrefab();
             CreateRunnerPrefab();
+            CreateRoomStatePrefab();
             Fusion.Editor.NetworkProjectConfigUtilities.RebuildPrefabTable();
             avatar = AssetDatabase.LoadAssetAtPath<GameObject>(AvatarPath);
 
@@ -71,6 +73,131 @@ namespace CoopGame.EditorTools
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, AvatarPath);
             Object.DestroyImmediate(root);
             return prefab;
+        }
+
+        static void CreateRoomStatePrefab()
+        {
+            var go = new GameObject("RoomState");
+            go.AddComponent<NetworkObject>();
+            go.AddComponent<RoomState>();
+            PrefabUtility.SaveAsPrefabAsset(go, RoomStatePath);
+            Object.DestroyImmediate(go);
+        }
+
+        // ---------- Dünya: iki kapalı oda (primitifler) ----------
+
+        static Material MakeMat(string name, Color color)
+        {
+            Directory.CreateDirectory("Assets/Materials");
+            string path = "Assets/Materials/" + name + ".mat";
+            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (existing != null) AssetDatabase.DeleteAsset(path);
+            // Aktif pipeline'ın varsayılan shader'ı (primitiflerin materyalinden)
+            var probe = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var shader = probe.GetComponent<Renderer>().sharedMaterial.shader;
+            Object.DestroyImmediate(probe);
+            var m = new Material(shader) { color = color };
+            AssetDatabase.CreateAsset(m, path);
+            return m;
+        }
+
+        static GameObject Box(string name, Transform parent, Vector3 pos, Vector3 scale, Material mat)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            b.name = name;
+            b.transform.SetParent(parent, false);
+            b.transform.localPosition = pos;
+            b.transform.localScale = scale;
+            b.GetComponent<Renderer>().sharedMaterial = mat;
+            b.isStatic = true;
+            return b;
+        }
+
+        /// <summary>İç ölçü 16x16, yükseklik 4. Zemin üstü y=0. Duvar kalınlığı 0.5. withAlcove: arka duvarda kapılı küçük oda.</summary>
+        static Transform BuildRoom(string name, Vector3 center, Material floorMat, Material wallMat, bool withAlcove)
+        {
+            var root = new GameObject(name).transform;
+            root.position = center;
+            const float h = 4f;
+            Box("Floor", root, new Vector3(0, -0.25f, 0), new Vector3(17, 0.5f, 17), floorMat);
+            Box("Ceiling", root, new Vector3(0, h + 0.25f, 0), new Vector3(17, 0.5f, 17), wallMat);
+            Box("WallS", root, new Vector3(0, h / 2, -8.25f), new Vector3(17, h, 0.5f), wallMat);
+            Box("WallE", root, new Vector3(8.25f, h / 2, 0), new Vector3(0.5f, h, 17), wallMat);
+            Box("WallW", root, new Vector3(-8.25f, h / 2, 0), new Vector3(0.5f, h, 17), wallMat);
+
+            var roomLight = new GameObject("RoomLight").AddComponent<Light>();
+            roomLight.transform.SetParent(root, false);
+            roomLight.transform.localPosition = new Vector3(0, 3.5f, 0);
+            roomLight.type = LightType.Point; roomLight.range = 22f; roomLight.intensity = 0.8f;
+
+            if (!withAlcove)
+            {
+                Box("WallN", root, new Vector3(0, h / 2, 8.25f), new Vector3(17, h, 0.5f), wallMat);
+                return root;
+            }
+
+            // Kısmi duvar + 3x3 kapı boşluğu (kapı paneli RoomVisuals tarafından açılır/kapanır) + arkada alkov
+            Box("WallN_L", root, new Vector3(-5f, h / 2, 8.25f), new Vector3(7f, h, 0.5f), wallMat);
+            Box("WallN_R", root, new Vector3(5f, h / 2, 8.25f), new Vector3(7f, h, 0.5f), wallMat);
+            Box("WallN_Lintel", root, new Vector3(0, 3.5f, 8.25f), new Vector3(3f, 1f, 0.5f), wallMat);
+            Box("AlcoveFloor", root, new Vector3(0, -0.25f, 10.625f), new Vector3(17, 0.5f, 4.25f), floorMat);
+            Box("AlcoveCeiling", root, new Vector3(0, h + 0.25f, 10.625f), new Vector3(17, 0.5f, 4.25f), wallMat);
+            Box("AlcoveWallN", root, new Vector3(0, h / 2, 12.75f), new Vector3(17, h, 0.5f), wallMat);
+            Box("AlcoveWallE", root, new Vector3(8.25f, h / 2, 10.625f), new Vector3(0.5f, h, 4.25f), wallMat);
+            Box("AlcoveWallW", root, new Vector3(-8.25f, h / 2, 10.625f), new Vector3(0.5f, h, 4.25f), wallMat);
+            var alcoveLight = new GameObject("AlcoveLight").AddComponent<Light>();
+            alcoveLight.transform.SetParent(root, false);
+            alcoveLight.transform.localPosition = new Vector3(0, 3.5f, 10.6f);
+            alcoveLight.type = LightType.Point; alcoveLight.range = 12f; alcoveLight.intensity = 0.6f;
+            return root;
+        }
+
+        static GameObject MakeButtonProp(string name, Transform parent, Vector3 pos, Color color, InteractId id, string label)
+        {
+            var b = Box(name, parent, pos, new Vector3(0.7f, 1.2f, 0.4f), MakeMat(name + "Mat", color));
+            b.isStatic = false;
+            var i = b.AddComponent<Interactable>();
+            i.Id = id; i.Label = label;
+            return b;
+        }
+
+        static void BuildWorld()
+        {
+            var orangeFloor = MakeMat("FloorOrange", new Color(0.95f, 0.5f, 0.12f));
+            var blueFloor = MakeMat("FloorBlue", new Color(0.15f, 0.4f, 0.9f));
+            var wallA = MakeMat("WallA", new Color(0.55f, 0.45f, 0.38f));
+            var wallB = MakeMat("WallB", new Color(0.35f, 0.42f, 0.5f));
+
+            var roomA = BuildRoom("RoomA_Mekanizma", Layout.RoomA, orangeFloor, wallA, false);
+            var roomB = BuildRoom("RoomB_Sarnic", Layout.RoomB, blueFloor, wallB, true);
+
+            // Oda A: lamba (tavanda asılı) + kapıyı kontrol eden buton
+            var lamp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            lamp.name = "Lamp";
+            Object.DestroyImmediate(lamp.GetComponent<Collider>());
+            lamp.transform.SetParent(roomA, false);
+            lamp.transform.localPosition = new Vector3(0, 3.1f, 0);
+            lamp.transform.localScale = Vector3.one * 0.7f;
+            lamp.GetComponent<Renderer>().sharedMaterial = MakeMat("LampMat", new Color(0.2f, 0.2f, 0.2f));
+            var lampLight = new GameObject("LampLight").AddComponent<Light>();
+            lampLight.transform.SetParent(lamp.transform, false);
+            lampLight.type = LightType.Point; lampLight.range = 18f; lampLight.intensity = 3f;
+            lampLight.color = new Color(1f, 0.9f, 0.6f);
+            lampLight.enabled = false;
+            MakeButtonProp("DoorButton", roomA, new Vector3(-5f, 0.6f, -6f), new Color(0.85f, 0.15f, 0.15f), InteractId.DoorButton, "Kapıyı aç/kapat");
+
+            // Oda B: lambayı kontrol eden buton + alkov kapısı
+            MakeButtonProp("LampButton", roomB, new Vector3(5f, 0.6f, -6f), new Color(0.15f, 0.8f, 0.3f), InteractId.LampButton, "Lambayı aç/kapat");
+            var door = Box("Door", roomB, new Vector3(0, 1.5f, 8.25f), new Vector3(3f, 3f, 0.3f), MakeMat("DoorMat", new Color(0.4f, 0.25f, 0.1f)));
+            door.isStatic = false;
+
+            var vis = new GameObject("RoomVisuals").AddComponent<RoomVisuals>();
+            var so = new SerializedObject(vis);
+            SetRef(so, "lampLight", lampLight);
+            SetRef(so, "lampRenderer", lamp.GetComponent<Renderer>());
+            SetRef(so, "door", door.transform);
+            SetRef(so, "doorCollider", door.GetComponent<Collider>());
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         // ---------- Avatar modeli + yürüme animasyonu (primitiflerden, Animator ile) ----------
@@ -236,33 +363,16 @@ namespace CoopGame.EditorTools
             light.type = LightType.Directional;
             lightGo.transform.rotation = Quaternion.Euler(50, -30, 0);
 
-            var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            floor.name = "Floor";
-            floor.transform.position = new Vector3(0, -0.5f, 0);
-            floor.transform.localScale = new Vector3(80, 1, 80);
-            floor.GetComponent<Renderer>().sharedMaterial.color = new Color(0.35f, 0.4f, 0.35f);
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(0.45f, 0.45f, 0.45f);
+            light.intensity = 0.5f;
 
-            // Engeller: küpler ve duvarlar (statik collider)
-            var obstacleColor = new Color(0.6f, 0.55f, 0.5f);
-            void Block(string n, Vector3 pos, Vector3 scale)
-            {
-                var b = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                b.name = n; b.transform.position = pos; b.transform.localScale = scale;
-                b.GetComponent<Renderer>().sharedMaterial.color = obstacleColor;
-                b.isStatic = true;
-            }
-            Block("Cube1", new Vector3(0, 0.75f, 6), new Vector3(1.5f, 1.5f, 1.5f));
-            Block("Cube2", new Vector3(-6, 1f, 3), new Vector3(2f, 2f, 2f));
-            Block("Cube3", new Vector3(7, 0.5f, -5), new Vector3(1f, 1f, 1f));
-            Block("Cube4", new Vector3(4, 1.25f, 10), new Vector3(2.5f, 2.5f, 2.5f));
-            Block("WallN", new Vector3(0, 1.5f, 20), new Vector3(16, 3, 0.6f));
-            Block("WallE", new Vector3(12, 1.5f, 0), new Vector3(0.6f, 3, 14));
-            Block("WallL", new Vector3(-10, 1.5f, -8), new Vector3(8, 3, 0.6f));
-            Block("Ramp", new Vector3(-4, 0.15f, -12), new Vector3(3, 0.3f, 3));
+            BuildWorld();
 
             var session = new GameObject("GameSession").AddComponent<GameSession>();
             var sso = new SerializedObject(session);
             SetRef(sso, "avatarPrefab", avatarPrefab);
+            SetRef(sso, "roomStatePrefab", AssetDatabase.LoadAssetAtPath<GameObject>(RoomStatePath));
             sso.ApplyModifiedPropertiesWithoutUndo();
 
             var root = MakeCanvas();
@@ -272,6 +382,9 @@ namespace CoopGame.EditorTools
             Corner(role, TC, TC, new Vector2(0, -40));
             var info = MakeText(canvas, "InfoText", "", 34, Vector2.zero, new Vector2(1300, 90), TextAnchor.UpperCenter);
             Corner(info, TC, TC, new Vector2(0, -150));
+            var roomLabel = MakeText(canvas, "RoomText", "", 38, Vector2.zero, new Vector2(900, 110), TextAnchor.UpperCenter);
+            Corner(roomLabel, TC, TC, new Vector2(0, -230));
+            roomLabel.raycastTarget = false;
 
             var dots = new Image[2];
             var labels = new Text[2];
@@ -317,6 +430,14 @@ namespace CoopGame.EditorTools
             Corner(leave.targetGraphic, TR, TR, new Vector2(-60, -40));
             var camBtn = MakeButton(canvas, "CameraButton", "Kamera", Vector2.zero, new Vector2(200, 80));
             Corner(camBtn.targetGraphic, TR, TR, new Vector2(-60, -135));
+            // Etkileşim düğmesi: yalnızca bir butona yaklaşınca görünür (sağ alt).
+            var interactBtn = MakeButton(canvas, "InteractButton", "Etkileş", Vector2.zero, new Vector2(420, 130));
+            Corner(interactBtn.targetGraphic, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-80, 90));
+            var prompt = new GameObject("InteractPrompt").AddComponent<InteractPrompt>();
+            var pro = new SerializedObject(prompt);
+            SetRef(pro, "button", interactBtn);
+            pro.ApplyModifiedPropertiesWithoutUndo();
+
             var camToggle = new GameObject("CameraToggle").AddComponent<CameraToggle>();
             var cto = new SerializedObject(camToggle);
             SetRef(cto, "button", camBtn);
@@ -326,6 +447,7 @@ namespace CoopGame.EditorTools
             var so = new SerializedObject(hud);
             SetRef(so, "roleText", role);
             SetRef(so, "infoText", info);
+            SetRef(so, "roomText", roomLabel);
             SetRef(so, "leaveButton", leave);
             var dp = so.FindProperty("speakDots"); dp.arraySize = 2;
             var lp = so.FindProperty("speakLabels"); lp.arraySize = 2;

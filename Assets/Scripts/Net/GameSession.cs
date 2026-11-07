@@ -8,6 +8,7 @@ namespace CoopGame
     public class GameSession : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     {
         [SerializeField] GameObject avatarPrefab;
+        [SerializeField] GameObject roomStatePrefab;
 
         readonly Dictionary<PlayerRef, NetworkObject> avatars = new Dictionary<PlayerRef, NetworkObject>();
         NetworkRunner session;
@@ -18,7 +19,11 @@ namespace CoopGame
             if (session == null) { UnityEngine.SceneManagement.SceneManager.LoadScene(Session.LobbyScene); return; }
             session.AddGlobal(this);
             if (session.IsServer)
+            {
+                // Paylaşılan dünya durumu (lamba/kapı): host spawn eder, state authority host kalır.
+                session.Spawn(roomStatePrefab.GetComponent<NetworkObject>());
                 foreach (var p in session.ActivePlayers) Spawn(p);
+            }
         }
 
         void Update()
@@ -35,8 +40,8 @@ namespace CoopGame
         {
             if (avatars.ContainsKey(player)) return;
             int role = Roles.Index(session, player);
-            var pos = new Vector3(role == 0 ? -2f : 2f, 1f, 0f);
-            avatars[player] = session.Spawn(avatarPrefab.GetComponent<NetworkObject>(), pos, Quaternion.identity, player);
+            // Rol A → Oda A, rol B → Oda B (250 m ötede).
+            avatars[player] = session.Spawn(avatarPrefab.GetComponent<NetworkObject>(), Layout.Spawn(role), Quaternion.identity, player);
         }
 
         public void PlayerJoined(PlayerRef player)
