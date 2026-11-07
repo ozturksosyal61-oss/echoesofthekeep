@@ -203,11 +203,11 @@ namespace CoopGame.EditorTools
             cam.name = "Main Camera";
 
             var canvas = MakeCanvas();
-            MakeText(canvas, "Title", "CoopGame", 90, new Vector2(0, 700), new Vector2(900, 140), TextAnchor.MiddleCenter);
-            var input = MakeInput(canvas, "CodeInput", new Vector2(0, 250), new Vector2(600, 150));
-            var join = MakeButton(canvas, "JoinButton", "Katıl", new Vector2(0, 40), new Vector2(600, 150));
-            var create = MakeButton(canvas, "CreateButton", "Oda Kur", new Vector2(0, -150), new Vector2(600, 150));
-            var status = MakeText(canvas, "Status", "", 44, new Vector2(0, -420), new Vector2(950, 260), TextAnchor.UpperCenter);
+            MakeText(canvas, "Title", "CoopGame", 80, new Vector2(0, 410), new Vector2(900, 110), TextAnchor.MiddleCenter);
+            var input = MakeInput(canvas, "CodeInput", new Vector2(0, 240), new Vector2(560, 120));
+            var join = MakeButton(canvas, "JoinButton", "Katıl", new Vector2(0, 90), new Vector2(560, 110));
+            var create = MakeButton(canvas, "CreateButton", "Oda Kur", new Vector2(0, -50), new Vector2(560, 110));
+            var status = MakeText(canvas, "Status", "", 40, new Vector2(0, -230), new Vector2(1500, 220), TextAnchor.UpperCenter);
 
             var lobby = new GameObject("LobbyUI").AddComponent<LobbyUI>();
             var so = new SerializedObject(lobby);
@@ -265,17 +265,17 @@ namespace CoopGame.EditorTools
             sso.ApplyModifiedPropertiesWithoutUndo();
 
             var canvas = MakeCanvas();
-            var role = MakeText(canvas, "RoleText", "Rol: -", 110, new Vector2(0, 780), new Vector2(900, 160), TextAnchor.MiddleCenter);
-            var info = MakeText(canvas, "InfoText", "", 40, new Vector2(0, 640), new Vector2(1000, 130), TextAnchor.UpperCenter);
+            var role = MakeText(canvas, "RoleText", "Rol: -", 80, new Vector2(0, 470), new Vector2(700, 110), TextAnchor.MiddleCenter);
+            var info = MakeText(canvas, "InfoText", "", 34, new Vector2(0, 385), new Vector2(1300, 90), TextAnchor.UpperCenter);
 
             var dots = new Image[2];
             var labels = new Text[2];
             for (int i = 0; i < 2; i++)
             {
-                float y = 500 - i * 80;
-                var dot = MakeImage(canvas, "SpeakDot" + (i == 0 ? "A" : "B"), new Vector2(-380, y), new Vector2(50, 50));
+                float y = 410 - i * 65;
+                var dot = MakeImage(canvas, "SpeakDot" + (i == 0 ? "A" : "B"), new Vector2(-900, y), new Vector2(44, 44));
                 dots[i] = dot;
-                labels[i] = MakeText(canvas, "SpeakLabel" + (i == 0 ? "A" : "B"), i == 0 ? "A" : "B", 44, new Vector2(-150, y), new Vector2(380, 70), TextAnchor.MiddleLeft);
+                labels[i] = MakeText(canvas, "SpeakLabel" + (i == 0 ? "A" : "B"), i == 0 ? "A" : "B", 38, new Vector2(-690, y), new Vector2(380, 60), TextAnchor.MiddleLeft);
             }
             // Bakış alanı: ekranın sağ yarısı (arkada), sanal joystick sol altta, Çık butonu en üstte.
             var lookGo = new GameObject("LookPad", typeof(RectTransform));
@@ -287,7 +287,7 @@ namespace CoopGame.EditorTools
             lookGo.AddComponent<LookPad>();
             lookGo.transform.SetAsFirstSibling();
 
-            var stickBg = MakeImage(canvas, "Joystick", new Vector2(-330, -650), new Vector2(360, 360));
+            var stickBg = MakeImage(canvas, "Joystick", new Vector2(-690, -290), new Vector2(340, 340));
             stickBg.color = new Color(1, 1, 1, 0.15f);
             var handle = MakeImage(stickBg.rectTransform, "Handle", Vector2.zero, new Vector2(140, 140));
             handle.color = new Color(1, 1, 1, 0.45f);
@@ -297,14 +297,19 @@ namespace CoopGame.EditorTools
             SetRef(jso, "handle", handle.rectTransform);
             jso.ApplyModifiedPropertiesWithoutUndo();
 
-            var perfText = MakeText(canvas, "PerfText", "FPS -", 34, new Vector2(-300, 910), new Vector2(480, 60), TextAnchor.MiddleLeft);
+            var perfText = MakeText(canvas, "PerfText", "FPS -", 34, new Vector2(-700, 495), new Vector2(480, 50), TextAnchor.MiddleLeft);
             perfText.raycastTarget = false;
             var perf = new GameObject("PerfHud").AddComponent<PerfHud>();
             var pso = new SerializedObject(perf);
             SetRef(pso, "label", perfText);
             pso.ApplyModifiedPropertiesWithoutUndo();
 
-            var leave = MakeButton(canvas, "LeaveButton", "Çık", new Vector2(380, 880), new Vector2(240, 100));
+            var leave = MakeButton(canvas, "LeaveButton", "Çık", new Vector2(820, 490), new Vector2(200, 80));
+            var camBtn = MakeButton(canvas, "CameraButton", "Kamera", new Vector2(820, 395), new Vector2(200, 80));
+            var camToggle = new GameObject("CameraToggle").AddComponent<CameraToggle>();
+            var cto = new SerializedObject(camToggle);
+            SetRef(cto, "button", camBtn);
+            cto.ApplyModifiedPropertiesWithoutUndo();
 
             var hud = new GameObject("GameHud").AddComponent<GameHud>();
             var so = new SerializedObject(hud);
@@ -345,7 +350,7 @@ namespace CoopGame.EditorTools
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = go.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.referenceResolution = new Vector2(1920, 1080);
             scaler.matchWidthOrHeight = 0.5f;
             go.AddComponent<GraphicRaycaster>();
             var es = new GameObject("EventSystem");
@@ -424,7 +429,12 @@ namespace CoopGame.EditorTools
             PlayerSettings.productName = "CoopGame";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.coopgame.p0");
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.coopgame.p0");
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            // Yalnızca yatay (Android + iOS ortak ayar): LandscapeLeft/Right, otomatik döndürme; dikey kapalı.
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
+            PlayerSettings.allowedAutorotateToPortrait = false;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+            PlayerSettings.allowedAutorotateToLandscapeRight = true;
 
             // iOS: mikrofon izni metni (Türkçe)
             PlayerSettings.iOS.microphoneUsageDescription = "Oyun arkadaşınla sesli konuşabilmen için mikrofona erişim gerekiyor.";
