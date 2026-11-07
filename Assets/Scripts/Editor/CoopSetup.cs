@@ -202,7 +202,8 @@ namespace CoopGame.EditorTools
             var cam = MakeCamera(new Vector3(0, 1, -10), Vector3.zero, new Color(0.08f, 0.1f, 0.16f));
             cam.name = "Main Camera";
 
-            var canvas = MakeCanvas();
+            var root = MakeCanvas();
+            var canvas = MakeSafeArea(root);
             MakeText(canvas, "Title", "CoopGame", 80, new Vector2(0, 410), new Vector2(900, 110), TextAnchor.MiddleCenter);
             var input = MakeInput(canvas, "CodeInput", new Vector2(0, 240), new Vector2(560, 120));
             var join = MakeButton(canvas, "JoinButton", "Katıl", new Vector2(0, 90), new Vector2(560, 110));
@@ -264,30 +265,37 @@ namespace CoopGame.EditorTools
             SetRef(sso, "avatarPrefab", avatarPrefab);
             sso.ApplyModifiedPropertiesWithoutUndo();
 
-            var canvas = MakeCanvas();
-            var role = MakeText(canvas, "RoleText", "Rol: -", 80, new Vector2(0, 470), new Vector2(700, 110), TextAnchor.MiddleCenter);
-            var info = MakeText(canvas, "InfoText", "", 34, new Vector2(0, 385), new Vector2(1300, 90), TextAnchor.UpperCenter);
+            var root = MakeCanvas();
+            var canvas = MakeSafeArea(root);
+            var TL = new Vector2(0f, 1f); var TC = new Vector2(0.5f, 1f); var TR = new Vector2(1f, 1f);
+            var role = MakeText(canvas, "RoleText", "Rol: -", 80, Vector2.zero, new Vector2(700, 110), TextAnchor.MiddleCenter);
+            Corner(role, TC, TC, new Vector2(0, -40));
+            var info = MakeText(canvas, "InfoText", "", 34, Vector2.zero, new Vector2(1300, 90), TextAnchor.UpperCenter);
+            Corner(info, TC, TC, new Vector2(0, -150));
 
             var dots = new Image[2];
             var labels = new Text[2];
             for (int i = 0; i < 2; i++)
             {
-                float y = 410 - i * 65;
-                var dot = MakeImage(canvas, "SpeakDot" + (i == 0 ? "A" : "B"), new Vector2(-900, y), new Vector2(44, 44));
+                float y = -110 - i * 65;
+                var dot = MakeImage(canvas, "SpeakDot" + (i == 0 ? "A" : "B"), Vector2.zero, new Vector2(44, 44));
+                Corner(dot, TL, TL, new Vector2(60, y - 8));
                 dots[i] = dot;
-                labels[i] = MakeText(canvas, "SpeakLabel" + (i == 0 ? "A" : "B"), i == 0 ? "A" : "B", 38, new Vector2(-690, y), new Vector2(380, 60), TextAnchor.MiddleLeft);
+                labels[i] = MakeText(canvas, "SpeakLabel" + (i == 0 ? "A" : "B"), i == 0 ? "A" : "B", 38, Vector2.zero, new Vector2(380, 60), TextAnchor.MiddleLeft);
+                Corner(labels[i], TL, TL, new Vector2(120, y));
             }
             // Bakış alanı: ekranın sağ yarısı (arkada), sanal joystick sol altta, Çık butonu en üstte.
             var lookGo = new GameObject("LookPad", typeof(RectTransform));
             var lrt = lookGo.GetComponent<RectTransform>();
-            lrt.SetParent(canvas, false);
+            lrt.SetParent(root, false); // safe area dışına da dokunuşu yakalasın
             lrt.anchorMin = new Vector2(0.5f, 0f); lrt.anchorMax = new Vector2(1f, 1f);
             lrt.offsetMin = lrt.offsetMax = Vector2.zero;
             lookGo.AddComponent<Image>().color = new Color(0, 0, 0, 0);
             lookGo.AddComponent<LookPad>();
             lookGo.transform.SetAsFirstSibling();
 
-            var stickBg = MakeImage(canvas, "Joystick", new Vector2(-690, -290), new Vector2(340, 340));
+            var stickBg = MakeImage(canvas, "Joystick", Vector2.zero, new Vector2(340, 340));
+            Corner(stickBg, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(240, 240)); // sol alt, 70 px kenar boşluğu
             stickBg.color = new Color(1, 1, 1, 0.15f);
             var handle = MakeImage(stickBg.rectTransform, "Handle", Vector2.zero, new Vector2(140, 140));
             handle.color = new Color(1, 1, 1, 0.45f);
@@ -297,15 +305,18 @@ namespace CoopGame.EditorTools
             SetRef(jso, "handle", handle.rectTransform);
             jso.ApplyModifiedPropertiesWithoutUndo();
 
-            var perfText = MakeText(canvas, "PerfText", "FPS -", 34, new Vector2(-700, 495), new Vector2(480, 50), TextAnchor.MiddleLeft);
+            var perfText = MakeText(canvas, "PerfText", "FPS -", 34, Vector2.zero, new Vector2(480, 50), TextAnchor.MiddleLeft);
+            Corner(perfText, TL, TL, new Vector2(60, -40));
             perfText.raycastTarget = false;
             var perf = new GameObject("PerfHud").AddComponent<PerfHud>();
             var pso = new SerializedObject(perf);
             SetRef(pso, "label", perfText);
             pso.ApplyModifiedPropertiesWithoutUndo();
 
-            var leave = MakeButton(canvas, "LeaveButton", "Çık", new Vector2(820, 490), new Vector2(200, 80));
-            var camBtn = MakeButton(canvas, "CameraButton", "Kamera", new Vector2(820, 395), new Vector2(200, 80));
+            var leave = MakeButton(canvas, "LeaveButton", "Çık", Vector2.zero, new Vector2(200, 80));
+            Corner(leave.targetGraphic, TR, TR, new Vector2(-60, -40));
+            var camBtn = MakeButton(canvas, "CameraButton", "Kamera", Vector2.zero, new Vector2(200, 80));
+            Corner(camBtn.targetGraphic, TR, TR, new Vector2(-60, -135));
             var camToggle = new GameObject("CameraToggle").AddComponent<CameraToggle>();
             var cto = new SerializedObject(camToggle);
             SetRef(cto, "button", camBtn);
@@ -351,12 +362,33 @@ namespace CoopGame.EditorTools
             var scaler = go.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.matchWidthOrHeight = 1f; // yatayda yükseklik sabit (1080): geniş ekranda üst HUD kırpılmaz
             go.AddComponent<GraphicRaycaster>();
             var es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();
             es.AddComponent<StandaloneInputModule>();
             return go.GetComponent<RectTransform>();
+        }
+
+        /// <summary>Tüm HUD/Lobby UI'ının altına konduğu panel; anchor'ları Screen.safeArea'ya göre çalışma anında güncellenir.</summary>
+        static RectTransform MakeSafeArea(RectTransform canvas)
+        {
+            var go = new GameObject("SafeArea", typeof(RectTransform));
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(canvas, false);
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            go.AddComponent<SafeAreaPanel>();
+            return rt;
+        }
+
+        /// <summary>Öğeyi bir köşeye/kenara bağlar (pivot sabitlenir): safe area daralınca öğe içeride kalır.</summary>
+        static void Corner(Graphic g, Vector2 anchor, Vector2 pivot, Vector2 pos)
+        {
+            var rt = g.rectTransform;
+            rt.anchorMin = rt.anchorMax = anchor;
+            rt.pivot = pivot;
+            rt.anchoredPosition = pos;
         }
 
         static Font UiFont => Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -443,6 +475,7 @@ namespace CoopGame.EditorTools
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+            PlayerSettings.Android.renderOutsideSafeArea = false; // içerik çentik/kavisli kenar altına taşmasın
         }
 
         [MenuItem("CoopGame/Build Android (Development)")]
