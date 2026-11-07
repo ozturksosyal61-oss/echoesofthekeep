@@ -7,7 +7,7 @@ namespace CoopGame
     /// <summary>Game sahnesi: host her oyuncu için avatar spawn eder; oturum kapanınca Lobby'ye döner.</summary>
     public class GameSession : SimulationBehaviour, IPlayerJoined, IPlayerLeft
     {
-        [SerializeField] NetworkObject avatarPrefab;
+        [SerializeField] GameObject avatarPrefab;
 
         readonly Dictionary<PlayerRef, NetworkObject> avatars = new Dictionary<PlayerRef, NetworkObject>();
         NetworkRunner session;
@@ -36,7 +36,7 @@ namespace CoopGame
             if (avatars.ContainsKey(player)) return;
             int role = Roles.Index(session, player);
             var pos = new Vector3(role == 0 ? -2f : 2f, 1f, 0f);
-            avatars[player] = session.Spawn(avatarPrefab, pos, Quaternion.identity, player);
+            avatars[player] = session.Spawn(avatarPrefab.GetComponent<NetworkObject>(), pos, Quaternion.identity, player);
         }
 
         public void PlayerJoined(PlayerRef player)

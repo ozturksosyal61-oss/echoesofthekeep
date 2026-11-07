@@ -34,7 +34,7 @@ namespace CoopGame.EditorTools
             avatar = AssetDatabase.LoadAssetAtPath<GameObject>(AvatarPath);
 
             CreateLobbyScene();
-            CreateGameScene(avatar.GetComponent<NetworkObject>());
+            CreateGameScene(avatar);
 
             EditorBuildSettings.scenes = new[]
             {
@@ -130,7 +130,7 @@ namespace CoopGame.EditorTools
             EditorSceneManager.SaveScene(scene, LobbyPath);
         }
 
-        static void CreateGameScene(NetworkObject avatarPrefab)
+        static void CreateGameScene(GameObject avatarPrefab)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
