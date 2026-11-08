@@ -11,6 +11,8 @@ namespace CoopGame
 
         float acc;
         int frames;
+        float fpsSum, nextLog;
+        int fpsN;
 
         void Update()
         {
@@ -34,7 +36,16 @@ namespace CoopGame
                 if (best >= 0) ping = Mathf.RoundToInt((float)(best * 1000.0)) + " ms";
                 else if (r.IsServer) ping = "host";
             }
-            label.text = "FPS " + Mathf.RoundToInt(fps) + "   Ping " + ping;
+            string rp = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline != null ? "URP" : "BIRP";
+            label.text = "FPS " + Mathf.RoundToInt(fps) + "   Ping " + ping + "   " + rp;
+
+            fpsSum += fps; fpsN++;
+            if (Time.unscaledTime >= nextLog)
+            {
+                nextLog = Time.unscaledTime + 5f;
+                Debug.Log("[Perf] " + rp + " FPS ort=" + (fpsSum / fpsN).ToString("F1") + " anlık=" + fps.ToString("F0") + " ping=" + ping);
+                fpsSum = 0f; fpsN = 0;
+            }
         }
     }
 }

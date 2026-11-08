@@ -8,6 +8,8 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace CoopGame.EditorTools
@@ -28,6 +30,8 @@ namespace CoopGame.EditorTools
             Directory.CreateDirectory("Assets/Prefabs");
             Directory.CreateDirectory("Assets/Resources");
             Directory.CreateDirectory("Assets/Scenes");
+
+            SetupUrp(); // önce pipeline: materyaller URP/Lit ile üretilsin
 
             var avatar = CreateAvatarPrefab();
             CreateRunnerPrefab();
@@ -86,16 +90,80 @@ namespace CoopGame.EditorTools
 
         // ---------- Dünya: iki kapalı oda (primitifler) ----------
 
+        // ---------- URP (mobil) ----------
+
+        const string UrpAssetPath = "Assets/Settings/URP-Mobile.asset";
+        const string UrpRendererPath = "Assets/Settings/URP-Mobile-Renderer.asset";
+
+        static void SetInt(SerializedObject so, string name, int v)
+        {
+            var p = so.FindProperty(name);
+            if (p == null) Debug.LogError("[CoopSetup] URP alanı yok: " + name); else p.intValue = v;
+        }
+        static void SetFlt(SerializedObject so, string name, float v)
+        {
+            var p = so.FindProperty(name);
+            if (p == null) Debug.LogError("[CoopSetup] URP alanı yok: " + name); else p.floatValue = v;
+        }
+        static void SetB(SerializedObject so, string name, bool v)
+        {
+            var p = so.FindProperty(name);
+            if (p == null) Debug.LogError("[CoopSetup] URP alanı yok: " + name); else p.boolValue = v;
+        }
+
+        /// <summary>Mobil URP asset + renderer: tek ana ışık (gölgeli, kısa mesafe), az sayıda per-pixel ek ışık, MSAA 2x, HDR/derinlik/opak doku kapalı.</summary>
+        static void SetupUrp()
+        {
+            Directory.CreateDirectory("Assets/Settings");
+            var asset = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(UrpAssetPath);
+            if (asset == null)
+            {
+                var rd = ScriptableObject.CreateInstance<UniversalRendererData>();
+                AssetDatabase.CreateAsset(rd, UrpRendererPath);
+                asset = UniversalRenderPipelineAsset.Create(rd);
+                AssetDatabase.CreateAsset(asset, UrpAssetPath);
+            }
+
+            var so = new SerializedObject(asset);
+            SetB(so, "m_SupportsHDR", false);
+            SetInt(so, "m_MSAA", 2);                          // MsaaQuality._2x
+            SetFlt(so, "m_RenderScale", 1f);
+            SetInt(so, "m_MainLightRenderingMode", 1);        // PerPixel (tek ana ışık)
+            SetB(so, "m_MainLightShadowsSupported", true);
+            SetInt(so, "m_MainLightShadowmapResolution", 1024);
+            SetFlt(so, "m_ShadowDistance", 25f);              // kısa gölge mesafesi
+            SetInt(so, "m_ShadowCascadeCount", 1);
+            SetB(so, "m_SoftShadowsSupported", false);
+            SetInt(so, "m_AdditionalLightsRenderingMode", 1); // PerPixel: oda/lamba noktasal ışıkları için
+            SetInt(so, "m_AdditionalLightsPerObjectLimit", 4);
+            SetB(so, "m_AdditionalLightShadowsSupported", false);
+            SetB(so, "m_RequireDepthTexture", false);
+            SetB(so, "m_RequireOpaqueTexture", false);
+            SetB(so, "m_UseSRPBatcher", true);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(asset);
+
+            // Graphics + tüm kalite seviyeleri
+            GraphicsSettings.defaultRenderPipeline = asset;
+            int current = QualitySettings.GetQualityLevel();
+            for (int i = 0; i < QualitySettings.names.Length; i++)
+            {
+                QualitySettings.SetQualityLevel(i, false);
+                QualitySettings.renderPipeline = asset;
+            }
+            QualitySettings.SetQualityLevel(current, false);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[CoopSetup] URP atandı: " + UrpAssetPath + " (kalite seviyesi: " + QualitySettings.names.Length + ")");
+        }
+
         static Material MakeMat(string name, Color color)
         {
             Directory.CreateDirectory("Assets/Materials");
             string path = "Assets/Materials/" + name + ".mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing != null) AssetDatabase.DeleteAsset(path);
-            // Aktif pipeline'ın varsayılan shader'ı (primitiflerin materyalinden)
-            var probe = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            var shader = probe.GetComponent<Renderer>().sharedMaterial.shader;
-            Object.DestroyImmediate(probe);
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null) throw new System.Exception("URP/Lit shader bulunamadı (URP paketi yüklü mü?)");
             var m = new Material(shader) { color = color };
             AssetDatabase.CreateAsset(m, path);
             return m;
@@ -128,7 +196,7 @@ namespace CoopGame.EditorTools
             var roomLight = new GameObject("RoomLight").AddComponent<Light>();
             roomLight.transform.SetParent(root, false);
             roomLight.transform.localPosition = new Vector3(0, 3.5f, 0);
-            roomLight.type = LightType.Point; roomLight.range = 22f; roomLight.intensity = 0.8f;
+            roomLight.type = LightType.Point; roomLight.range = 22f; roomLight.intensity = 3f;
 
             if (!withAlcove)
             {
@@ -148,7 +216,7 @@ namespace CoopGame.EditorTools
             var alcoveLight = new GameObject("AlcoveLight").AddComponent<Light>();
             alcoveLight.transform.SetParent(root, false);
             alcoveLight.transform.localPosition = new Vector3(0, 3.5f, 10.6f);
-            alcoveLight.type = LightType.Point; alcoveLight.range = 12f; alcoveLight.intensity = 0.6f;
+            alcoveLight.type = LightType.Point; alcoveLight.range = 12f; alcoveLight.intensity = 3f;
             return root;
         }
 
@@ -181,7 +249,7 @@ namespace CoopGame.EditorTools
             lamp.GetComponent<Renderer>().sharedMaterial = MakeMat("LampMat", new Color(0.2f, 0.2f, 0.2f));
             var lampLight = new GameObject("LampLight").AddComponent<Light>();
             lampLight.transform.SetParent(lamp.transform, false);
-            lampLight.type = LightType.Point; lampLight.range = 18f; lampLight.intensity = 3f;
+            lampLight.type = LightType.Point; lampLight.range = 18f; lampLight.intensity = 8f;
             lampLight.color = new Color(1f, 0.9f, 0.6f);
             lampLight.enabled = false;
             MakeButtonProp("DoorButton", roomA, new Vector3(-5f, 0.6f, -6f), new Color(0.85f, 0.15f, 0.15f), InteractId.DoorButton, "Kapıyı aç/kapat");
@@ -207,6 +275,7 @@ namespace CoopGame.EditorTools
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
             Object.DestroyImmediate(go.GetComponent<Collider>()); // çarpışmayı yalnızca CharacterController yapar
+            go.GetComponent<Renderer>().sharedMaterial = avatarMat;
             go.transform.SetParent(parent, false);
             go.transform.localPosition = pos;
             go.transform.localScale = scale;
@@ -221,8 +290,11 @@ namespace CoopGame.EditorTools
             return go.transform;
         }
 
+        static Material avatarMat;
+
         static void BuildModel(Transform root)
         {
+            avatarMat = MakeMat("AvatarMat", Color.white); // URP/Lit; çalışma anında rol rengine boyanır
             var model = new GameObject("Model").transform;
             model.SetParent(root, false);
             Part(model, "Body", PrimitiveType.Cube, new Vector3(0, 1.15f, 0), new Vector3(0.6f, 0.7f, 0.35f));
@@ -301,7 +373,8 @@ namespace CoopGame.EditorTools
             vc.UseFusionAppSettings = true;                 // Voice AppId: PhotonAppSettings.AppIdVoice
             vc.UseFusionAuthValues = true;
             var so = new SerializedObject(vc);
-            SetBool(so, "usePrimaryRecorder", true);
+            // false: true olursa FusionVoiceClient Recorder'ı katılımda, VoiceNetworkObject da spawn'da ekler ("already added").
+            SetBool(so, "usePrimaryRecorder", false);
             SetRef(so, "primaryRecorder", rec);
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -365,7 +438,8 @@ namespace CoopGame.EditorTools
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.45f, 0.45f, 0.45f);
-            light.intensity = 0.5f;
+            light.intensity = 1f;
+            light.shadows = LightShadows.Hard; // tek ana ışık, sert gölge (mobil için hafif)
 
             BuildWorld();
 
