@@ -19,7 +19,7 @@ namespace CoopGame
         static void Bar(Transform parent, Vector2 p, Vector2 q, float w, float depth, Material mat)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Object.Destroy(go.GetComponent<Collider>());
+            if (Application.isPlaying) Object.Destroy(go.GetComponent<Collider>()); else Object.DestroyImmediate(go.GetComponent<Collider>());
             go.name = "Bar";
             var t = go.transform;
             t.SetParent(parent, false);

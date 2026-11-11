@@ -857,67 +857,8 @@ namespace CoopGame.EditorTools
             var up = dso.FindProperty("unlocks"); up.arraySize = 1; up.GetArrayElementAtIndex(0).intValue = 3;
             dso.ApplyModifiedPropertiesWithoutUndo();
 
-            // ---- Oda B: kasa odasının batısında geçit + karanlık mahzen (iç: x -15.25..-24.75, z -5..5) ----
-            const float h = 3.2f;
-            var wall = A.dungeonWall;
-            Deck(roomO, "CryptCorridorFloor", new Vector3(-13.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
-            Deck(roomO, "CryptCorridorCeil", new Vector3(-13.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomO, "CryptCorridorN", new Vector3(-13.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
-            Wall(roomO, "CryptCorridorS", new Vector3(-13.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
-            Deck(roomO, "CryptFloor", new Vector3(-20f, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.dungeonFloor, 2, 2);
-            Deck(roomO, "CryptCeil", new Vector3(-20f, h + 0.25f, 0), 10.5f, 10.5f, 0.5f, A.dungeonCeil, 2, 2);
-            var arch = new Opening(0f, 3f, 0f, 3f);
-            Wall(roomO, "CryptWallE", new Vector3(-15f, 0, 0), false, 10.5f, h, wall, 3f, arch);
-            Wall(roomO, "CryptWallW", new Vector3(-25f, 0, 0), false, 10.5f, h, wall, 3f, arch);
-            Wall(roomO, "CryptWallN", new Vector3(-20f, 0, 5.25f), true, 10.5f, h, wall, 3f);
-            Wall(roomO, "CryptWallS", new Vector3(-20f, 0, -5.25f), true, 10.5f, h, wall, 3f);
-            // Batı nişi (bulmaca 3 geçidi olacak)
-            Deck(roomO, "NicheFloor", new Vector3(-26.4f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.flagstone, 1, 1);
-            Deck(roomO, "NicheCeil", new Vector3(-26.4f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomO, "NicheW", new Vector3(-27.5f, 0, 0), false, 3.5f, 3f, wall, 3f, new Opening(0f, 3f, 0f, 3f)); // sarnıç geçidi (bulmaca 3)
-            Wall(roomO, "NicheN", new Vector3(-26.4f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
-            Wall(roomO, "NicheS", new Vector3(-26.4f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
-
-            var gate = MakeDoor("CryptGate", roomO, new Vector3(-15f, 1.5f, 0), false, A.iron);
-            var rewardGate = MakeDoor("CryptRewardGate", roomO, new Vector3(-25f, 1.5f, 0), false, A.iron);
-
-            // Lahitler: kuzeyde 3, güneyde 3. Kapakta sembol (orta) ve rakam (ayak ucu, koridor tarafı); ayak ucundan düz okunur.
-            var syms = new Transform[6];
-            var nums = new Transform[6];
-            float[] xs = { -17.3f, -20f, -22.7f };
-            for (int i = 0; i < 6; i++)
-            {
-                bool north = i < 3;
-                float zc = north ? 3.9f : -3.9f, toward = north ? -1f : 1f;
-                var c = new GameObject("Coffin" + i).transform;
-                c.SetParent(roomO, false);
-                c.localPosition = new Vector3(xs[i % 3], 0, zc);
-                Slab("Body", c, new Vector3(0, 0.35f, 0), new Vector3(1.0f, 0.7f, 2.0f), A.flagstone, 1.2f);
-                Slab("Lid", c, new Vector3(0, 0.76f, 0), new Vector3(1.15f, 0.12f, 2.15f), A.plaque, 1.2f, false);
-                var rot = Quaternion.Euler(90, north ? 0 : 180, 0);
-                syms[i] = new GameObject("Symbol").transform;
-                syms[i].SetParent(c, false);
-                syms[i].localPosition = new Vector3(0, 0.825f, -toward * 0.15f);
-                syms[i].localRotation = rot;
-                nums[i] = new GameObject("Numeral").transform;
-                nums[i].SetParent(c, false);
-                nums[i].localPosition = new Vector3(0, 0.825f, toward * 0.68f);
-                nums[i].localRotation = rot;
-            }
-
-            // Mangallar: kaseler hep var; alev + ışık yalnızca çözülünce
-            var lit = new GameObject("CryptLit").transform;
-            lit.SetParent(roomO, false);
-            foreach (var p in new[] { new Vector3(-24f, 0, 4.2f), new Vector3(-24f, 0, -4.2f) })
-            {
-                Slab("BrazierStand", roomO, p + new Vector3(0, 0.45f, 0), new Vector3(0.18f, 0.9f, 0.18f), A.iron, 1f, false);
-                Prim("BrazierBowl", roomO, PrimitiveType.Cylinder, p + new Vector3(0, 0.95f, 0), new Vector3(0.6f, 0.1f, 0.6f), A.iron);
-                var f = Prim("BrazierFlame", lit, PrimitiveType.Sphere, p + new Vector3(0, 1.2f, 0), new Vector3(0.38f, 0.5f, 0.38f), A.flame);
-                f.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-                PointLight(lit, "BrazierLight", p + new Vector3(0.6f, 1.8f, p.z > 0 ? -0.6f : 0.6f), TorchColor, 6f, 10f);
-            }
-            PointLight(lit, "NicheLight", new Vector3(-26f, 2.2f, 0), new Color(0.75f, 0.85f, 1f), 3f, 4f);
-            lit.gameObject.SetActive(false);
+            // ---- Oda O: kasa odasının batısında geçit + karanlık şarap mahzeni (CoopSetup.Cellar.cs) ----
+            BuildCellar(roomO, out var gate, out var rewardGate, out var syms, out var nums, out var litGo);
 
             var respawn = new GameObject("CryptRespawn").transform;
             respawn.SetParent(roomO, false);
@@ -964,12 +905,12 @@ namespace CoopGame.EditorTools
             SetRefArray(vso, "coffinSymbols", syms);
             SetRefArray(vso, "coffinNumerals", nums);
             SetRefArray(vso, "inscription", ins);
-            SetRef(vso, "carveMat", A.brass);
+            SetRef(vso, "carveMat", K.brass);
             SetRef(vso, "inscriptionMat", A.gold);
             SetRefArray(vso, "candleFlames", flames);
             SetRef(vso, "gate", gate);
             SetRef(vso, "rewardGate", rewardGate);
-            SetRefArray(vso, "solvedOn", new Object[] { lit.gameObject });
+            SetRefArray(vso, "solvedOn", new Object[] { litGo });
             vso.ApplyModifiedPropertiesWithoutUndo();
         }
 

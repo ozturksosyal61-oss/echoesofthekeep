@@ -12,7 +12,7 @@ Token tasarrufu: oda başına 1–2 ekran görüntüsü oku; her faz ayrı oturu
 - Faz 4: mekanizma odası (CoopSetup.Tower.cs; kol görseli MakeLever). Baked, 2 fener realtime. Ekran görüntüleri Docs/Shots/faz4. OYNANARAK TEST EDİLMEDİ: çözülünce dönen dişliler (PuzzleSpin), O odasındaki freskte yassı semboller (çalışma anında kopyalanır, ekran görüntüsünde yok).
 
 ## Faz 5 – Mahzen ve sarnıç (sıradaki)
-- Mahzen: ref Docs/Reference/mahzen.png; sembol paneli = bulmaca 2 duvarı. Tonoz tuğla (K.cellarBrick), ıslak zemin (K.cellarFloor), fıçı istifleri, şarap rafı + şişeler, fenerler, masa + bordo örtü + mum + kadeh, amfora, ızgara. Ekran görüntüsü + ONAY.
+- Mahzen: KODLANDI, kullanıcı ONAYI bekliyor (CoopSetup.Cellar.cs, ekran görüntüleri Docs/Shots/faz5/o_cellar*.png). Lahitler kalktı: bulmaca 2'nin 6 sembol + rakamı batı duvarındaki panelde (CryptVisuals alanları aynı). Oda bulmaca gereği karanlık → bake DIŞI; alevler + 2 realtime ışık + ağlar "CellarLit" altında, çözülünce açılır (Shots bu grubu açıp örnek sembol çizer). OYNANARAK TEST EDİLMEDİ (kibritle panel okunabilirliği).
 - Sarnıç: referans görsel YOK → önce kullanıcıya Gemini prompt'u yaz (sonuna "no text"), görsel gelene kadar bekle; sonra tasarla. Ekran görüntüsü + ONAY.
 - O rolü şu an Layout.Spawn(Roles.O) = zindan başlangıcına ışınlanıyor; kullanıcı "O → aşağı mahzen" dedi, mahzen yenilenince başlangıcı gözden geçir.
 
@@ -38,3 +38,5 @@ Unity kapalıyken (kullanıcıya sor):
 - Eski odalarla aynı sahnede baked oda: KeepBaked(root) ile ExcludeFromBake'ten muaf tut; ince parçalı tavanın üstüne tek parça "Roof" koy (ay ışığı derzlerden sızıyor).
 - -shotDir olarak proje Temp/ klasörünü verme (Unity çıkışta siler).
 - Bash heredoc içinde uzun Python yaması bozulabiliyor: yamayı dosyaya yazıp çalıştır.
+- Kit şişe modeli 6-8 bin üçgen: toplu kullanımda (raf) torna ağ kullan (Cellar "kit_rackbottle"). Küçük kit dekoru LODGroup ile ~3 m ötede kırpılır.
+- Işıksız (unlit) malzemeler (K.cobweb, K.flame, K.lanternGlass) karanlık odada parlar: karanlık bulmaca odasında çözülünce açılan gruba koy.

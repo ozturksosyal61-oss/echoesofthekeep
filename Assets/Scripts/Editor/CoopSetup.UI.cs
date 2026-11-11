@@ -600,7 +600,25 @@ namespace CoopGame.EditorTools
             Shot(dir + "/x_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
             Shot(dir + "/x_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
             Shot(dir + "/o_cistern.png", b + new Vector3(-31.5f, 1.72f, 1f), b + new Vector3(-41.5f, 1.3f, -1f), false);
-            Shot(dir + "/o_crypt.png", b + new Vector3(-16.2f, 1.72f, 0.5f), b + new Vector3(-21f, 0.6f, 2.5f), false);
+            {   // Mahzen: çözülmüş hali (ışıklar açık) + örnek semboller; sahne kaydedilmez
+                var ro = GameObject.Find("RoomB_Sarnic");
+                var cl = ro != null ? ro.transform.Find("CellarLit") : null;
+                if (cl != null) cl.gameObject.SetActive(true);
+                var cv = Object.FindFirstObjectByType<CryptVisuals>();
+                if (cv != null)
+                {
+                    var so = new SerializedObject(cv);
+                    var mat = so.FindProperty("carveMat").objectReferenceValue as Material;
+                    var st = CryptPuzzle.Make(12345);
+                    for (int i = 0; i < CryptPuzzle.Coffins; i++)
+                    {
+                        Glyphs.Symbol((Transform)so.FindProperty("coffinSymbols").GetArrayElementAtIndex(i).objectReferenceValue, st.coffinSymbol[i], mat, 0.5f);
+                        Glyphs.Numeral((Transform)so.FindProperty("coffinNumerals").GetArrayElementAtIndex(i).objectReferenceValue, st.coffinNumeral[i], mat, 0.32f);
+                    }
+                }
+                Shot(dir + "/o_cellar.png", b + new Vector3(-15.9f, 1.72f, -0.9f), b + new Vector3(-24.75f, 1.55f, 1.6f), false);
+                Shot(dir + "/o_cellar_back.png", b + new Vector3(-23.6f, 1.72f, 2.2f), b + new Vector3(-16.5f, 0.9f, -3.2f), false);
+            }
             Shot(dir + "/x_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
             Debug.Log("[CoopSetup] Shots -> " + Path.GetFullPath(dir));
         }
