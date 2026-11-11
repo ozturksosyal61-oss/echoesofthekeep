@@ -599,7 +599,14 @@ namespace CoopGame.EditorTools
             Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
             Shot(dir + "/x_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
             Shot(dir + "/x_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
-            Shot(dir + "/o_cistern.png", b + new Vector3(-31.5f, 1.72f, 1f), b + new Vector3(-41.5f, 1.3f, -1f), false);
+            foreach (var cv in Object.FindObjectsByType<CisternValve>(FindObjectsInactive.Exclude))
+            {   // Sarnıç: örnek vana sembolleri; sahne kaydedilmez
+                var so = new SerializedObject(cv);
+                var an = so.FindProperty("symbolAnchor").objectReferenceValue as Transform;
+                if (an != null) Glyphs.Symbol(an, so.FindProperty("valveIndex").intValue, so.FindProperty("symbolMat").objectReferenceValue as Material, 0.5f);
+            }
+            Shot(dir + "/o_cistern.png", b + new Vector3(-30.9f, 1.72f, 0.7f), b + new Vector3(-41.7f, 1.45f, -0.6f), false);
+            Shot(dir + "/o_cistern_back.png", b + new Vector3(-40.4f, 1.72f, 3.2f), b + new Vector3(-31.5f, 0.9f, -4.4f), false);
             {   // Mahzen: çözülmüş hali (ışıklar açık) + örnek semboller; sahne kaydedilmez
                 var ro = GameObject.Find("RoomB_Sarnic");
                 var cl = ro != null ? ro.transform.Find("CellarLit") : null;

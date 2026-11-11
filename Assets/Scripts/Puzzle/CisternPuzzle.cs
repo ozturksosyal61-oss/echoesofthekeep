@@ -20,7 +20,8 @@ namespace CoopGame
         public static readonly string[] ColorNames = { "Kırmızı", "Mavi", "Yeşil", "Sarı" };
         public static readonly Color[] Colors =
         {
-            new Color(0.85f, 0.14f, 0.1f), new Color(0.15f, 0.32f, 0.95f), new Color(0.15f, 0.72f, 0.22f), new Color(0.95f, 0.8f, 0.12f),
+            // Docs/StyleGuide.md bulmaca paleti (kırmızı, mavi, yeşil, sarı)
+            new Color(0.66f, 0.2f, 0.17f), new Color(0.18f, 0.37f, 0.62f), new Color(0.25f, 0.49f, 0.27f), new Color(0.79f, 0.64f, 0.15f),
         };
         static readonly int[] BaseAmounts = { 3, 2, -1, -2 };
 

@@ -957,44 +957,6 @@ namespace CoopGame.EditorTools
             return tm;
         }
 
-        static CisternValve MakeValve(Transform parent, int index, Vector3 pos, CisternPuzzle cistern)
-        {
-            var root = new GameObject("Valve" + index).transform;
-            root.SetParent(parent, false);
-            root.localPosition = pos;
-            root.localRotation = Quaternion.Euler(0, -90, 0); // yüz (-Z) doğuya
-            Slab("Plate", root, new Vector3(0, 1.3f, 0.05f), new Vector3(0.95f, 0.95f, 0.1f), A.iron, 1f).isStatic = false;
-            var pipeMat = MakeMat("ValvePipe" + index, Color.gray);
-            var pipes = new[]
-            {
-                Prim("PipeUp", root, PrimitiveType.Cylinder, new Vector3(0, 2.75f, -0.08f), new Vector3(0.17f, 1.25f, 0.17f), pipeMat).GetComponent<Renderer>(),
-                Prim("PipeDown", root, PrimitiveType.Cylinder, new Vector3(0, 0.55f, -0.08f), new Vector3(0.17f, 0.55f, 0.17f), pipeMat).GetComponent<Renderer>(),
-            };
-            var wheel = MeshObj("Wheel", root, new Vector3(0, 1.3f, -0.2f), GearMesh(10, 0.4f, 0.05f, 0.3f, 0.06f), A.bronze).transform;
-            Slab("SpokeA", wheel, Vector3.zero, new Vector3(0.66f, 0.06f, 0.05f), A.bronze, 1f, false).isStatic = false;
-            Slab("SpokeB", wheel, Vector3.zero, new Vector3(0.06f, 0.66f, 0.05f), A.bronze, 1f, false).isStatic = false;
-            Prim("Hub", wheel, PrimitiveType.Sphere, Vector3.zero, Vector3.one * 0.14f, A.brass);
-            Slab("SymbolPlate", root, new Vector3(0.78f, 2.2f, 0.02f), new Vector3(0.62f, 0.62f, 0.06f), A.plaque, 1f, false);
-            var anchor = new GameObject("Symbol").transform;
-            anchor.SetParent(root, false);
-            anchor.localPosition = new Vector3(0.78f, 2.2f, -0.02f);
-
-            var it = root.gameObject.AddComponent<Interactable>();
-            it.Label = "Vanayı çevir";
-            var v = root.gameObject.AddComponent<CisternValve>();
-            var so = new SerializedObject(v);
-            so.FindProperty("puzzleId").intValue = 3;
-            so.FindProperty("nodeId").intValue = 27 + index;
-            so.FindProperty("valveIndex").intValue = index;
-            SetRef(so, "cistern", cistern);
-            SetRef(so, "wheel", wheel);
-            SetRef(so, "symbolAnchor", anchor);
-            SetRefArray(so, "pipe", pipes);
-            SetRef(so, "symbolMat", A.gold);
-            so.ApplyModifiedPropertiesWithoutUndo();
-            return v;
-        }
-
         static void BuildPuzzle3(Transform roomX, Transform roomO)
         {
             var def = new GameObject("Puzzle3").AddComponent<PuzzleDef>();
@@ -1004,53 +966,12 @@ namespace CoopGame.EditorTools
             dso.FindProperty("startsActive").boolValue = false;
             dso.ApplyModifiedPropertiesWithoutUndo();
 
-            var wall = A.dungeonWall;
-            // ---- Oda B: mahzen nişinin batısında geçit + sarnıç (iç: x -30.25..-41.75, z -6..6) ----
-            Deck(roomO, "CisternCorridorFloor", new Vector3(-28.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
-            Deck(roomO, "CisternCorridorCeil", new Vector3(-28.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomO, "CisternCorridorN", new Vector3(-28.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
-            Wall(roomO, "CisternCorridorS", new Vector3(-28.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
-            var gate = MakeDoor("CisternGate", roomO, new Vector3(-28.9f, 1.5f, 0), false, A.iron);
-            const float h = 4f;
-            Deck(roomO, "CisternFloor", new Vector3(-36f, -0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonFloor, 3, 3);
-            Deck(roomO, "CisternCeil", new Vector3(-36f, h + 0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonCeil, 3, 3);
             var arch = new Opening(0f, 3f, 0f, 3f);
-            Wall(roomO, "CisternWallE", new Vector3(-30f, 0, 0), false, 12.5f, h, wall, 3f, arch);
-            Wall(roomO, "CisternWallW", new Vector3(-42f, 0, 0), false, 12.5f, h, wall, 3f);
-            Wall(roomO, "CisternWallN", new Vector3(-36f, 0, 6.25f), true, 12.5f, h, wall, 3f);
-            Wall(roomO, "CisternWallS", new Vector3(-36f, 0, -6.25f), true, 12.5f, h, wall, 3f, arch);
-            // Güney nişi: bulmaca 4 geçidi (şimdilik kapalı oda)
-            Deck(roomO, "CisternNicheFloor", new Vector3(-36f, -0.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.flagstone, 1, 1);
-            Deck(roomO, "CisternNicheCeil", new Vector3(-36f, 3.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomO, "CisternNicheS", new Vector3(-36f, 0, -8.5f), true, 3.5f, 3f, wall, 3f);
-            Wall(roomO, "CisternNicheE", new Vector3(-34.25f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
-            Wall(roomO, "CisternNicheW", new Vector3(-37.75f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
-            var nextGate = MakeDoor("CisternNextGate", roomO, new Vector3(-36f, 1.5f, -6.25f), true, A.iron);
-            foreach (float x in new[] { -33.5f, -38.5f })
-                foreach (float z in new[] { -3f, 3f })
-                {
-                    Slab("CisternPillar", roomO, new Vector3(x, h * 0.5f, z), new Vector3(0.7f, h, 0.7f), A.flagstone, 1.6f);
-                    Slab("CisternPillarCap", roomO, new Vector3(x, h - 0.2f, z), new Vector3(1f, 0.4f, 1f), A.flagstone, 1.6f, false);
-                }
-            // Tavandan inen büyük besleme borusu (suyun geldiği yer)
-            Prim("InflowPipe", roomO, PrimitiveType.Cylinder, new Vector3(-36f, 3.2f, 5.6f), new Vector3(0.5f, 0.8f, 0.5f), A.iron);
-            var water = Slab("CisternWater", roomO, new Vector3(-36f, 0.02f, 0), new Vector3(11.5f, 0.04f, 12f), A.water, 1f, false);
-            water.isStatic = false;
-            water.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-            Torch(roomO, "CisternTorchW1", new Vector3(-41.73f, 2.9f, -3f), Vector3.right, 8f, 10f);
-            Torch(roomO, "CisternTorchW2", new Vector3(-41.73f, 2.9f, 3f), Vector3.right, 8f, 10f);
-            Torch(roomO, "CisternTorchN", new Vector3(-33f, 2.9f, 5.98f), Vector3.back, 7f, 10f);
-            Torch(roomO, "CisternTorchS", new Vector3(-39f, 2.9f, -5.98f), Vector3.forward, 7f, 10f);
-
+            // ---- Oda B: sarnıç (CoopSetup.Cistern.cs) ----
+            BuildCistern(roomO, out var cistern, out var valves, out var gate, out var nextGate, out var water);
             var respawn = new GameObject("CisternRespawn").transform;
             respawn.SetParent(roomO, false);
             respawn.localPosition = new Vector3(-22f, 0.05f, 0);
-
-            var cistern = new GameObject("Puzzle3_Cistern").AddComponent<CisternPuzzle>();
-            cistern.transform.SetParent(roomO, false);
-            cistern.transform.localPosition = new Vector3(-36f, 0, 0);
-            var valves = new CisternValve[4];
-            for (int i = 0; i < 4; i++) valves[i] = MakeValve(roomO, i, new Vector3(-41.65f, 0, -4.5f + i * 3f), cistern);
 
             // ---- Oda A3: Hazne Odası (Saat Odası'nın güneyinden merdivenle; bulmaca 2 çözülünce kapı açılır) ----
             var clock = roomX.Find("RoomA2_SaatOdasi");
