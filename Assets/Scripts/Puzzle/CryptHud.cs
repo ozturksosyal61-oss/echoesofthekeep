@@ -23,6 +23,9 @@ namespace CoopGame
         Color ambient0, fog0; float density0, refl0;
         UnityEngine.Rendering.SphericalHarmonicsL2 probe0;
         bool darkApplied;
+        const float DarkDelay = 3f;
+        float zoneSince = -1f;
+        readonly System.Collections.Generic.List<Light> killed = new System.Collections.Generic.List<Light>();
         Light matchLight;
         Transform matchRoot;
         int seenAttempt = -1;
@@ -66,6 +69,17 @@ namespace CoopGame
             var sh = new UnityEngine.Rendering.SphericalHarmonicsL2();
             sh.AddAmbientLight(DarkAmbient);
             RenderSettings.ambientProbe = on ? sh : probe0;
+            if (on)
+            {
+                killed.Clear();
+                foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+                    if (l.enabled && l != matchLight && l.type != LightType.Directional) { l.enabled = false; killed.Add(l); }
+            }
+            else
+            {
+                foreach (var l in killed) if (l != null) l.enabled = true;
+                killed.Clear();
+            }
         }
 
         void Say(string text, float seconds) { message.text = text; messageUntil = Time.time + seconds; }
@@ -83,7 +97,9 @@ namespace CoopGame
             var st = c.PuzzleState;
             var phase = c.CurrentPhase;
             bool inZone = me != null && c.InZone(me.transform.position) && st != PuzzleState.Solved;
-            SetDark(inZone);
+            // Odaya girince 3 sn sonra komple kararır (tüm ışıklar söner; yalnızca kibrit kalır)
+            if (!inZone) zoneSince = -1f; else if (zoneSince < 0f) zoneSince = Time.time;
+            SetDark(inZone && Time.time - zoneSince >= DarkDelay);
 
             // Deneme / çözüm mesajları (iki tarafta)
             int attempt = c.Attempt;

@@ -224,6 +224,16 @@ namespace CoopGame.EditorTools
                 wmat.SetFloat("_Smoothness", 0.94f);
                 var water = Slab("WellWater", pit, new Vector3(0, -1.3f, (wz0 + wz1) * 0.5f), new Vector3(3.2f, 0.04f, 2f), wmat, 1f, false);
                 water.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+                // Demir ızgara: kuyu görünür kalır, içine düşülmez (görünmez çarpışma kutusu + çubuklar)
+                var lid = Slab("GrateCollider", pit, new Vector3(0, -0.06f, (wz0 + wz1) * 0.5f), new Vector3(3.3f, 0.12f, 2.1f), K.iron, 1f);
+                lid.GetComponent<MeshRenderer>().enabled = false;
+                for (int i = 0; i < 9; i++)
+                {
+                    float x = -wx + 0.18f + i * (2f * wx - 0.36f) / 8f;
+                    Rod("GrateBar", pit, new Vector3(x, -0.05f, wz0), new Vector3(x, -0.05f, wz1), 0.05f, K.iron);
+                }
+                foreach (float z in new[] { wz0 + 0.5f, wz1 - 0.5f })
+                    Rod("GrateRail", pit, new Vector3(-wx, -0.08f, z), new Vector3(wx, -0.08f, z), 0.07f, K.iron);
                 // Bordür
                 const float kh = 0.45f, kt = 0.25f;
                 Slab("KerbN", pit, new Vector3(0, kh * 0.5f, wz1 - kt * 0.5f + 0.25f), new Vector3(3.7f, kh, kt), stone, 1.2f);
