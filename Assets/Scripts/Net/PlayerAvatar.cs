@@ -70,10 +70,10 @@ namespace CoopGame
             smoothSpeed = Mathf.Lerp(smoothSpeed, delta.magnitude / dt, 1f - Mathf.Exp(-12f * dt));
             if (animator != null) animator.SetFloat(SpeedParam, smoothSpeed);
 
-            // Alan kuralı: yalnızca yerel görünürlük. Yerel avatarı FollowCamera yönetir.
+            // Alan kuralı + 1. şahıs: yalnızca yerel görünürlük. Yerel avatarı FollowCamera yönetir.
             if (!IsLocal)
             {
-                bool visible = Local != null && Room == Local.Room;
+                bool visible = Local != null && Room == Local.Room && !FollowCamera.HidingRemotes;
                 if (visible != remoteVisible)
                 {
                     remoteVisible = visible;

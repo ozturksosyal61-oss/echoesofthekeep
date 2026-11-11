@@ -425,7 +425,7 @@ namespace CoopGame.EditorTools
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-            // Üçüncü şahıs takip kamerası (yerel avatarı bulur).
+            // Kamera: varsayılan 1. şahıs, "Kamera" düğmesiyle 3. şahıs (yerel avatarı bulur).
             var cam = MakeCamera(new Vector3(0, 4, -9), new Vector3(0, 0.5f, 0), new Color(0.55f, 0.75f, 0.95f));
             cam.name = "Main Camera";
             cam.gameObject.AddComponent<FollowCamera>();
@@ -506,12 +506,17 @@ namespace CoopGame.EditorTools
             Corner(leave.targetGraphic, TR, TR, new Vector2(-60, -40));
             var camBtn = MakeButton(canvas, "CameraButton", "Kamera", Vector2.zero, new Vector2(200, 80));
             Corner(camBtn.targetGraphic, TR, TR, new Vector2(-60, -135));
-            // Etkileşim düğmesi: yalnızca bir butona yaklaşınca görünür (sağ alt).
+            // Etkileşim düğmesi: 1. şahısta butona bakınca, 3. şahısta yaklaşınca görünür (sağ alt).
             var interactBtn = MakeButton(canvas, "InteractButton", "Etkileş", Vector2.zero, new Vector2(420, 130));
             Corner(interactBtn.targetGraphic, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-80, 90));
+            // Nişangâh: ekran ortası (root'ta, safe area kaymasın). Dokunmayı engellemez; LookPad sürüklemesi geçer.
+            var cross = MakeImage(root, "Crosshair", Vector2.zero, new Vector2(14, 14));
+            cross.color = new Color(1, 1, 1, 0.7f);
+            cross.raycastTarget = false;
             var prompt = new GameObject("InteractPrompt").AddComponent<InteractPrompt>();
             var pro = new SerializedObject(prompt);
             SetRef(pro, "button", interactBtn);
+            SetRef(pro, "crosshair", cross);
             pro.ApplyModifiedPropertiesWithoutUndo();
 
             var camToggle = new GameObject("CameraToggle").AddComponent<CameraToggle>();

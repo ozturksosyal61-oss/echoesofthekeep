@@ -3,21 +3,28 @@ using UnityEngine;
 namespace CoopGame
 {
     /// <summary>
-    /// Kamera: üçüncü şahıs takip ve birinci şahıs (göz hizası). Yalnızca yerel görüntüyü etkiler; ağ senkronuyla ilgisi yok
-    /// (avatarın renderer'ları yalnızca bu cihazda gizlenir, Fusion state'i değişmez).
+    /// Kamera: varsayılan birinci şahıs (kafa hizası), "Kamera" düğmesiyle üçüncü şahıs takip. Yalnızca yerel görüntüyü etkiler;
+    /// ağ senkronuyla ilgisi yok (avatar renderer'ları yalnızca bu cihazda gizlenir, Fusion state'i değişmez).
+    /// 1. şahısta yerel gövde gizlenir; uzak avatarlar da gizlenir (PlayerAvatar.Render, HideRemoteInFirstPerson).
     /// </summary>
     public class FollowCamera : MonoBehaviour
     {
         public static float Yaw;
         public static FollowCamera Instance { get; private set; }
-        public bool FirstPerson { get; private set; }
+        public bool FirstPerson { get; private set; } = true;
+
+        /// <summary>1. şahısta uzak oyuncunun gövdesi de gösterilmez.</summary>
+        public const bool HideRemoteInFirstPerson = false;
+
+        /// <summary>1. şahısta uzak avatarlar gizli mi (PlayerAvatar okur).</summary>
+        public static bool HidingRemotes => Instance != null && Instance.FirstPerson && HideRemoteInFirstPerson;
 
         [SerializeField] float distance = 6f;
         [SerializeField] float height = 1.6f;
-        [SerializeField] float eyeHeight = 1.65f;
+        [SerializeField] float eyeHeight = 1.72f; // kafa küresinin merkezi 1.75
         [SerializeField] float sensitivity = 0.15f;
 
-        float pitch = 25f;
+        float pitch;
         PlayerAvatar target;
         Renderer[] targetRenderers;
 
