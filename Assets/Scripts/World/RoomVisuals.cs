@@ -2,23 +2,19 @@ using UnityEngine;
 
 namespace CoopGame
 {
-    /// <summary>RoomState'i yerel sahne nesnelerine uygular: lamba (ışık + parlama) ve kapı (konum + collider). Sahne tarafı, ağ kodu içermez.</summary>
+    /// <summary>RoomState'i yerel sahne nesnelerine uygular: lamba (ışık + parlama) ve kapı (LiftDoor). Sahne tarafı, ağ kodu içermez.</summary>
     public class RoomVisuals : MonoBehaviour
     {
         [SerializeField] Light lampLight;
         [SerializeField] Renderer lampRenderer;
-        [SerializeField] Transform door;
-        [SerializeField] Collider doorCollider;
-        [SerializeField] float doorLift = 3.2f;
+        [SerializeField] LiftDoor door;
 
-        Vector3 doorClosedPos;
         Material lampMat;
         bool hasLast, lastLamp, lastOpen;
         RoomState lastState;
 
         void Awake()
         {
-            doorClosedPos = door.position;
             lampMat = lampRenderer.material;
             lampMat.EnableKeyword("_EMISSION");
         }
@@ -33,7 +29,7 @@ namespace CoopGame
             if (!hasLast || s != lastState || lamp != lastLamp || open != lastOpen)
             {
                 Dbg.Interact("(4b) RoomVisuals: state=" + (s != null ? "var" : "YOK") + " lamba=" + lamp + " kapı=" + open +
-                             " (lampLight.enabled→" + lamp + ", doorCollider.enabled→" + !open + ")");
+                             " (lampLight.enabled→" + lamp + ", door.Open→" + open + ")");
                 hasLast = true; lastState = s; lastLamp = lamp; lastOpen = open;
             }
 
@@ -42,9 +38,7 @@ namespace CoopGame
             lampMat.color = glow;
             lampMat.SetColor("_EmissionColor", lamp ? glow * 2f : Color.black);
 
-            var target = doorClosedPos + (open ? Vector3.up * doorLift : Vector3.zero);
-            door.position = Vector3.MoveTowards(door.position, target, 6f * Time.deltaTime);
-            doorCollider.enabled = !open;
+            door.Open = open;
         }
 
         public bool LampOn => RoomState.Instance != null && RoomState.Instance.LampOn;
