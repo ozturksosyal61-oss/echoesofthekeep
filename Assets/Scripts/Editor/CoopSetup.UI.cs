@@ -599,6 +599,10 @@ namespace CoopGame.EditorTools
             Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
             Shot(dir + "/x_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
             Shot(dir + "/x_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
+            Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
+            Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
+            Shot(dir + "/x_hazne_w.png", a + new Vector3(-15f, -5.28f, -16f), a + new Vector3(-23.5f, -5f, -18f), false);
+            Shot(dir + "/x_hazne_e.png", a + new Vector3(-22f, -5.28f, -14.5f), a + new Vector3(-14f, -5.6f, -18.5f), false);
             foreach (var cv in Object.FindObjectsByType<CisternValve>(FindObjectsInactive.Exclude))
             {   // Sarnıç: örnek vana sembolleri; sahne kaydedilmez
                 var so = new SerializedObject(cv);

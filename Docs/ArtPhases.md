@@ -14,6 +14,7 @@ Token tasarrufu: oda başına 1–2 ekran görüntüsü oku; her faz ayrı oturu
 ## Faz 5 – Mahzen ve sarnıç (sıradaki)
 - Mahzen: ONAYLANDI (CoopSetup.Cellar.cs, ekran görüntüleri Docs/Shots/faz5/o_cellar*.png). Lahitler kalktı: bulmaca 2'nin 6 sembol + rakamı batı duvarındaki panelde (CryptVisuals alanları aynı). Oda bulmaca gereği karanlık → bake DIŞI; alevler + 2 realtime ışık + ağlar "CellarLit" altında, çözülünce açılır (Shots bu grubu açıp örnek sembol çizer). OYNANARAK TEST EDİLMEDİ (kibritle panel okunabilirliği).
 - Sarnıç: KODLANDI, kullanıcı ONAYI bekliyor (CoopSetup.Cistern.cs, ref Docs/Reference/sarnic.jpg, ekran görüntüleri Docs/Shots/faz5/o_cistern*.png). Baked (KeepBaked) + 2 realtime fener; 3 tuğla tonoz, sütunlar, taş yürüme yolu (0.1 m basamak, çarpışmalı), parmaklıklı kapılar (BarGate), vana = çark + renk panosu + sembol plakası. CisternPuzzle.Colors palete çekildi. OYNANARAK TEST EDİLMEDİ. Açık: su düz koyu yüzey (yansıma/dalga yok → "sarnıç suyu" işi), semboller plakada küçük kalabilir.
+- Saat Odası + Hazne Odası (X): KODLANDI, ekran görüntüsü/ONAY bekliyor (CoopSetup.Clock.cs, ref saat.jpg/hazne.jpg). Baked (KeepBaked(clock)); Saat: dişli duvarı, asılı çan, vitray, tezgah, portre; Hazne: gösterge önünde sarnıç kuyusu (bordürlü), borular, 2 asılı fener (realtime). Kullanıcı gotik/hafif korku eklentilerine serbestlik verdi; lobi tarzı esas.
 - O rolü şu an Layout.Spawn(Roles.O) = zindan başlangıcına ışınlanıyor; kullanıcı "O → aşağı mahzen" dedi, mahzen yenilenince başlangıcı gözden geçir.
 
 ## Sonra / açık konular

@@ -805,45 +805,17 @@ namespace CoopGame.EditorTools
             const int steps = 16;
             float sr = run / steps, sh = drop / steps;
             for (int i = 0; i < steps; i++)
-                Slab("Step" + i, roomX, new Vector3(x0 - sr * (i + 0.5f), -sh * i - 0.25f, 0), new Vector3(sr, 0.5f, 3f), A.flagstone, 1f, false);
-            Wall(roomX, "StairWallN", new Vector3((x0 + x1) * 0.5f, -drop, 1.75f), true, run, 7f, A.towerWall, 3f);
-            Wall(roomX, "StairWallS", new Vector3((x0 + x1) * 0.5f, -drop, -1.75f), true, run, 7f, A.towerWall, 3f);
-            Deck(roomX, "StairCeil", new Vector3((x0 + x1) * 0.5f, 3.25f, 0), run, 4f, 0.5f, A.darkWood, 2, 1);
+                Slab("Step" + i, roomX, new Vector3(x0 - sr * (i + 0.5f), -sh * i - 0.25f, 0), new Vector3(sr, 0.5f, 3f), K.castleStone, 1f, false);
+            Wall(roomX, "StairWallN", new Vector3((x0 + x1) * 0.5f, -drop, 1.75f), true, run, 7f, K.plaster, 2.5f);
+            Wall(roomX, "StairWallS", new Vector3((x0 + x1) * 0.5f, -drop, -1.75f), true, run, 7f, K.plaster, 2.5f);
+            Deck(roomX, "StairCeil", new Vector3((x0 + x1) * 0.5f, 3.25f, 0), run, 4f, 0.5f, K.beam, 2, 1);
             Torch(roomX, "StairTorch", new Vector3(-12.25f, 0f, 1.48f), Vector3.back, 6f, 4.5f); // menzil: baked mekanizma odasına sızmasın
 
             // Oda çerçevesi: kule koordinatına göre (-18, -4, 0)
             var root = new GameObject("RoomA2_SaatOdasi").transform;
             root.SetParent(roomX, false);
             root.localPosition = new Vector3(-18f, -drop, 0);
-            const float h = 4.5f;
-            Deck(root, "Floor", new Vector3(-3.25f, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.towerFloor, 2, 2);
-            Deck(root, "Ceiling", new Vector3(-3.25f, h + 0.25f, 0), 10.5f, 10.5f, 0.5f, A.darkWood, 2, 2);
-            Wall(root, "WallW", new Vector3(-8.25f, 0, 0), false, 10.5f, h, A.towerWall, 3f);
-            Wall(root, "WallE", new Vector3(1.75f, 0, 0), false, 10.5f, h, A.towerWall, 3f, new Opening(0f, 3f, 0f, 3f));
-            Slab("StairHeader", root, new Vector3(1.75f, 5.75f, 0), new Vector3(0.5f, 2.5f, 4f), A.towerWall, 2f, false);
-            Wall(root, "WallN", new Vector3(-3.25f, 0, 5.25f), true, 10.5f, h, A.towerWall, 3f);
-            Wall(root, "WallS", new Vector3(-3.25f, 0, -5.25f), true, 10.5f, h, A.towerWall, 3f, new Opening(2.75f, 3f, 0f, 3f)); // Hazne merdiveni
-            foreach (float x in new[] { -6.5f, 0f })
-                Slab("Beam", root, new Vector3(x, h - 0.25f, 0), new Vector3(0.4f, 0.5f, 10f), A.darkWood, 2f, false);
-
-            // Saat mekanizması: kuzey duvarında dönen dişliler
-            var gears = new GameObject("ClockGears").transform;
-            gears.SetParent(root, false);
-            gears.localPosition = new Vector3(-3.5f, 0, 4.88f);
-            void Gear(string n, int teeth, float r, Vector2 p, float speed, Material mat)
-            {
-                var g = MeshObj(n, gears, new Vector3(p.x, p.y, 0), GearMesh(teeth, r, 0.16f, r * 0.22f, 0.16f), mat);
-                Prim("Axle", g.transform, PrimitiveType.Cylinder, Vector3.zero, new Vector3(r * 0.3f, 0.14f, r * 0.3f), A.brass).transform.localRotation = Quaternion.Euler(90, 0, 0);
-                AddSpin(g, speed);
-            }
-            Gear("GearA", 18, 1.4f, new Vector2(-1.2f, 2.3f), 6f, A.iron);
-            Gear("GearB", 10, 0.85f, new Vector2(1.07f, 2.75f), -10.8f, A.bronze);
-            Gear("GearC", 8, 0.62f, new Vector2(2.35f, 2.05f), 14f, A.iron);
-
-            Torch(root, "TorchN", new Vector3(-6.5f, 2.8f, 4.98f), Vector3.back, 7f, 10f);
-            Torch(root, "TorchS", new Vector3(-4.5f, 2.8f, -4.98f), Vector3.forward, 7f, 10f);
-            Prop("WoodenTable_01", root, new Vector3(-5.6f, 0, -3.8f), 80f, 0.85f);
-            Prop("wooden_crate_02", root, new Vector3(0.4f, 0, 4.0f), 25f, 0.8f);
+            BuildClockShell(root, 4.5f); // CoopSetup.Clock.cs
             return root;
         }
 
@@ -871,7 +843,7 @@ namespace CoopGame.EditorTools
             // ---- Oda A2: Saat Odası (kulenin altında; bulmaca 1 çözülünce merdiven kapısı açılır) ----
             var clock = BuildClockRoom(roomX);
             Slab("InscriptionBoard", clock, new Vector3(-7.92f, 3.55f, 0), new Vector3(0.1f, 0.9f, 5.6f), A.plaque, 1.5f, false);
-            Slab("InscriptionFrame", clock, new Vector3(-7.96f, 3.55f, 0), new Vector3(0.06f, 1.04f, 5.76f), A.iron, 1f, false);
+            Slab("InscriptionFrame", clock, new Vector3(-7.96f, 3.55f, 0), new Vector3(0.06f, 1.04f, 5.76f), K.brass, 1f, false);
             var ins = new Transform[3];
             var dials = new SymbolDial[3];
             for (int k = 0; k < 3; k++)
@@ -883,7 +855,7 @@ namespace CoopGame.EditorTools
                 ins[k].localRotation = Quaternion.Euler(0, -90, 0);
                 dials[k] = MakeDial(clock, k, new Vector3(-7.88f, 2.0f, z), crypt);
             }
-            Slab("CandleShelf", clock, new Vector3(-7.75f, 0.95f, 0), new Vector3(0.5f, 0.08f, 1.6f), A.darkWood, 1f, false);
+            Slab("CandleShelf", clock, new Vector3(-7.75f, 0.95f, 0), new Vector3(0.5f, 0.08f, 1.6f), K.beam, 1f, false);
             var wax = MakeMat("CandleWax", new Color(0.86f, 0.8f, 0.66f));
             var flames = new GameObject[3];
             for (int i = 0; i < 3; i++) Candle(clock, new Vector3(-7.72f, 0.99f, -0.5f + i * 0.5f), wax, out flames[i]);
@@ -931,10 +903,10 @@ namespace CoopGame.EditorTools
             int steps = Mathf.Max(4, Mathf.RoundToInt(drop / 0.25f));
             float sr = run / steps, sh = drop / steps;
             for (int i = 0; i < steps; i++)
-                Slab("Step" + i, root, new Vector3(0, -sh * i - 0.25f, sr * (i + 0.5f)), new Vector3(3f, 0.5f, sr), A.flagstone, 1f, false);
+                Slab("Step" + i, root, new Vector3(0, -sh * i - 0.25f, sr * (i + 0.5f)), new Vector3(3f, 0.5f, sr), K.castleStone, 1f, false);
             Wall(root, "WallL", new Vector3(-1.75f, -drop, run * 0.5f), false, run, drop + 3f, wallMat, 3f);
             Wall(root, "WallR", new Vector3(1.75f, -drop, run * 0.5f), false, run, drop + 3f, wallMat, 3f);
-            Deck(root, "Ceil", new Vector3(0, 3.25f, run * 0.5f), 4f, run, 0.5f, A.darkWood, 1, 2);
+            Deck(root, "Ceil", new Vector3(0, 3.25f, run * 0.5f), 4f, run, 0.5f, K.beam, 1, 2);
             Torch(root, "Torch", new Vector3(1.48f, 1.2f - drop * 0.5f, run * 0.5f), Vector3.left, 6f, 8f);
             return root;
         }
@@ -975,39 +947,31 @@ namespace CoopGame.EditorTools
 
             // ---- Oda A3: Hazne Odası (Saat Odası'nın güneyinden merdivenle; bulmaca 2 çözülünce kapı açılır) ----
             var clock = roomX.Find("RoomA2_SaatOdasi");
-            var door = MakeDoor("HazneDoor", clock, new Vector3(-0.5f, 1.5f, -5.25f), true, A.wood);
+            var door = MakeDoor("HazneDoor", clock, new Vector3(-0.5f, 1.5f, -5.25f), true, K.panel);
+            foreach (var dr in door.GetComponentsInChildren<Renderer>()) if (dr.sharedMaterial == A.iron) dr.sharedMaterial = K.iron;
             var pd = door.gameObject.AddComponent<PuzzleDoor>();
             var pso = new SerializedObject(pd);
             pso.FindProperty("puzzleId").intValue = 2;
             SetRef(pso, "door", door);
             pso.ApplyModifiedPropertiesWithoutUndo();
-            Stair(clock, "HazneStair", new Vector3(-0.5f, 0, -5.5f), 180f, 6.5f, 3f, A.towerWall);
+            Stair(clock, "HazneStair", new Vector3(-0.5f, 0, -5.5f), 180f, 6.5f, 3f, K.plaster);
 
             var r = new GameObject("RoomA3_Hazne").transform;
             r.SetParent(clock, false);
             r.localPosition = new Vector3(-0.5f, -3f, -17f);
             const float ha = 5f;
-            Deck(r, "Floor", new Vector3(0, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.flagstone, 2, 2);
-            Deck(r, "Ceiling", new Vector3(0, ha + 0.25f, 0), 10.5f, 10.5f, 0.5f, A.darkWood, 2, 2);
-            Wall(r, "WallN", new Vector3(0, 0, 5.25f), true, 10.5f, ha, A.towerWall, 3f, arch);
-            Slab("StairHeader", r, new Vector3(0, 5.75f, 5.25f), new Vector3(4f, 1.5f, 0.5f), A.towerWall, 2f, false);
-            Wall(r, "WallS", new Vector3(0, 0, -5.25f), true, 10.5f, ha, A.towerWall, 3f);
-            Wall(r, "WallE", new Vector3(5.25f, 0, 0), false, 10.5f, ha, A.towerWall, 3f);
-            Wall(r, "WallW", new Vector3(-5.25f, 0, 0), false, 10.5f, ha, A.towerWall, 3f);
-            Torch(r, "TorchE1", new Vector3(4.98f, 3f, -2f), Vector3.left, 8f, 11f);
-            Torch(r, "TorchE2", new Vector3(4.98f, 3f, 2.5f), Vector3.left, 8f, 11f);
-            Torch(r, "TorchW", new Vector3(-4.98f, 4.3f, -3.2f), Vector3.right, 6f, 9f);
+            BuildHazneShell(r, ha); // CoopSetup.Clock.cs
 
             // Gösterge (güney duvarı): seviye sütunu, çentikler, boğulma bandı, hedef işareti
             const float unit = 0.38f, baseY = 0.4f;
-            Slab("GaugeBase", r, new Vector3(0, 0.2f, -4.3f), new Vector3(1.3f, 0.4f, 1.3f), A.flagstone, 1.2f);
-            Slab("GaugeBoard", r, new Vector3(0, 2.55f, -4.9f), new Vector3(1.6f, 4.4f, 0.1f), A.plaque, 1.5f, false);
+            Slab("GaugeBase", r, new Vector3(0, 0.2f, -4.4f), new Vector3(1.3f, 0.4f, 1.1f), K.castleStone, 1.2f);
+            Slab("GaugeBoard", r, new Vector3(0, 2.55f, -4.9f), new Vector3(1.6f, 4.4f, 0.1f), K.furniture, 1.5f, false);
             foreach (float x in new[] { -0.42f, 0.42f })
                 foreach (float z in new[] { -4.72f, -3.88f })
-                    Slab("GaugePost", r, new Vector3(x, baseY + 2.0f, z), new Vector3(0.06f, 4.0f, 0.06f), A.brass, 1f, false);
-            Slab("GaugeCap", r, new Vector3(0, baseY + 4.05f, -4.3f), new Vector3(1.0f, 0.1f, 1.0f), A.brass, 1f, false);
+                    Slab("GaugePost", r, new Vector3(x, baseY + 2.0f, z), new Vector3(0.06f, 4.0f, 0.06f), K.brass, 1f, false);
+            Slab("GaugeCap", r, new Vector3(0, baseY + 4.05f, -4.3f), new Vector3(1.0f, 0.1f, 1.0f), K.brass, 1f, false);
             for (int i = 0; i <= 10; i++)
-                Slab("Notch" + i, r, new Vector3(0, baseY + i * unit, -4.84f), new Vector3(i % 2 == 0 ? 1.3f : 0.9f, 0.035f, 0.03f), A.iron, 1f, false);
+                Slab("Notch" + i, r, new Vector3(0, baseY + i * unit, -4.84f), new Vector3(i % 2 == 0 ? 1.3f : 0.9f, 0.035f, 0.03f), K.brass, 1f, false);
             Slab("DrownBand", r, new Vector3(0, baseY + 9f * unit, -4.83f), new Vector3(1.45f, 2f * unit, 0.02f),
                  GlowMat("DrownBand", new Color(0.6f, 0.08f, 0.06f), new Color(0.7f, 0.06f, 0.04f) * 0.9f), 1f, false);
             var column = new GameObject("GaugeColumn").transform;
@@ -1024,7 +988,7 @@ namespace CoopGame.EditorTools
 
             // Tablo (batı duvarı): 4 satır sembol → miktar, altta ters akan boru rengi
             Slab("ChartBoard", r, new Vector3(-4.93f, 2.3f, 0), new Vector3(0.1f, 3.6f, 3.2f), A.plaque, 1.5f, false);
-            Slab("ChartFrame", r, new Vector3(-4.97f, 2.3f, 0), new Vector3(0.06f, 3.76f, 3.36f), A.iron, 1f, false);
+            Slab("ChartFrame", r, new Vector3(-4.97f, 2.3f, 0), new Vector3(0.06f, 3.76f, 3.36f), K.brass, 1f, false);
             var face = Quaternion.Euler(0, -90, 0);
             var syms = new Transform[4];
             var amts = new Transform[4];
@@ -1045,10 +1009,9 @@ namespace CoopGame.EditorTools
                               MakeMat("ReversedSwatch", Color.gray), 1f, false);
             swatch.isStatic = false;
             WorldText(r, "TERS AKAR", new Vector3(-4.86f, 0.75f, 0.45f), face, 0.022f, GoldBright);
-            Prop("wine_barrel_01", r, new Vector3(3.9f, 0, 3.9f), 30f, 1.15f);
-            Prop("wine_barrel_01", r, new Vector3(3.8f, 0, -3.9f), 120f, 1.15f);
-
-            var seal = MakeConfirmLever(r, new Vector3(2.4f, 0, -3.4f), 180f, 3, 31, "Sarnıcı mühürle");
+            var seal = MakeConfirmLever(r, new Vector3(-2.8f, 0, -3.0f), 180f, 3, 31, "Sarnıcı mühürle");
+            seal.transform.Find("Base").GetComponent<Renderer>().sharedMaterial = K.castleStone;
+            Slab("SealPlinth", seal.transform, new Vector3(0, 0.06f, 0), new Vector3(0.95f, 0.12f, 0.7f), K.castleStone, 1f, false).isStatic = false;
 
             var cso = new SerializedObject(cistern);
             cso.FindProperty("puzzleId").intValue = 3;
@@ -1074,6 +1037,7 @@ namespace CoopGame.EditorTools
             SetRef(vso, "gate", gate);
             SetRef(vso, "nextGate", nextGate);
             vso.ApplyModifiedPropertiesWithoutUndo();
+            KeepBaked(clock); // Saat + Hazne + merdivenler + bulmaca nesneleri bake'e dahil
         }
 
         static void AddSpin(GameObject go, float degPerSec)
