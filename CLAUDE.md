@@ -14,6 +14,7 @@ Akış (Faz 3, cihazda/iki oyuncuyla DENENMEDİ): menü Oda Kur / Odaya Katıl �
 Sıradakiler: görsel geçişin cihaz testi + FPS (gerekirse CoopSetup.Art.cs PostFx=false), FrameRateConfig.Target=60 (şu an 240), bulmaca 2-5 + final, sarnıç suyu, Mixamo karakter (Humanoid, animasyon hızdan türetilir).
 Not: 3. şahıs/uzak oyuncu gövdesi hareket yönüne dönüyor, bakış yönüne değil; final salonunda düzelt.
 Tasarım belgesi: Docs/PuzzleDesign.md
+Görsel yenileme fazları ve devam notu: Docs/ArtPhases.md (Faz 3 bitti; sıradaki Faz 4 mekanizma odası).
 ## Görsel altyapı
 - CoopSetup üç dosya (partial): CoopSetup.cs (prefab/URP/build), CoopSetup.Art.cs (malzeme, ağ, odalar, menü arka planı), CoopSetup.UI.cs (tema, Lobby/Game sahneleri, HUD). Oyun adı: Echoes of the Keep (CoopSetup.UI.cs GameTitle/GameTitleSub, PlayerSettings.productName).
 - Varlıklar: Assets/ThirdParty (Poly Haven CC0 doku/model/gökyüzü, OFL fontlar; LICENSES.md). Üretilenler: Assets/Generated (ağ, sprite), Assets/Materials.
