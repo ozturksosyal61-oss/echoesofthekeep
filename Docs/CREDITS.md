@@ -19,4 +19,4 @@ CC-BY 4.0 (http://creativecommons.org/licenses/by/4.0/) – oyun içi jenerikte 
 - armillary: "Armillary sphere" – KRei – https://sketchfab.com/3d-models/armillary-sphere-534e240ac6b0412cb526dd2b14bf8909
 - bell: "old church bell" – vertexgrocer – https://sketchfab.com/3d-models/old-church-bell-8aa10771481c4a0d83f7a47af6fdf9e1
 - statue: "Engel Statue Scan - Retopology" – Refref1990 – https://sketchfab.com/3d-models/engel-statue-scan-retopology-602e423e27ca4f9c938e98980c888b5d
-- chandelier: LİSANS/KAYNAK EKSİK – link bekleniyor
+- chandelier: "Medieval Chandelier" – Kevin.Popescu – https://sketchfab.com/3d-models/medieval-chandelier-dd8b8bd637b5420badb323d5ec82a948
