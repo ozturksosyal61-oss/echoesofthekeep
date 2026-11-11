@@ -10,11 +10,11 @@ Konsept: We Were Here tarzı 2 kişilik co-op bulmaca, birinci şahıs (3. şah�
 ## Durum
 Biten: lobi+ses, hareket, 1. şahıs kamera+nişangâh+ışınla etkileşim, ağ etkileşimi, URP, P3 bulmaca altyapısı (Assets/Scripts/Puzzle), Bulmaca 1 (4 kol → sembol sırası → B'de kasa kapısı; telefon+PC test edildi). Görsel geçiş v1: temalı menü + HUD, A çan kulesi, B zindan (PC ekran görüntüsüyle doğrulandı, cihazda denenmedi).
 Bulmaca 2 (kibrit mahzeni) test edildi. Bulmaca 3 (sarnıç) kodlandı, test edilmedi. İlerleme: her bulmaca yeni oda (X: kule → Saat Odası → Hazne Odası; O: zindan → kasa → mahzen → sarnıç).
-Akış (Faz 3, cihazda/iki oyuncuyla DENENMEDİ): menü Oda Kur / Odaya Katıl → herkes Lobi Holü'nde doğar (Layout.Hall, x=-250; CoopSetup.Hall.cs) → biri X (merdiven sahanlığı), diğeri O (doğu nişi) plakasında 1.5 sn durunca HallGate rolleri atar ve ışınlar: X → çan kulesi, O → zindan. Rol artık giriş sırası değil: PlayerAvatar.RoleIndex (Roles.X/O/None), giriş sırası = Slot. Eski odalar (kule, zindan, mahzen, sarnıç) henüz kitle yenilenmedi; bake dışı (ExcludeFromBake).
+Akış (Faz 3, cihazda/iki oyuncuyla DENENMEDİ): menü Oda Kur / Odaya Katıl → herkes Lobi Holü'nde doğar (Layout.Hall, x=-250; CoopSetup.Hall.cs) → biri X (merdiven sahanlığı), diğeri O (doğu nişi) plakasında 1.5 sn durunca HallGate rolleri atar ve ışınlar: X → çan kulesi, O → zindan. Rol artık giriş sırası değil: PlayerAvatar.RoleIndex (Roles.X/O/None), giriş sırası = Slot. Mekanizma odası (kule) kitle yenilendi, baked (CoopSetup.Tower.cs). Eski odalar (saat odası, zindan, mahzen, sarnıç) henüz yenilenmedi; bake dışı (ExcludeFromBake).
 Sıradakiler: görsel geçişin cihaz testi + FPS (gerekirse CoopSetup.Art.cs PostFx=false), FrameRateConfig.Target=60 (şu an 240), bulmaca 2-5 + final, sarnıç suyu, Mixamo karakter (Humanoid, animasyon hızdan türetilir).
 Not: 3. şahıs/uzak oyuncu gövdesi hareket yönüne dönüyor, bakış yönüne değil; final salonunda düzelt.
 Tasarım belgesi: Docs/PuzzleDesign.md
-Görsel yenileme fazları ve devam notu: Docs/ArtPhases.md (Faz 3 bitti; sıradaki Faz 4 mekanizma odası).
+Görsel yenileme fazları ve devam notu: Docs/ArtPhases.md (Faz 4 mekanizma odası bitti; sıradaki Faz 5 mahzen + sarnıç).
 ## Görsel altyapı
 - CoopSetup üç dosya (partial): CoopSetup.cs (prefab/URP/build), CoopSetup.Art.cs (malzeme, ağ, odalar, menü arka planı), CoopSetup.UI.cs (tema, Lobby/Game sahneleri, HUD). Oyun adı: Echoes of the Keep (CoopSetup.UI.cs GameTitle/GameTitleSub, PlayerSettings.productName).
 - Varlıklar: Assets/ThirdParty (Poly Haven CC0 doku/model/gökyüzü, OFL fontlar; LICENSES.md). Üretilenler: Assets/Generated (ağ, sprite), Assets/Materials.

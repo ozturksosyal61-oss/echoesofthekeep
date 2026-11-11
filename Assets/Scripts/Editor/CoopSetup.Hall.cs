@@ -35,6 +35,7 @@ namespace CoopGame.EditorTools
             foreach (var root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
                 foreach (var t in root.GetComponentsInChildren<Transform>(true))
                 {
+                    if (bakeKeep.Contains(t.gameObject)) continue;
                     var f = GameObjectUtility.GetStaticEditorFlags(t.gameObject);
                     if ((f & StaticEditorFlags.ContributeGI) != 0) GameObjectUtility.SetStaticEditorFlags(t.gameObject, f & ~StaticEditorFlags.ContributeGI);
                     var r = t.GetComponent<Renderer>();

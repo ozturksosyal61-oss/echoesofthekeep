@@ -591,7 +591,9 @@ namespace CoopGame.EditorTools
             Shot(dir + "/hall_back.png", h + new Vector3(0f, 4.72f, 8.4f), h + new Vector3(0f, 2.5f, -6f), false);
             Shot(dir + "/hall_hud.png", h + new Vector3(0f, 1.72f, -8.5f), h + new Vector3(0f, 2.6f, 4f), true);
             Shot(dir + "/x_levers.png", a + new Vector3(0.5f, 1.72f, -3.5f), a + new Vector3(0, 2.6f, 8f), false);
-            Shot(dir + "/x_windows.png", a + new Vector3(4.5f, 1.72f, 5f), a + new Vector3(-6f, 2.4f, -8f), false);
+            Shot(dir + "/x_windows.png", a + new Vector3(4.5f, 1.72f, 1f), a + new Vector3(-8f, 2.2f, 1.5f), false);
+            Shot(dir + "/x_bench.png", a + new Vector3(0.5f, 1.72f, -1.5f), a + new Vector3(8f, 1.3f, 2.2f), false);
+            Shot(dir + "/x_south.png", a + new Vector3(0f, 1.72f, 4.5f), a + new Vector3(0f, 1.8f, -8f), false);
             Shot(dir + "/x_hud.png", a + new Vector3(-2f, 1.72f, 2.5f), a + new Vector3(-1.5f, 1.5f, 7f), true);
             Shot(dir + "/o_fresco.png", b + new Vector3(-2.5f, 1.72f, -1f), b + new Vector3(8f, 2f, 0.5f), false);
             Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);

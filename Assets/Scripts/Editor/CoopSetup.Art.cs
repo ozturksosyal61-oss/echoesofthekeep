@@ -610,20 +610,31 @@ namespace CoopGame.EditorTools
             var root = new GameObject("Lever" + index).transform;
             root.SetParent(parent, false);
             root.localPosition = pos;
-            Slab("Base", root, new Vector3(0, 0.3f, 0), new Vector3(0.8f, 0.6f, 0.55f), A.flagstone, 1.2f).isStatic = false;
-            Slab("Slot", root, new Vector3(0, 0.61f, 0), new Vector3(0.5f, 0.04f, 0.4f), A.iron, 1f, false);
+            Slab("Base", root, new Vector3(0, 0.3f, 0), new Vector3(0.8f, 0.6f, 0.55f), K.furniture, 1.2f).isStatic = false;
+            Slab("Slot", root, new Vector3(0, 0.61f, 0), new Vector3(0.5f, 0.04f, 0.4f), K.iron, 1f, false);
             var pivot = new GameObject("Pivot").transform;
             pivot.SetParent(root, false);
             pivot.localPosition = new Vector3(0, 0.6f, 0);
-            Slab("Arm", pivot, new Vector3(0, 0.45f, 0), new Vector3(0.1f, 0.9f, 0.1f), A.iron, 1f).isStatic = false;
-            var knob = Prim("Knob", pivot, PrimitiveType.Sphere, new Vector3(0, 0.95f, 0), Vector3.one * 0.24f, A.brass);
+            Slab("Arm", pivot, new Vector3(0, 0.45f, 0), new Vector3(0.1f, 0.9f, 0.1f), K.iron, 1f).isStatic = false;
+            var knob = Prim("Knob", pivot, PrimitiveType.Sphere, new Vector3(0, 0.95f, 0), Vector3.one * 0.24f, K.brass);
             knob.AddComponent<SphereCollider>();
 
-            // Duvardaki taş levha + parlayan sembol (SequenceHint bu sembolü B'ye kopyalar)
-            Slab("Plaque", root, new Vector3(0, 2.1f, 0.93f), new Vector3(1.1f, 1.1f, 0.12f), A.plaque, 1.2f, false);
-            Slab("PlaqueFrame", root, new Vector3(0, 2.1f, 0.97f), new Vector3(1.3f, 1.3f, 0.06f), A.iron, 1f, false);
-            var sym = Prim("Symbol_" + shape, root, shape, new Vector3(0, 2.1f, 0.62f), Vector3.one * 0.45f,
-                           GlowMat("Symbol" + index + "Mat", symbolColor, symbolColor * 1.8f));
+            // Kolun önünde yere dayalı çerçeveli levha + yassı sembol (SequenceHint bu sembolü O'ya kopyalar)
+            var pl = new GameObject("Plaque").transform;
+            pl.SetParent(root, false);
+            pl.localPosition = new Vector3(0, 0.02f, -0.44f);
+            pl.localRotation = Quaternion.Euler(10, 0, 0);
+            Slab("Board", pl, new Vector3(0, 0.5f, 0), new Vector3(0.8f, 0.96f, 0.04f), K.furniture, 1.2f, false);
+            foreach (int s in new[] { -1, 1 })
+            {
+                Slab("FrameH", pl, new Vector3(0, 0.5f + s * 0.48f, -0.01f), new Vector3(0.9f, 0.06f, 0.07f), K.brass, 1f, false);
+                Slab("FrameV", pl, new Vector3(s * 0.42f, 0.5f, -0.01f), new Vector3(0.06f, 1.02f, 0.07f), K.brass, 1f, false);
+            }
+            ProbeLit(pl.gameObject, false);
+            var flat = shape == PrimitiveType.Cylinder ? new Vector3(0.18f, 0.22f, 0.05f) : shape == PrimitiveType.Capsule ? new Vector3(0.26f, 0.22f, 0.05f)
+                     : shape == PrimitiveType.Sphere ? new Vector3(0.46f, 0.46f, 0.05f) : new Vector3(0.4f, 0.4f, 0.05f);
+            var sym = Prim("Symbol_" + shape, pl, shape, new Vector3(0, 0.5f, -0.04f), flat,
+                           GlowMat("Symbol" + index + "Mat", symbolColor, symbolColor * 0.3f));
             sym.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
 
             var it = root.gameObject.AddComponent<Interactable>();
@@ -650,10 +661,11 @@ namespace CoopGame.EditorTools
 
             // Oda A: kuzey duvarı önünde 4 kol, her birinin üstünde farklı şekil+renk sembol
             var shapes = new[] { PrimitiveType.Cube, PrimitiveType.Sphere, PrimitiveType.Cylinder, PrimitiveType.Capsule };
-            var colors = new[] { new Color(0.95f, 0.18f, 0.15f), new Color(0.2f, 0.85f, 0.3f), new Color(0.2f, 0.45f, 1f), new Color(1f, 0.82f, 0.15f) };
+            var colors = Pal.Puzzle; // StyleGuide bulmaca renkleri
             var levers = new SyncedLever[4];
             for (int i = 0; i < 4; i++)
                 levers[i] = MakeLever(roomX, i, new Vector3(-4.5f + i * 3f, 0, 7f), shapes[i], colors[i]);
+            KeepBaked(roomX); // mekanizma odası + kollar bake'e dahil (ExcludeFromBake atlar)
 
             var seq = new GameObject("Puzzle1_Sequence").AddComponent<SequenceInput>();
             seq.transform.SetParent(roomX, false);
@@ -679,7 +691,9 @@ namespace CoopGame.EditorTools
                 plates[i] = plate.GetComponent<Renderer>();
                 var slot = new GameObject("HintSlot" + (i + 1)).transform;
                 slot.SetParent(roomO, false);
-                slot.localPosition = new Vector3(7.5f, 2f, z);
+                slot.localPosition = new Vector3(7.71f, 2f, z);
+                slot.localRotation = Quaternion.Euler(0, 90, 0); // yassı sembol plakaya yatar
+                slot.localScale = Vector3.one * 2.2f;
                 slots[i] = slot;
             }
             var hint = board.AddComponent<SequenceHint>();
@@ -772,7 +786,9 @@ namespace CoopGame.EditorTools
         /// </summary>
         static Transform BuildClockRoom(Transform roomX)
         {
-            var door = MakeDoor("StairDoor", roomX, new Vector3(-8.25f, 1.5f, 0), false, A.wood);
+            var door = MakeDoor("StairDoor", roomX, new Vector3(-8.25f, 1.5f, 0), false, K.panel);
+            foreach (var r in door.GetComponentsInChildren<Renderer>()) if (r.sharedMaterial == A.iron) r.sharedMaterial = K.iron;
+            KeepBaked(door.transform);
             var pd = door.gameObject.AddComponent<PuzzleDoor>();
             var pso = new SerializedObject(pd);
             pso.FindProperty("puzzleId").intValue = 1;
@@ -793,7 +809,7 @@ namespace CoopGame.EditorTools
             Wall(roomX, "StairWallN", new Vector3((x0 + x1) * 0.5f, -drop, 1.75f), true, run, 7f, A.towerWall, 3f);
             Wall(roomX, "StairWallS", new Vector3((x0 + x1) * 0.5f, -drop, -1.75f), true, run, 7f, A.towerWall, 3f);
             Deck(roomX, "StairCeil", new Vector3((x0 + x1) * 0.5f, 3.25f, 0), run, 4f, 0.5f, A.darkWood, 2, 1);
-            Torch(roomX, "StairTorch", new Vector3(-12.25f, 0f, 1.48f), Vector3.back, 6f, 8f);
+            Torch(roomX, "StairTorch", new Vector3(-12.25f, 0f, 1.48f), Vector3.back, 6f, 4.5f); // menzil: baked mekanizma odasına sızmasın
 
             // Oda çerçevesi: kule koordinatına göre (-18, -4, 0)
             var root = new GameObject("RoomA2_SaatOdasi").transform;
@@ -1204,85 +1220,6 @@ namespace CoopGame.EditorTools
             var so = new SerializedObject(s);
             so.FindProperty("degreesPerSecond").floatValue = degPerSec;
             so.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        // ---------- Oda A: çan kulesi tepesi ----------
-
-        static Transform BuildTower(Vector3 center)
-        {
-            var root = new GameObject("RoomA_Mekanizma").transform;
-            root.position = center;
-            const float h = 7f;
-            Deck(root, "Floor", new Vector3(0, -0.25f, 0), 17, 17, 0.5f, A.towerFloor, 3, 3);
-            Deck(root, "Ceiling", new Vector3(0, h + 0.25f, 0), 17, 17, 0.5f, A.darkWood, 3, 3);
-
-            // Kuzey duvarı dolu (kollar), diğer üç duvarda ikişer pencere: gece göğü ve ay ışığı
-            var win = new[] { new Opening(-4f, 2.2f, 1.1f, 4.3f), new Opening(4f, 2.2f, 1.1f, 4.3f) };
-            Wall(root, "WallN", new Vector3(0, 0, 8.25f), true, 17, h, A.towerWall, 3f);
-            Wall(root, "WallS", new Vector3(0, 0, -8.25f), true, 17, h, A.towerWall, 3f, win);
-            Wall(root, "WallE", new Vector3(8.25f, 0, 0), false, 17, h, A.towerWall, 3f, win);
-            Wall(root, "WallW", new Vector3(-8.25f, 0, 0), false, 17, h, A.towerWall, 3f, win[0], win[1], new Opening(0f, 3f, 0f, 3f)); // Saat Odası merdiveni
-            foreach (float c in new[] { -4f, 4f })
-            {
-                Slab("SillS", root, new Vector3(c, 1.16f, -8.25f), new Vector3(2.5f, 0.14f, 0.8f), A.flagstone, 1.5f, false);
-                Slab("SillE", root, new Vector3(8.25f, 1.16f, c), new Vector3(0.8f, 0.14f, 2.5f), A.flagstone, 1.5f, false);
-                Slab("SillW", root, new Vector3(-8.25f, 1.16f, c), new Vector3(0.8f, 0.14f, 2.5f), A.flagstone, 1.5f, false);
-            }
-
-            // Çatı kirişleri
-            foreach (float z in new[] { -5.5f, 5.5f }) Slab("BeamX", root, new Vector3(0, h - 0.22f, z), new Vector3(16f, 0.44f, 0.44f), A.darkWood, 2f, false);
-            foreach (float x in new[] { -5.5f, 5.5f }) Slab("BeamZ", root, new Vector3(x, h - 0.62f, 0), new Vector3(0.4f, 0.4f, 16f), A.darkWood, 2f, false);
-            Slab("BellBeam", root, new Vector3(0, h - 0.7f, 0), new Vector3(16f, 0.6f, 0.6f), A.darkWood, 2f, false);
-            foreach (float x in new[] { -7.6f, 7.6f })
-                foreach (float z in new[] { -7.6f, 7.6f })
-                    Slab("Post", root, new Vector3(x, h * 0.5f, z), new Vector3(0.45f, h, 0.45f), A.darkWood, 2f, false);
-
-            // Çan: kirişten asılı, hafifçe salınır
-            var bell = new GameObject("Bell").transform;
-            bell.SetParent(root, false);
-            bell.localPosition = new Vector3(0, h - 1.0f, 0);
-            bell.gameObject.AddComponent<Sway>();
-            Slab("Yoke", bell, new Vector3(0, -0.2f, 0), new Vector3(1.9f, 0.45f, 0.5f), A.wood, 1.5f, false).isStatic = false;
-            foreach (float x in new[] { -0.7f, 0.7f }) Slab("Strap", bell, new Vector3(x, 0.05f, 0), new Vector3(0.1f, 0.9f, 0.56f), A.iron, 1f, false).isStatic = false;
-            var prof = new[]
-            {
-                new Vector2(1.02f, 0f), new Vector2(1.1f, 0.06f), new Vector2(0.98f, 0.2f), new Vector2(0.8f, 0.45f), new Vector2(0.66f, 0.8f),
-                new Vector2(0.58f, 1.15f), new Vector2(0.52f, 1.45f), new Vector2(0.42f, 1.65f), new Vector2(0.25f, 1.76f), new Vector2(0f, 1.8f),
-            };
-            MeshObj("BellBody", bell, new Vector3(0, -2.25f, 0), LatheMesh("bell", prof, 28), A.bronze);
-            Prim("Crown", bell, PrimitiveType.Cylinder, new Vector3(0, -0.42f, 0), new Vector3(0.3f, 0.1f, 0.3f), A.bronze);
-            Slab("ClapperRod", bell, new Vector3(0, -1.5f, 0), new Vector3(0.05f, 1.4f, 0.05f), A.iron, 1f, false).isStatic = false;
-            Prim("Clapper", bell, PrimitiveType.Sphere, new Vector3(0, -2.2f, 0), Vector3.one * 0.3f, A.iron);
-
-            // Kuzey duvarında dönen dişliler (kolların üstünde)
-            var gears = new GameObject("Gears").transform;
-            gears.SetParent(root, false);
-            gears.localPosition = new Vector3(0, 0, 7.88f);
-            void Gear(string n, int teeth, float r, Vector2 p, float speed, Material mat = null)
-            {
-                var g = MeshObj(n, gears, new Vector3(p.x, p.y, 0), GearMesh(teeth, r, 0.16f, r * 0.22f, 0.16f), mat != null ? mat : A.iron);
-                Prim("Axle", g.transform, PrimitiveType.Cylinder, Vector3.zero, new Vector3(r * 0.3f, 0.14f, r * 0.3f), A.brass).transform.localRotation = Quaternion.Euler(90, 0, 0);
-                AddSpin(g, speed);
-            }
-            Gear("GearBig", 16, 1.3f, new Vector2(-1.4f, 5.0f), 8f);
-            Gear("GearMid", 10, 0.85f, new Vector2(0.56f, 5.35f), -12.8f, A.bronze);
-            Gear("GearSmall", 8, 0.69f, new Vector2(1.81f, 4.77f), 16f);
-
-            // Işık: kolların arasında iki meşale, güney duvarında bir meşale, masada fener
-            Torch(root, "TorchN1", new Vector3(-3f, 2.7f, 7.98f), Vector3.back, 9f, 12f);
-            Torch(root, "TorchN2", new Vector3(3f, 2.7f, 7.98f), Vector3.back, 9f, 12f);
-            Torch(root, "TorchS", new Vector3(0f, 2.7f, -7.98f), Vector3.forward, 8f, 12f);
-
-
-            // Eşyalar
-            Prop("WoodenTable_01", root, new Vector3(5.6f, 0, -5.8f), 20f, 0.85f);
-            var lantern = Prop("wooden_lantern_01", root, new Vector3(5.5f, 0.85f, -5.8f), 35f, 0.5f, false);
-            PointLight(lantern.transform, "LanternLight", new Vector3(0, 0.3f, 0), TorchColor, 3.5f, 6f);
-            Prop("wine_barrel_01", root, new Vector3(6.7f, 0, 5.4f), 10f, 1.15f);
-            Prop("wine_barrel_01", root, new Vector3(6.6f, 0, 6.7f), 130f, 1.15f);
-            Prop("wooden_crate_02", root, new Vector3(-6.7f, 0, 6.4f), 15f, 0.8f);
-            Prop("wooden_crate_02", root, new Vector3(-6.6f, 0.8f, 6.5f), 50f, 0.6f, false);
-            return root;
         }
 
         // ---------- Oda B: zindan / sarnıç ----------
