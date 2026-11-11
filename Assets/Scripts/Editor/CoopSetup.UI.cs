@@ -509,6 +509,28 @@ namespace CoopGame.EditorTools
             }
             so.ApplyModifiedPropertiesWithoutUndo();
 
+            // Mahzen (bulmaca 2): kibrit düğmesi, durum, korku/ölüm karartması, ortada mesaj (en üstte)
+            var matchBtn = MakeButton(canvas, "MatchButton", "KİBRİT YAK", Vector2.zero, new Vector2(400, 120), true, 40);
+            Corner(matchBtn.targetGraphic, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-120, 290));
+            var cryptStatus = MakeText(canvas, "CryptStatus", "", 34, Vector2.zero, new Vector2(1000, 60), TextAnchor.MiddleCenter, U.body, Cream);
+            Corner(cryptStatus, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 60));
+            var dread = MakeImage(root, "Dread", Vector2.zero, Vector2.zero, U.vignette, Color.clear);
+            Stretch(dread, Vector2.zero, Vector2.one); dread.raycastTarget = false;
+            var fade = MakeImage(root, "Fade", Vector2.zero, Vector2.zero, null, Color.clear);
+            Stretch(fade, Vector2.zero, Vector2.one); fade.raycastTarget = false;
+            var msg = MakeText(root, "CryptMessage", "", 52, Vector2.zero, new Vector2(1500, 200), TextAnchor.MiddleCenter, U.head, GoldBright);
+            Corner(msg, new Vector2(0.5f, 0.62f), new Vector2(0.5f, 0.5f), Vector2.zero);
+            var ch = new GameObject("CryptHud").AddComponent<CryptHud>();
+            var cso = new SerializedObject(ch);
+            SetRef(cso, "matchButton", matchBtn);
+            SetRef(cso, "matchLabel", matchBtn.GetComponentInChildren<Text>());
+            SetRef(cso, "status", cryptStatus);
+            SetRef(cso, "message", msg);
+            SetRef(cso, "dread", dread);
+            SetRef(cso, "fade", fade);
+            SetRef(cso, "flameMat", A.flame);
+            cso.ApplyModifiedPropertiesWithoutUndo();
+
             EditorSceneManager.SaveScene(scene, GamePath);
         }
 

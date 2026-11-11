@@ -118,5 +118,19 @@ namespace CoopGame
             if (state == null) { Dbg.Interact("(3a) REDDEDİLDİ: RoomState yok"); return; }
             state.Toggle((InteractId)id);
         }
+
+        // ---- Yetenek (ör. kibrit yak): konuma bağlı değil; host doğrulamayı dinleyici yapar ----
+
+        /// <summary>Host'ta: (avatar, yetenek id). Dinleyiciler (CryptPuzzle) kendi koşullarını kontrol eder.</summary>
+        public static event System.Action<PlayerAvatar, int> ServerAbility;
+
+        public void RequestAbility(int ability) => RPC_Ability(ability);
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+        void RPC_Ability(int ability)
+        {
+            Dbg.Puzzle("Yetenek " + ability + " ← " + name);
+            ServerAbility?.Invoke(this, ability);
+        }
     }
 }
