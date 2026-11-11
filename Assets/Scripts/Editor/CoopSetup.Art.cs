@@ -704,12 +704,14 @@ namespace CoopGame.EditorTools
             hso.ApplyModifiedPropertiesWithoutUndo();
 
             // Oda B: batı kasa kapısı + içinde ödül (altın dişli: bulmaca 3'e gönderme)
-            var vaultDoor = MakeDoor("VaultDoor", roomO, new Vector3(-8.25f, 1.5f, 0), false, A.iron);
+            var vaultDoor = MakeDoor("VaultDoor", roomO, new Vector3(-8.25f, 1.5f, 0), false, K.iron);
             var pd = vaultDoor.gameObject.AddComponent<PuzzleDoor>();
             var pso = new SerializedObject(pd);
             pso.FindProperty("puzzleId").intValue = 1;
             SetRef(pso, "door", vaultDoor);
             pso.ApplyModifiedPropertiesWithoutUndo();
+            DressPuzzle1O(roomO, board, vaultDoor); // CoopSetup.Dungeon.cs
+            KeepBaked(roomO); // zindan + kasa odası bake'e dahil (mahzen sonra eklenir, dışarıda kalır)
 
         }
 
@@ -1049,54 +1051,6 @@ namespace CoopGame.EditorTools
         }
 
         // ---------- Oda B: zindan / sarnıç ----------
-
-        static Transform BuildDungeon(Vector3 center)
-        {
-            var root = new GameObject("RoomB_Sarnic").transform;
-            root.position = center;
-            const float h = 4f;
-            var wall = A.dungeonWall;
-            Deck(root, "Floor", new Vector3(0, -0.25f, 0), 17, 17, 0.5f, A.dungeonFloor, 3, 3);
-            Deck(root, "Ceiling", new Vector3(0, h + 0.25f, 0), 17, 17, 0.5f, A.dungeonCeil, 3, 3);
-            var doorway = new Opening(0f, 3f, 0f, 3f);
-            Wall(root, "WallS", new Vector3(0, 0, -8.25f), true, 17, h, wall, 3f);
-            Wall(root, "WallE", new Vector3(8.25f, 0, 0), false, 17, h, wall, 3f);
-            Wall(root, "WallN", new Vector3(0, 0, 8.25f), true, 17, h, wall, 3f);
-            Wall(root, "WallW", new Vector3(-8.25f, 0, 0), false, 17, h, wall, 3f, doorway); // kasa kapısı (PuzzleDoor)
-
-
-            // Batıda kasa odası
-            Deck(root, "VaultFloor", new Vector3(-10.625f, -0.25f, 0), 4.25f, 7f, 0.5f, A.flagstone, 1, 1);
-            Deck(root, "VaultCeiling", new Vector3(-10.625f, h + 0.25f, 0), 4.25f, 7f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(root, "VaultWallW", new Vector3(-12.75f, 0, 0), false, 7f, h, wall, 3f, new Opening(0f, 3f, 0f, 3f)); // mahzen geçidi (bulmaca 2)
-            Wall(root, "VaultWallS", new Vector3(-10.625f, 0, -3.25f), true, 4.25f, h, wall, 3f);
-            Wall(root, "VaultWallN", new Vector3(-10.625f, 0, 3.25f), true, 4.25f, h, wall, 3f);
-
-            // Sütunlar
-            foreach (float x in new[] { -4.2f, 4.2f })
-                foreach (float z in new[] { -4.2f, 4.2f })
-                {
-                    Slab("Pillar", root, new Vector3(x, h * 0.5f, z), new Vector3(0.8f, h, 0.8f), A.flagstone, 1.6f);
-                    Slab("PillarBase", root, new Vector3(x, 0.2f, z), new Vector3(1.15f, 0.4f, 1.15f), A.flagstone, 1.6f, false);
-                    Slab("PillarCap", root, new Vector3(x, h - 0.2f, z), new Vector3(1.15f, 0.4f, 1.15f), A.flagstone, 1.6f, false);
-                }
-
-            // Meşaleler: freskin iki yanı (doğu), kasa kapısının yanı (batı), güney duvarı. Ortada soğuk dolgu ışığı (sarnıç havası).
-            Torch(root, "TorchE1", new Vector3(7.98f, 2.5f, 5.6f), Vector3.left, 9f, 10f);
-            Torch(root, "TorchE2", new Vector3(7.98f, 2.5f, -5.6f), Vector3.left, 9f, 10f);
-            Torch(root, "TorchW", new Vector3(-7.98f, 2.5f, 3.2f), Vector3.right, 8f, 8f); // menzil: mahzene ulaşmasın
-            Torch(root, "TorchS", new Vector3(-2.5f, 2.5f, -7.98f), Vector3.forward, 8f, 10f);
-            PointLight(root, "RoomLight", new Vector3(0, 3.4f, 0), new Color(0.35f, 0.6f, 0.75f), 3.5f, 14f);
-
-
-            // Eşyalar
-            Prop("wine_barrel_01", root, new Vector3(-6.9f, 0, -6.8f), 0f, 1.15f);
-            Prop("wine_barrel_01", root, new Vector3(-5.6f, 0, -7.0f), 80f, 1.15f);
-            Prop("wine_barrel_01", root, new Vector3(-7.0f, 0, -5.5f), 200f, 1.15f);
-            Prop("wooden_crate_02", root, new Vector3(6.8f, 0, 7.0f), 10f, 0.85f);
-            Prop("wooden_crate_02", root, new Vector3(5.7f, 0, 7.1f), 70f, 0.7f);
-            return root;
-        }
 
         static void BuildWorld()
         {

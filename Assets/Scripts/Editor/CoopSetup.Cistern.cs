@@ -42,17 +42,23 @@ namespace CoopGame.EditorTools
             var horiz = Quaternion.Euler(90, 0, 0);
             var face = Quaternion.Euler(-90, 0, 0);
             Slab("Plate", root, new Vector3(0, wy, 0.06f), new Vector3(0.9f, 0.9f, 0.08f), K.iron, 1f); // etkileşim çarpışması
-            Prim("Pipe", root, PrimitiveType.Cylinder, new Vector3(0, 2.0f, -0.06f), new Vector3(0.2f, 2.0f, 0.2f), K.iron);
-            foreach (float y in new[] { 0.45f, 2.05f, 3.3f })
-                MeshObj("Flange", root, new Vector3(0, y, -0.06f), RingMesh(0.17f, 0.08f, 0.07f), K.iron);
             var colorMat = MakeMat("ValvePipe" + index, Pal.Puzzle[index]); // çalışma anında tohumdan boyanır
-            var collar = MeshObj("Collar", root, new Vector3(0, 2.7f, -0.06f), RingMesh(0.15f, 0.06f, 0.16f), colorMat);
-            Prim("Body", root, PrimitiveType.Cylinder, new Vector3(0, wy, -0.14f), new Vector3(0.36f, 0.1f, 0.36f), K.iron).transform.localRotation = horiz;
-            Prim("Stem", root, PrimitiveType.Cylinder, new Vector3(0, wy, -0.3f), new Vector3(0.07f, 0.12f, 0.07f), K.iron).transform.localRotation = horiz;
+            colorMat.SetFloat("_Metallic", 0.5f); colorMat.SetFloat("_Smoothness", 0.35f);
+            const float pz = -0.25f, ey = 3.5f; // boru duvardan açıkta; üstte dirsekle duvara girer
+            var pipe = Prim("Pipe", root, PrimitiveType.Cylinder, new Vector3(0, ey * 0.5f, pz), new Vector3(0.2f, ey * 0.5f, 0.2f), colorMat);
+            var elbow = Prim("Elbow", root, PrimitiveType.Sphere, new Vector3(0, ey, pz), Vector3.one * 0.24f, colorMat);
+            var stub = Prim("PipeIn", root, PrimitiveType.Cylinder, new Vector3(0, ey, (pz + 0.1f) * 0.5f), new Vector3(0.2f, (0.1f - pz) * 0.5f, 0.2f), colorMat);
+            stub.transform.localRotation = horiz;
+            MeshObj("WallFlange", root, new Vector3(0, ey, 0.06f), RingMesh(0.18f, 0.08f, 0.06f), K.iron).transform.localRotation = horiz;
+            foreach (float y in new[] { 0.12f, 0.45f, 2.05f, 3.15f })
+                MeshObj("Flange", root, new Vector3(0, y, pz), RingMesh(0.17f, 0.08f, 0.07f), K.iron);
+            var collar = MeshObj("Collar", root, new Vector3(0, 2.7f, pz), RingMesh(0.15f, 0.06f, 0.16f), colorMat);
+            Prim("Body", root, PrimitiveType.Cylinder, new Vector3(0, wy, -0.32f), new Vector3(0.36f, 0.1f, 0.36f), K.iron).transform.localRotation = horiz;
+            Prim("Stem", root, PrimitiveType.Cylinder, new Vector3(0, wy, -0.48f), new Vector3(0.07f, 0.12f, 0.07f), K.iron).transform.localRotation = horiz;
 
             var wheel = new GameObject("Wheel").transform;
             wheel.SetParent(root, false);
-            wheel.localPosition = new Vector3(0, wy, -0.42f);
+            wheel.localPosition = new Vector3(0, wy, -0.6f);
             MeshObj("Rim", wheel, new Vector3(0, 0, 0.025f), RingMesh(0.42f, 0.06f, 0.05f), K.bronze).transform.localRotation = face;
             for (int i = 0; i < 3; i++)
                 Slab("Spoke" + i, wheel, Vector3.zero, new Vector3(0.76f, 0.05f, 0.035f), K.bronze, 1f, false).transform.localRotation = Quaternion.Euler(0, 0, i * 60f);
@@ -85,7 +91,7 @@ namespace CoopGame.EditorTools
             SetRef(so, "cistern", cistern);
             SetRef(so, "wheel", wheel);
             SetRef(so, "symbolAnchor", anchor);
-            SetRefArray(so, "pipe", new Object[] { collar.GetComponent<Renderer>(), inset.GetComponent<Renderer>() });
+            SetRefArray(so, "pipe", new Object[] { collar.GetComponent<Renderer>(), inset.GetComponent<Renderer>(), pipe.GetComponent<Renderer>(), elbow.GetComponent<Renderer>(), stub.GetComponent<Renderer>() });
             SetRef(so, "symbolMat", A.gold);
             so.ApplyModifiedPropertiesWithoutUndo();
             return v;
@@ -96,7 +102,7 @@ namespace CoopGame.EditorTools
             var cis = new GameObject("Cistern").transform;
             cis.SetParent(roomO, false);
             cis.localPosition = new Vector3(-36f, 0, 0);
-            const float spring = 2.6f, rise = 1.5f, endH = 4.4f;
+            const float spring = 3.3f, rise = 1.8f, endH = 5.4f; // ref sarnic2: yüksek, ferah
             var wall = K.cisternWall; var stone = K.cisternWall; var brick = K.cellarBrick;
             var arch = new Opening(0f, 3f, 0f, 3f);
 
@@ -118,14 +124,15 @@ namespace CoopGame.EditorTools
             }
             foreach (int s in new[] { -1, 1 })
             {
-                Slab("Architrave", cis, new Vector3(0, 2.55f, s * 2f), new Vector3(11.5f, 0.5f, 0.5f), stone, 1.5f, false);
-                Slab("Corbel", cis, new Vector3(5.6f, 2.12f, s * 2f), new Vector3(0.3f, 0.36f, 0.6f), stone, 1.2f, false);
+                Slab("Architrave", cis, new Vector3(0, spring - 0.05f, s * 2f), new Vector3(11.5f, 0.5f, 0.5f), stone, 1.5f, false);
+                Slab("Corbel", cis, new Vector3(5.6f, spring - 0.48f, s * 2f), new Vector3(0.3f, 0.36f, 0.6f), stone, 1.2f, false);
                 foreach (float x in new[] { -2.5f, 2.5f })
                 {
                     {   // Sütun: kare kaide + yuvarlak gövde + başlık
                         var col = new GameObject("Column").transform;
                         col.SetParent(cis, false);
                         col.localPosition = new Vector3(x, 0, s * 2f);
+                        col.localScale = new Vector3(1.2f, spring / 2.6f, 1.2f);
                         col.gameObject.AddComponent<BoxCollider>().center = new Vector3(0, 1.15f, 0);
                         col.GetComponent<BoxCollider>().size = new Vector3(0.6f, 2.3f, 0.6f);
                         Slab("Base", col, new Vector3(0, 0.2f, 0), new Vector3(0.84f, 0.4f, 0.84f), stone, 1.2f, false);
@@ -170,6 +177,59 @@ namespace CoopGame.EditorTools
             water.GetComponent<Renderer>().sharedMaterial.SetFloat("_Smoothness", 0.93f);
             water.isStatic = false;
             water.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+            water.GetComponent<Renderer>().sharedMaterial.color = new Color(0.03f, 0.09f, 0.1f);
+            {
+                var flo = water.transform; // çocuklar su seviyesiyle birlikte yükselir
+                var boat = new GameObject("Boat").transform;
+                boat.SetParent(flo, false);
+                boat.localPosition = new Vector3(3.9f, -0.02f, 3.35f);
+                boat.localRotation = Quaternion.Euler(0, 75f, 0);
+                Slab("Hull", boat, new Vector3(0, -0.06f, 0), new Vector3(0.8f, 0.06f, 2.2f), K.beam, 1f, false);
+                foreach (int s in new[] { -1, 1 })
+                {
+                    Slab("Side", boat, new Vector3(s * 0.45f, 0.08f, 0), new Vector3(0.06f, 0.32f, 2.3f), K.beam, 1f, false).transform.localRotation = Quaternion.Euler(0, 0, -s * 14f);
+                    Slab("Gunwale", boat, new Vector3(s * 0.49f, 0.24f, 0), new Vector3(0.08f, 0.04f, 2.32f), K.furniture, 1f, false);
+                    Slab("End", boat, new Vector3(0, 0.08f, s * 1.15f), new Vector3(0.95f, 0.32f, 0.06f), K.beam, 1f, false);
+                    Slab("Seat", boat, new Vector3(0, 0.14f, s * 0.45f), new Vector3(0.86f, 0.04f, 0.25f), K.furniture, 1f, false);
+                }
+                Rod("Oar", boat, new Vector3(-0.3f, 0.2f, -0.8f), new Vector3(0.25f, 0.18f, 0.9f), 0.04f, K.furniture);
+                var deb = new GameObject("Debris").transform;
+                deb.SetParent(flo, false);
+                Slab("Plank", deb, new Vector3(-2.8f, 0.01f, 2.8f), new Vector3(1.2f, 0.04f, 0.24f), K.beam, 1f, false).transform.localRotation = Quaternion.Euler(0, 20, 0);
+                Slab("Plank", deb, new Vector3(-2.1f, 0.01f, 3.3f), new Vector3(0.9f, 0.04f, 0.22f), K.beam, 1f, false).transform.localRotation = Quaternion.Euler(0, -15, 0);
+                Slab("Plank", deb, new Vector3(-3.0f, 0.01f, -3.4f), new Vector3(1.1f, 0.04f, 0.24f), K.beam, 1f, false).transform.localRotation = Quaternion.Euler(0, 60, 0);
+                Kit("BarrelLying", deb, new Vector3(-2.6f, -0.22f, -4.6f), 30f);
+                foreach (var t in flo.GetComponentsInChildren<Transform>(true))
+                {
+                    if (t == flo) continue;
+                    GameObjectUtility.SetStaticEditorFlags(t.gameObject, 0);
+                    var c = t.GetComponent<Collider>(); if (c != null) Object.DestroyImmediate(c);
+                }
+            }
+            // Bağlama halatı: sütuna sarılı, kayığın kıçına iner
+            for (int i = 0; i < 3; i++)
+                MeshObj("MooringCoil", cis, new Vector3(2.5f, 0.72f + i * 0.06f, 2f), RingMesh(0.36f, 0.045f, 0.05f), K.beam);
+            Rod("MooringRope", cis, new Vector3(2.75f, 0.76f, 2.25f), new Vector3(2.85f, 0.45f, 3.0f), 0.035f, K.beam);
+            // Tavan açıklıkları: ay ışığı huzmesi + baked spot
+            {
+                var glow = GlowMat("K_Oculus", Pal.Moon * 0.4f, Pal.Moon * 1.1f);
+                foreach (var o in new[] { new Vector2(1.5f, 0f), new Vector2(-1.2f, 4f) })
+                {
+                    float cy = spring + rise - 0.18f, L = cy - 0.1f;
+                    var oc = new GameObject("Oculus").transform;
+                    oc.SetParent(cis, false);
+                    oc.localPosition = new Vector3(o.x, 0, o.y);
+                    MeshObj("Ring", oc, new Vector3(0, cy, 0), RingMesh(0.46f, 0.1f, 0.14f), stone);
+                    Prim("Sky", oc, PrimitiveType.Cylinder, new Vector3(0, cy + 0.05f, 0), new Vector3(0.8f, 0.01f, 0.8f), glow);
+                    QuadObj("Shaft", oc, new Vector3(0, cy - L * 0.5f, 0), new Vector2(0.8f, L), K.shaft, Quaternion.LookRotation(Vector3.right, Vector3.up));
+                    QuadObj("ShaftB", oc, new Vector3(0, cy - L * 0.5f, 0), new Vector2(0.65f, L), K.shaft, Quaternion.LookRotation(Vector3.forward, Vector3.up));
+                    var ml = LightGo("OculusMoon", LightType.Spot, Pal.Moon, 12f, 8f, true);
+                    ml.transform.SetParent(oc, false);
+                    ml.transform.localPosition = new Vector3(0, cy - 0.1f, 0);
+                    ml.transform.localRotation = Quaternion.LookRotation(Vector3.down);
+                    ml.GetComponent<Light>().spotAngle = 34f; ml.GetComponent<Light>().innerSpotAngle = 18f;
+                }
+            }
 
             // --- Bulmaca: batı duvarında 4 vana ---
             cistern = new GameObject("Puzzle3_Cistern").AddComponent<CisternPuzzle>();
@@ -205,10 +265,10 @@ namespace CoopGame.EditorTools
                     GameObjectUtility.SetStaticEditorFlags(t.gameObject, GameObjectUtility.GetStaticEditorFlags(t.gameObject) & ~StaticEditorFlags.ContributeGI);
                 Kit("L_Candelabra", cis, p + new Vector3(0, 0.2f, 0));
             }
-            Chain(2.5f, -4f, 3.95f, 2.9f);
-            Chain(-2.5f, 4f, 3.95f, 3.1f);
-            Chain(0.4f, 4.3f, 3.9f, 2.7f);
-            Chain(-2.2f, -3.6f, 3.9f, 3.2f);
+            Chain(2.5f, -4f, 4.95f, 3.6f);
+            Chain(-2.5f, 4f, 4.95f, 3.9f);
+            Chain(0.4f, 4.3f, 4.9f, 3.4f);
+            Chain(-2.2f, -3.6f, 4.9f, 4.0f);
             // Seviye cetveli (batı duvarı): çentik aralığı = su seviyesi adımı
             Slab("GaugeBoard", det, new Vector3(-5.73f, 1.2f, -2.6f), new Vector3(0.04f, 2.4f, 0.16f), K.furniture, 1f, false);
             for (int i = 1; i <= 10; i++)
@@ -230,8 +290,8 @@ namespace CoopGame.EditorTools
             foreach (int s in new[] { -1, 1 })
                 Kit("L_Lantern", cis, Bracket(new Vector3(-5.75f, 2.4f, s * 2.6f), Vector3.right), s * 25f);
             {
-                Rod("LanternChain", det, new Vector3(0, 2.9f, 0), new Vector3(0, 3.95f, 0), 0.02f, K.iron);
-                BakedLantern(new Vector3(0, 2.48f, 0), 0f);
+                Rod("LanternChain", det, new Vector3(0, 3.5f, 0), new Vector3(0, 4.95f, 0), 0.02f, K.iron);
+                BakedLantern(new Vector3(0, 3.08f, 0), 0f);
                 var pe = Bracket(new Vector3(5.75f, 2.4f, 2.6f), Vector3.left);
                 BakedLantern(pe, 40f);
                 var ps = Bracket(new Vector3(2.3f, 2.4f, -6f), Vector3.forward);
@@ -261,8 +321,7 @@ namespace CoopGame.EditorTools
                 KitR("PaperB", cis, new Vector3(4.3f, 1.55f, 5.97f), Quaternion.Euler(-90, 0, 0) * Quaternion.Euler(0, 6, 0));
                 Kit("Stool", cis, new Vector3(3.9f, 0, 4.35f), 25f);
                 Kit("Ladder", cis, new Vector3(2.4f, 0, 5.3f), 0f);
-                Kit("Amphora", cis, new Vector3(5.25f, 0, 3.7f), 40f);
-                Kit("Chest", cis, new Vector3(5.2f, 0, 2.2f), -90f);
+                    Kit("Chest", cis, new Vector3(5.2f, 0, 2.2f), -90f);
                 Kit("Bucket", cis, new Vector3(1.4f, 0, 5.4f));
             }
             // --- Güneydoğu: erzak (fıçı, sandıklar, halat, kova) ---
@@ -283,8 +342,8 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", cis, new Vector3(3.4f, 2.4f, -5.7f), Quaternion.Euler(0, 180, 180), 1.2f);
             KitR("Cobweb", cis, new Vector3(-5.72f, 0.1f, 5.97f), Quaternion.identity, 0.9f);
 
-            KitProbes(cis, new Vector3(0, 1.8f, 0), new Vector3(11.5f, 3.4f, 11.2f), 4, 3, 5);
-            KitReflection(cis, new Vector3(0, 1.8f, 0), new Vector3(11.5f, 4f, 12f));
+            KitProbes(cis, new Vector3(0, 2.3f, 0), new Vector3(11.5f, 4.4f, 11.2f), 4, 3, 5);
+            KitReflection(cis, new Vector3(0, 2.3f, 0), new Vector3(11.5f, 5f, 12f));
             KeepBaked(cis);
         }
     }
