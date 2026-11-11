@@ -9,7 +9,7 @@ Konsept: We Were Here tarzı 2 kişilik co-op bulmaca, birinci şahıs (3. şah�
 - Setup All (CoopGame menüsü) sahneyi baştan üretir; kalıcı ayarlar CoopSetup.cs'te tutulur.
 ## Durum
 Biten: lobi+ses, hareket, 1. şahıs kamera+nişangâh+ışınla etkileşim, ağ etkileşimi, URP, P3 bulmaca altyapısı (Assets/Scripts/Puzzle), Bulmaca 1 (4 kol → sembol sırası → B'de kasa kapısı; telefon+PC test edildi). Görsel geçiş v1: temalı menü + HUD, A çan kulesi, B zindan (PC ekran görüntüsüyle doğrulandı, cihazda denenmedi).
-Bulmaca 2 (kibrit mahzeni) kodlandı, derlenmedi/test edilmedi. İlerleme: her bulmaca yeni oda (A: kule → merdiven → Saat Odası; B: zindan → kasa → mahzen).
+Bulmaca 2 (kibrit mahzeni) test edildi. Bulmaca 3 (sarnıç) kodlandı, test edilmedi. İlerleme: her bulmaca yeni oda (A: kule → Saat Odası → Hazne Odası; B: zindan → kasa → mahzen → sarnıç).
 Sıradakiler: görsel geçişin cihaz testi + FPS (gerekirse CoopSetup.Art.cs PostFx=false), FrameRateConfig.Target=60 (şu an 240), bulmaca 2-5 + final, sarnıç suyu, Mixamo karakter (Humanoid, animasyon hızdan türetilir).
 Not: 3. şahıs/uzak oyuncu gövdesi hareket yönüne dönüyor, bakış yönüne değil; final salonunda düzelt.
 Tasarım belgesi: Docs/PuzzleDesign.md

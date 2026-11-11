@@ -66,6 +66,18 @@ namespace CoopGame
             }
         }
 
+        /// <summary>İşaretli miktar: "+" ya da "−" ve yanında Roma rakamı (ör. +III). Toplam genişlik ~size*1.6.</summary>
+        public static void Amount(Transform parent, int amount, Material mat, float size, float depth = 0.03f)
+        {
+            float w = size * 0.1f, s = size * 0.28f, x = -size * 0.55f;
+            Bar(parent, new Vector2(x - s, 0), new Vector2(x + s, 0), w, depth, mat);
+            if (amount > 0) Bar(parent, new Vector2(x, -s), new Vector2(x, s), w, depth, mat);
+            var num = new GameObject("Num").transform;
+            num.SetParent(parent, false);
+            num.localPosition = new Vector3(size * 0.35f, 0, 0);
+            Numeral(num, Mathf.Abs(amount), mat, size, depth);
+        }
+
         /// <summary>Roma rakamı (1..6), yükseklik ~size.</summary>
         public static void Numeral(Transform parent, int n, Material mat, float size, float depth = 0.03f)
         {

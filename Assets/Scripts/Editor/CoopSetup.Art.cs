@@ -732,7 +732,7 @@ namespace CoopGame.EditorTools
             return d;
         }
 
-        static SyncedLever MakeConfirmLever(Transform parent, Vector3 pos, float yaw)
+        static SyncedLever MakeConfirmLever(Transform parent, Vector3 pos, float yaw, int puzzleId, int nodeId, string label = "Mührü onayla")
         {
             var root = new GameObject("ConfirmLever").transform;
             root.SetParent(parent, false);
@@ -745,11 +745,11 @@ namespace CoopGame.EditorTools
             Slab("Arm", pivot, new Vector3(0, 0.45f, 0), new Vector3(0.1f, 0.9f, 0.1f), A.iron, 1f).isStatic = false;
             Prim("Knob", pivot, PrimitiveType.Sphere, new Vector3(0, 0.95f, 0), Vector3.one * 0.26f, A.gold).AddComponent<SphereCollider>();
             var it = root.gameObject.AddComponent<Interactable>();
-            it.Label = "Mührü onayla";
+            it.Label = label;
             var lever = root.gameObject.AddComponent<SyncedLever>();
             var so = new SerializedObject(lever);
-            so.FindProperty("puzzleId").intValue = 2;
-            so.FindProperty("nodeId").intValue = 18;
+            so.FindProperty("puzzleId").intValue = puzzleId;
+            so.FindProperty("nodeId").intValue = nodeId;
             SetRef(so, "handle", pivot);
             so.ApplyModifiedPropertiesWithoutUndo();
             return lever;
@@ -795,7 +795,7 @@ namespace CoopGame.EditorTools
             Wall(root, "WallE", new Vector3(1.75f, 0, 0), false, 10.5f, h, A.towerWall, 3f, new Opening(0f, 3f, 0f, 3f));
             Slab("StairHeader", root, new Vector3(1.75f, 5.75f, 0), new Vector3(0.5f, 2.5f, 4f), A.towerWall, 2f, false);
             Wall(root, "WallN", new Vector3(-3.25f, 0, 5.25f), true, 10.5f, h, A.towerWall, 3f);
-            Wall(root, "WallS", new Vector3(-3.25f, 0, -5.25f), true, 10.5f, h, A.towerWall, 3f);
+            Wall(root, "WallS", new Vector3(-3.25f, 0, -5.25f), true, 10.5f, h, A.towerWall, 3f, new Opening(2.75f, 3f, 0f, 3f)); // Hazne merdiveni
             foreach (float x in new[] { -6.5f, 0f })
                 Slab("Beam", root, new Vector3(x, h - 0.25f, 0), new Vector3(0.4f, 0.5f, 10f), A.darkWood, 2f, false);
 
@@ -815,7 +815,7 @@ namespace CoopGame.EditorTools
 
             Torch(root, "TorchN", new Vector3(-6.5f, 2.8f, 4.98f), Vector3.back, 7f, 10f);
             Torch(root, "TorchS", new Vector3(-4.5f, 2.8f, -4.98f), Vector3.forward, 7f, 10f);
-            Prop("WoodenTable_01", root, new Vector3(-1.5f, 0, -3.8f), 80f, 0.85f);
+            Prop("WoodenTable_01", root, new Vector3(-5.6f, 0, -3.8f), 80f, 0.85f);
             Prop("wooden_crate_02", root, new Vector3(0.4f, 0, 4.0f), 25f, 0.8f);
             return root;
         }
@@ -827,6 +827,7 @@ namespace CoopGame.EditorTools
             dso.FindProperty("id").intValue = 2;
             dso.FindProperty("title").stringValue = "Bulmaca 2 (mahzen)";
             dso.FindProperty("startsActive").boolValue = false;
+            var up = dso.FindProperty("unlocks"); up.arraySize = 1; up.GetArrayElementAtIndex(0).intValue = 3;
             dso.ApplyModifiedPropertiesWithoutUndo();
 
             // ---- Oda B: kasa odasının batısında geçit + karanlık mahzen (iç: x -15.25..-24.75, z -5..5) ----
@@ -846,7 +847,7 @@ namespace CoopGame.EditorTools
             // Batı nişi (bulmaca 3 geçidi olacak)
             Deck(roomB, "NicheFloor", new Vector3(-26.4f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.flagstone, 1, 1);
             Deck(roomB, "NicheCeil", new Vector3(-26.4f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomB, "NicheW", new Vector3(-27.5f, 0, 0), false, 3.5f, 3f, wall, 3f);
+            Wall(roomB, "NicheW", new Vector3(-27.5f, 0, 0), false, 3.5f, 3f, wall, 3f, new Opening(0f, 3f, 0f, 3f)); // sarnıç geçidi (bulmaca 3)
             Wall(roomB, "NicheN", new Vector3(-26.4f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
             Wall(roomB, "NicheS", new Vector3(-26.4f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
 
@@ -918,7 +919,7 @@ namespace CoopGame.EditorTools
             var wax = MakeMat("CandleWax", new Color(0.86f, 0.8f, 0.66f));
             var flames = new GameObject[3];
             for (int i = 0; i < 3; i++) Candle(clock, new Vector3(-7.72f, 0.99f, -0.5f + i * 0.5f), wax, out flames[i]);
-            var confirm = MakeConfirmLever(clock, new Vector3(-6.2f, 0, 0), -90f);
+            var confirm = MakeConfirmLever(clock, new Vector3(-6.2f, 0, 0), -90f, 2, 18);
 
             var cso = new SerializedObject(crypt);
             cso.FindProperty("puzzleId").intValue = 2;
@@ -942,6 +943,247 @@ namespace CoopGame.EditorTools
             SetRef(vso, "gate", gate);
             SetRef(vso, "rewardGate", rewardGate);
             SetRefArray(vso, "solvedOn", new Object[] { lit.gameObject });
+            vso.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // ---------- Bulmaca 3: sarnıç (B vanaları çevirir, A seviyeyi ve tabloyu görür) ----------
+
+        /// <summary>Düz merdiven: holder üst kenarda, yerel +Z boyunca iner (run, drop), genişlik 3. Çarpışma rampa, basamaklar görsel.</summary>
+        static Transform Stair(Transform parent, string name, Vector3 top, float yaw, float run, float drop, Material wallMat)
+        {
+            var root = new GameObject(name).transform;
+            root.SetParent(parent, false);
+            root.localPosition = top;
+            root.localRotation = Quaternion.Euler(0, yaw, 0);
+            float ang = Mathf.Atan2(drop, run);
+            var ramp = Slab("Ramp", root, Vector3.zero, new Vector3(3f, 0.3f, Mathf.Sqrt(run * run + drop * drop) + 0.3f), A.flagstone, 1f);
+            ramp.GetComponent<MeshRenderer>().enabled = false;
+            ramp.transform.localPosition = new Vector3(0, -drop * 0.5f - 0.15f * Mathf.Cos(ang), run * 0.5f - 0.15f * Mathf.Sin(ang));
+            ramp.transform.localRotation = Quaternion.Euler(ang * Mathf.Rad2Deg, 0, 0);
+            int steps = Mathf.Max(4, Mathf.RoundToInt(drop / 0.25f));
+            float sr = run / steps, sh = drop / steps;
+            for (int i = 0; i < steps; i++)
+                Slab("Step" + i, root, new Vector3(0, -sh * i - 0.25f, sr * (i + 0.5f)), new Vector3(3f, 0.5f, sr), A.flagstone, 1f, false);
+            Wall(root, "WallL", new Vector3(-1.75f, -drop, run * 0.5f), false, run, drop + 3f, wallMat, 3f);
+            Wall(root, "WallR", new Vector3(1.75f, -drop, run * 0.5f), false, run, drop + 3f, wallMat, 3f);
+            Deck(root, "Ceil", new Vector3(0, 3.25f, run * 0.5f), 4f, run, 0.5f, A.darkWood, 1, 2);
+            Torch(root, "Torch", new Vector3(1.48f, 1.2f - drop * 0.5f, run * 0.5f), Vector3.left, 6f, 8f);
+            return root;
+        }
+
+        static TextMesh WorldText(Transform parent, string text, Vector3 pos, Quaternion rot, float charSize, Color color)
+        {
+            var go = new GameObject("Text_" + text);
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = pos;
+            go.transform.localRotation = rot;
+            var tm = go.AddComponent<TextMesh>();
+            tm.font = U.head;
+            tm.text = text;
+            tm.fontSize = 64;
+            tm.characterSize = charSize;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.alignment = TextAlignment.Center;
+            tm.color = color;
+            go.GetComponent<MeshRenderer>().sharedMaterial = U.head.material;
+            return tm;
+        }
+
+        static CisternValve MakeValve(Transform parent, int index, Vector3 pos, CisternPuzzle cistern)
+        {
+            var root = new GameObject("Valve" + index).transform;
+            root.SetParent(parent, false);
+            root.localPosition = pos;
+            root.localRotation = Quaternion.Euler(0, -90, 0); // yüz (-Z) doğuya
+            Slab("Plate", root, new Vector3(0, 1.3f, 0.05f), new Vector3(0.95f, 0.95f, 0.1f), A.iron, 1f).isStatic = false;
+            var pipeMat = MakeMat("ValvePipe" + index, Color.gray);
+            var pipes = new[]
+            {
+                Prim("PipeUp", root, PrimitiveType.Cylinder, new Vector3(0, 2.75f, -0.08f), new Vector3(0.17f, 1.25f, 0.17f), pipeMat).GetComponent<Renderer>(),
+                Prim("PipeDown", root, PrimitiveType.Cylinder, new Vector3(0, 0.55f, -0.08f), new Vector3(0.17f, 0.55f, 0.17f), pipeMat).GetComponent<Renderer>(),
+            };
+            var wheel = MeshObj("Wheel", root, new Vector3(0, 1.3f, -0.2f), GearMesh(10, 0.4f, 0.05f, 0.3f, 0.06f), A.bronze).transform;
+            Slab("SpokeA", wheel, Vector3.zero, new Vector3(0.66f, 0.06f, 0.05f), A.bronze, 1f, false).isStatic = false;
+            Slab("SpokeB", wheel, Vector3.zero, new Vector3(0.06f, 0.66f, 0.05f), A.bronze, 1f, false).isStatic = false;
+            Prim("Hub", wheel, PrimitiveType.Sphere, Vector3.zero, Vector3.one * 0.14f, A.brass);
+            Slab("SymbolPlate", root, new Vector3(0.78f, 2.2f, 0.02f), new Vector3(0.62f, 0.62f, 0.06f), A.plaque, 1f, false);
+            var anchor = new GameObject("Symbol").transform;
+            anchor.SetParent(root, false);
+            anchor.localPosition = new Vector3(0.78f, 2.2f, -0.02f);
+
+            var it = root.gameObject.AddComponent<Interactable>();
+            it.Label = "Vanayı çevir";
+            var v = root.gameObject.AddComponent<CisternValve>();
+            var so = new SerializedObject(v);
+            so.FindProperty("puzzleId").intValue = 3;
+            so.FindProperty("nodeId").intValue = 27 + index;
+            so.FindProperty("valveIndex").intValue = index;
+            SetRef(so, "cistern", cistern);
+            SetRef(so, "wheel", wheel);
+            SetRef(so, "symbolAnchor", anchor);
+            SetRefArray(so, "pipe", pipes);
+            SetRef(so, "symbolMat", A.gold);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return v;
+        }
+
+        static void BuildPuzzle3(Transform roomA, Transform roomB)
+        {
+            var def = new GameObject("Puzzle3").AddComponent<PuzzleDef>();
+            var dso = new SerializedObject(def);
+            dso.FindProperty("id").intValue = 3;
+            dso.FindProperty("title").stringValue = "Bulmaca 3 (sarnıç)";
+            dso.FindProperty("startsActive").boolValue = false;
+            dso.ApplyModifiedPropertiesWithoutUndo();
+
+            var wall = A.dungeonWall;
+            // ---- Oda B: mahzen nişinin batısında geçit + sarnıç (iç: x -30.25..-41.75, z -6..6) ----
+            Deck(roomB, "CisternCorridorFloor", new Vector3(-28.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
+            Deck(roomB, "CisternCorridorCeil", new Vector3(-28.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
+            Wall(roomB, "CisternCorridorN", new Vector3(-28.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
+            Wall(roomB, "CisternCorridorS", new Vector3(-28.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
+            var gate = MakeDoor("CisternGate", roomB, new Vector3(-28.9f, 1.5f, 0), false, A.iron);
+            const float h = 4f;
+            Deck(roomB, "CisternFloor", new Vector3(-36f, -0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonFloor, 3, 3);
+            Deck(roomB, "CisternCeil", new Vector3(-36f, h + 0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonCeil, 3, 3);
+            var arch = new Opening(0f, 3f, 0f, 3f);
+            Wall(roomB, "CisternWallE", new Vector3(-30f, 0, 0), false, 12.5f, h, wall, 3f, arch);
+            Wall(roomB, "CisternWallW", new Vector3(-42f, 0, 0), false, 12.5f, h, wall, 3f);
+            Wall(roomB, "CisternWallN", new Vector3(-36f, 0, 6.25f), true, 12.5f, h, wall, 3f);
+            Wall(roomB, "CisternWallS", new Vector3(-36f, 0, -6.25f), true, 12.5f, h, wall, 3f, arch);
+            // Güney nişi: bulmaca 4 geçidi (şimdilik kapalı oda)
+            Deck(roomB, "CisternNicheFloor", new Vector3(-36f, -0.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.flagstone, 1, 1);
+            Deck(roomB, "CisternNicheCeil", new Vector3(-36f, 3.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.dungeonCeil, 1, 1);
+            Wall(roomB, "CisternNicheS", new Vector3(-36f, 0, -8.5f), true, 3.5f, 3f, wall, 3f);
+            Wall(roomB, "CisternNicheE", new Vector3(-34.25f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
+            Wall(roomB, "CisternNicheW", new Vector3(-37.75f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
+            var nextGate = MakeDoor("CisternNextGate", roomB, new Vector3(-36f, 1.5f, -6.25f), true, A.iron);
+            foreach (float x in new[] { -33.5f, -38.5f })
+                foreach (float z in new[] { -3f, 3f })
+                {
+                    Slab("CisternPillar", roomB, new Vector3(x, h * 0.5f, z), new Vector3(0.7f, h, 0.7f), A.flagstone, 1.6f);
+                    Slab("CisternPillarCap", roomB, new Vector3(x, h - 0.2f, z), new Vector3(1f, 0.4f, 1f), A.flagstone, 1.6f, false);
+                }
+            // Tavandan inen büyük besleme borusu (suyun geldiği yer)
+            Prim("InflowPipe", roomB, PrimitiveType.Cylinder, new Vector3(-36f, 3.2f, 5.6f), new Vector3(0.5f, 0.8f, 0.5f), A.iron);
+            var water = Slab("CisternWater", roomB, new Vector3(-36f, 0.02f, 0), new Vector3(11.5f, 0.04f, 12f), A.water, 1f, false);
+            water.isStatic = false;
+            water.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+            Torch(roomB, "CisternTorchW1", new Vector3(-41.73f, 2.9f, -3f), Vector3.right, 8f, 10f);
+            Torch(roomB, "CisternTorchW2", new Vector3(-41.73f, 2.9f, 3f), Vector3.right, 8f, 10f);
+            Torch(roomB, "CisternTorchN", new Vector3(-33f, 2.9f, 5.98f), Vector3.back, 7f, 10f);
+            Torch(roomB, "CisternTorchS", new Vector3(-39f, 2.9f, -5.98f), Vector3.forward, 7f, 10f);
+
+            var respawn = new GameObject("CisternRespawn").transform;
+            respawn.SetParent(roomB, false);
+            respawn.localPosition = new Vector3(-22f, 0.05f, 0);
+
+            var cistern = new GameObject("Puzzle3_Cistern").AddComponent<CisternPuzzle>();
+            cistern.transform.SetParent(roomB, false);
+            cistern.transform.localPosition = new Vector3(-36f, 0, 0);
+            var valves = new CisternValve[4];
+            for (int i = 0; i < 4; i++) valves[i] = MakeValve(roomB, i, new Vector3(-41.65f, 0, -4.5f + i * 3f), cistern);
+
+            // ---- Oda A3: Hazne Odası (Saat Odası'nın güneyinden merdivenle; bulmaca 2 çözülünce kapı açılır) ----
+            var clock = roomA.Find("RoomA2_SaatOdasi");
+            var door = MakeDoor("HazneDoor", clock, new Vector3(-0.5f, 1.5f, -5.25f), true, A.wood);
+            var pd = door.gameObject.AddComponent<PuzzleDoor>();
+            var pso = new SerializedObject(pd);
+            pso.FindProperty("puzzleId").intValue = 2;
+            SetRef(pso, "door", door);
+            pso.ApplyModifiedPropertiesWithoutUndo();
+            Stair(clock, "HazneStair", new Vector3(-0.5f, 0, -5.5f), 180f, 6.5f, 3f, A.towerWall);
+
+            var r = new GameObject("RoomA3_Hazne").transform;
+            r.SetParent(clock, false);
+            r.localPosition = new Vector3(-0.5f, -3f, -17f);
+            const float ha = 5f;
+            Deck(r, "Floor", new Vector3(0, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.flagstone, 2, 2);
+            Deck(r, "Ceiling", new Vector3(0, ha + 0.25f, 0), 10.5f, 10.5f, 0.5f, A.darkWood, 2, 2);
+            Wall(r, "WallN", new Vector3(0, 0, 5.25f), true, 10.5f, ha, A.towerWall, 3f, arch);
+            Slab("StairHeader", r, new Vector3(0, 5.75f, 5.25f), new Vector3(4f, 1.5f, 0.5f), A.towerWall, 2f, false);
+            Wall(r, "WallS", new Vector3(0, 0, -5.25f), true, 10.5f, ha, A.towerWall, 3f);
+            Wall(r, "WallE", new Vector3(5.25f, 0, 0), false, 10.5f, ha, A.towerWall, 3f);
+            Wall(r, "WallW", new Vector3(-5.25f, 0, 0), false, 10.5f, ha, A.towerWall, 3f);
+            Torch(r, "TorchE1", new Vector3(4.98f, 3f, -2f), Vector3.left, 8f, 11f);
+            Torch(r, "TorchE2", new Vector3(4.98f, 3f, 2.5f), Vector3.left, 8f, 11f);
+            Torch(r, "TorchW", new Vector3(-4.98f, 4.3f, -3.2f), Vector3.right, 6f, 9f);
+
+            // Gösterge (güney duvarı): seviye sütunu, çentikler, boğulma bandı, hedef işareti
+            const float unit = 0.38f, baseY = 0.4f;
+            Slab("GaugeBase", r, new Vector3(0, 0.2f, -4.3f), new Vector3(1.3f, 0.4f, 1.3f), A.flagstone, 1.2f);
+            Slab("GaugeBoard", r, new Vector3(0, 2.55f, -4.9f), new Vector3(1.6f, 4.4f, 0.1f), A.plaque, 1.5f, false);
+            foreach (float x in new[] { -0.42f, 0.42f })
+                foreach (float z in new[] { -4.72f, -3.88f })
+                    Slab("GaugePost", r, new Vector3(x, baseY + 2.0f, z), new Vector3(0.06f, 4.0f, 0.06f), A.brass, 1f, false);
+            Slab("GaugeCap", r, new Vector3(0, baseY + 4.05f, -4.3f), new Vector3(1.0f, 0.1f, 1.0f), A.brass, 1f, false);
+            for (int i = 0; i <= 10; i++)
+                Slab("Notch" + i, r, new Vector3(0, baseY + i * unit, -4.84f), new Vector3(i % 2 == 0 ? 1.3f : 0.9f, 0.035f, 0.03f), A.iron, 1f, false);
+            Slab("DrownBand", r, new Vector3(0, baseY + 9f * unit, -4.83f), new Vector3(1.45f, 2f * unit, 0.02f),
+                 GlowMat("DrownBand", new Color(0.6f, 0.08f, 0.06f), new Color(0.7f, 0.06f, 0.04f) * 0.9f), 1f, false);
+            var column = new GameObject("GaugeColumn").transform;
+            column.SetParent(r, false);
+            column.localPosition = new Vector3(0, baseY, -4.3f);
+            Prim("Water", column, PrimitiveType.Cylinder, new Vector3(0, 0.5f, 0), new Vector3(0.6f, 0.5f, 0.6f),
+                 GlowMat("GaugeWater", new Color(0.1f, 0.35f, 0.5f), new Color(0.05f, 0.3f, 0.45f) * 0.9f));
+            column.localScale = new Vector3(1f, 0.001f, 1f);
+            var target = new GameObject("GaugeTarget").transform;
+            target.SetParent(r, false);
+            target.localPosition = new Vector3(0, baseY, -4.3f);
+            foreach (float x in new[] { -0.62f, 0.62f })
+                Slab("Mark", target, new Vector3(x, 0, 0), new Vector3(0.36f, 0.07f, 0.36f), A.gold, 1f, false).isStatic = false;
+
+            // Tablo (batı duvarı): 4 satır sembol → miktar, altta ters akan boru rengi
+            Slab("ChartBoard", r, new Vector3(-4.93f, 2.3f, 0), new Vector3(0.1f, 3.6f, 3.2f), A.plaque, 1.5f, false);
+            Slab("ChartFrame", r, new Vector3(-4.97f, 2.3f, 0), new Vector3(0.06f, 3.76f, 3.36f), A.iron, 1f, false);
+            var face = Quaternion.Euler(0, -90, 0);
+            var syms = new Transform[4];
+            var amts = new Transform[4];
+            for (int row = 0; row < 4; row++)
+            {
+                float y = 3.65f - row * 0.72f;
+                syms[row] = new GameObject("ChartSymbol" + row).transform;
+                syms[row].SetParent(r, false);
+                syms[row].localPosition = new Vector3(-4.87f, y, -0.8f);
+                syms[row].localRotation = face;
+                amts[row] = new GameObject("ChartAmount" + row).transform;
+                amts[row].SetParent(r, false);
+                amts[row].localPosition = new Vector3(-4.87f, y, 0.55f);
+                amts[row].localRotation = face;
+            }
+            Slab("ChartRule", r, new Vector3(-4.87f, 1.06f, 0), new Vector3(0.02f, 0.03f, 2.6f), A.iron, 1f, false);
+            var swatch = Slab("ReversedSwatch", r, new Vector3(-4.86f, 0.75f, -0.9f), new Vector3(0.04f, 0.32f, 0.7f),
+                              MakeMat("ReversedSwatch", Color.gray), 1f, false);
+            swatch.isStatic = false;
+            WorldText(r, "TERS AKAR", new Vector3(-4.86f, 0.75f, 0.45f), face, 0.022f, GoldBright);
+            Prop("wine_barrel_01", r, new Vector3(3.9f, 0, 3.9f), 30f, 1.15f);
+            Prop("wine_barrel_01", r, new Vector3(3.8f, 0, -3.9f), 120f, 1.15f);
+
+            var seal = MakeConfirmLever(r, new Vector3(2.4f, 0, -3.4f), 180f, 3, 31, "Sarnıcı mühürle");
+
+            var cso = new SerializedObject(cistern);
+            cso.FindProperty("puzzleId").intValue = 3;
+            cso.FindProperty("nodeId").intValue = 20;
+            SetRefArray(cso, "valves", valves);
+            SetRef(cso, "seal", seal);
+            cso.FindProperty("zoneCenter").vector3Value = roomB.position + new Vector3(-36f, 1.5f, 0);
+            cso.FindProperty("zoneSize").vector3Value = new Vector3(11f, 3f, 12f);
+            SetRef(cso, "respawn", respawn);
+            cso.ApplyModifiedPropertiesWithoutUndo();
+
+            var vis = cistern.gameObject.AddComponent<CisternVisuals>();
+            var vso = new SerializedObject(vis);
+            SetRef(vso, "cistern", cistern);
+            SetRef(vso, "water", water.transform);
+            SetRef(vso, "gaugeColumn", column);
+            SetRef(vso, "gaugeTarget", target);
+            vso.FindProperty("gaugeUnit").floatValue = unit;
+            SetRefArray(vso, "chartSymbols", syms);
+            SetRefArray(vso, "chartAmounts", amts);
+            SetRef(vso, "reversedSwatch", swatch.GetComponent<Renderer>());
+            SetRef(vso, "chartMat", A.gold);
+            SetRef(vso, "gate", gate);
+            SetRef(vso, "nextGate", nextGate);
             vso.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -1089,6 +1331,7 @@ namespace CoopGame.EditorTools
             new GameObject("PuzzleChime").AddComponent<PuzzleChime>();
             BuildPuzzle1(roomA, roomB);
             BuildPuzzle2(roomA, roomB);
+            BuildPuzzle3(roomA, roomB);
         }
 
         // ---------- Menü arka planı: şato kapısı, gece ----------

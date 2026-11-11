@@ -531,6 +531,25 @@ namespace CoopGame.EditorTools
             SetRef(cso, "flameMat", A.flame);
             cso.ApplyModifiedPropertiesWithoutUndo();
 
+            // Sarnıç (bulmaca 3): su altı örtüsü, nefes durumu, boğulma karartması, mesaj
+            var cisStatus = MakeText(canvas, "CisternStatus", "", 34, Vector2.zero, new Vector2(1000, 60), TextAnchor.MiddleCenter, U.body, Cream);
+            Corner(cisStatus, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 120));
+            var under = MakeImage(root, "Underwater", Vector2.zero, Vector2.zero, null, Color.clear);
+            Stretch(under, Vector2.zero, Vector2.one); under.raycastTarget = false;
+            var cisFade = MakeImage(root, "CisternFade", Vector2.zero, Vector2.zero, null, Color.clear);
+            Stretch(cisFade, Vector2.zero, Vector2.one); cisFade.raycastTarget = false;
+            var cisMsg = MakeText(root, "CisternMessage", "", 52, Vector2.zero, new Vector2(1500, 200), TextAnchor.MiddleCenter, U.head, GoldBright);
+            Corner(cisMsg, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero);
+            var cisHud = new GameObject("CisternHud").AddComponent<CisternHud>();
+            var cho = new SerializedObject(cisHud);
+            SetRef(cho, "status", cisStatus);
+            SetRef(cho, "message", cisMsg);
+            SetRef(cho, "under", under);
+            SetRef(cho, "fade", cisFade);
+            var waterGo = GameObject.Find("CisternWater");
+            SetRef(cho, "water", waterGo != null ? waterGo.transform : null);
+            cho.ApplyModifiedPropertiesWithoutUndo();
+
             EditorSceneManager.SaveScene(scene, GamePath);
         }
 
@@ -556,6 +575,8 @@ namespace CoopGame.EditorTools
             Shot(dir + "/b_fresco.png", b + new Vector3(-2.5f, 1.72f, -1f), b + new Vector3(8f, 2f, 0.5f), false);
             Shot(dir + "/b_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
             Shot(dir + "/a_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
+            Shot(dir + "/a_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
+            Shot(dir + "/b_cistern.png", b + new Vector3(-31.5f, 1.72f, 1f), b + new Vector3(-41.5f, 1.3f, -1f), false);
             Shot(dir + "/b_crypt.png", b + new Vector3(-16.2f, 1.72f, 0.5f), b + new Vector3(-21f, 0.6f, 2.5f), false);
             Shot(dir + "/a_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
             Debug.Log("[CoopSetup] Shots -> " + Path.GetFullPath(dir));
