@@ -18,3 +18,12 @@ Tasarım belgesi: Docs/PuzzleDesign.md
 - Varlıklar: Assets/ThirdParty (Poly Haven CC0 doku/model/gökyüzü, OFL fontlar; LICENSES.md). Üretilenler: Assets/Generated (ağ, sprite), Assets/Materials.
 - Görsel doğrulama: Unity kapalıyken batch `-executeMethod CoopGame.EditorTools.CoopSetup.SetupAndShots -shotDir <klasör>` (ya da yalnızca Shots) PNG üretir.
 - Nesne başına 4 ek ışık sınırı var: büyük yüzeyler Deck() ile parçalı; oda başına ~4-5 noktasal ışığı geçme.
+## Art direction (kalıcı)
+- Referanslar: Docs/Reference/ → lobi_hol.png, mekanizma.jpg, mahzen.png, genel_ic.jpg. Oda tasarlamadan önce hepsini incele. Her yeni oda bu detay seviyesinde, aynı şato stilinde.
+- Yeni oda ASLA boş taş kutu + bulmaca değil; komple yaşanmış mekan: masa, üstünde kağıt/mektup/mum, raf, şişe, sandık, tablo, alet, örümcek ağı. Oda başına min 8-10 dekor objesi, environmental storytelling.
+- Şato iç: ahşap lambri, sıva, kiriş, parke, kumaş. Yer altı (mahzen/sarnıç): taş.
+- Sadece Docs/StyleGuide.md paleti ve Art kit (Assets/Art/Kit) kullanılır. Pembe/neon/parlak renk yasak.
+- Referans görseli olmayan yeni oda için önce kullanıcıya Gemini prompt'u yaz (sonuna "no text"), görsel gelince tasarla.
+- Asset: Poly Haven/ambientCG (CC0) kendin indir → Assets/ThirdParty/<kaynak>/; diğerleri "manuel indir" listesi (link + hedef klasör). Lisanslar Docs/CREDITS.md. Plan: Docs/AssetPlan.md.
+- Mobil bütçe: URP mobile, baked light + light probes, oda başına max 2 realtime light, gerçek zamanlı yansıma yok (reflection probe ile taklit), LOD, occlusion culling, ASTC. Hedef orta Android 60 fps (min 30).
+- Roller: X (yukarı/mekanizma) ve O (aşağı/mahzen); eski adları A/B.
