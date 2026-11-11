@@ -262,6 +262,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7249778028899784085}
     m_Modifications:
+    - target: {fileID: 602773703992188823, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 85
+      objectReference: {fileID: 0}
+    - target: {fileID: 1569126099581239846, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 85
+      objectReference: {fileID: 0}
     - target: {fileID: 2262135865685216516, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 85
@@ -306,10 +314,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2592431065513229265, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 85
-      objectReference: {fileID: 0}
     - target: {fileID: 2837783681941410302, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_Name
       value: CandleCluster
@@ -318,15 +322,11 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
+    - target: {fileID: 3598978163126889704, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 85
+      objectReference: {fileID: 0}
     - target: {fileID: 4151404275905272608, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 85
-      objectReference: {fileID: 0}
-    - target: {fileID: 4172787597422426391, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 85
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431282605055205841, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
