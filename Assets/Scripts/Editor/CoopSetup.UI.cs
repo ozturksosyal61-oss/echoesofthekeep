@@ -555,6 +555,8 @@ namespace CoopGame.EditorTools
             Shot(dir + "/a_hud.png", a + new Vector3(-2f, 1.72f, 2.5f), a + new Vector3(-1.5f, 1.5f, 7f), true);
             Shot(dir + "/b_fresco.png", b + new Vector3(-2.5f, 1.72f, -1f), b + new Vector3(8f, 2f, 0.5f), false);
             Shot(dir + "/b_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
+            Shot(dir + "/a_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
+            Shot(dir + "/b_crypt.png", b + new Vector3(-16.2f, 1.72f, 0.5f), b + new Vector3(-21f, 0.6f, 2.5f), false);
             Shot(dir + "/a_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
             Debug.Log("[CoopSetup] Shots -> " + Path.GetFullPath(dir));
         }
