@@ -14,8 +14,9 @@ namespace CoopGame.EditorTools
     public static partial class CoopSetup
     {
         /// <summary>Menüde görünen oyun adı (çalışma adı; buradan değiştir).</summary>
-        const string GameTitle = "ÇAN & ZİNDAN";
-        const string GameSubtitle = "İki kişilik şato bulmacası";
+        const string GameTitle = "ECHOES";
+        const string GameTitleSub = "OF THE KEEP";
+        const string GameSubtitle = "İki ses. Tek şato.";
 
         const string UiDir = "Assets/Generated/UI";
         const string FontDir = "Assets/ThirdParty/Fonts/";
@@ -323,34 +324,55 @@ namespace CoopGame.EditorTools
             var L = new Vector2(0f, 0.5f);
 
             // Sol: başlık bloğu
-            var title = MakeText(canvas, "Title", GameTitle, 124, Vector2.zero, new Vector2(1100, 170), TextAnchor.MiddleLeft, U.title, GoldBright);
-            Corner(title, L, L, new Vector2(110, 150));
+            var title = MakeText(canvas, "Title", GameTitle, 168, Vector2.zero, new Vector2(1100, 190), TextAnchor.MiddleLeft, U.title, GoldBright);
+            Corner(title, L, L, new Vector2(104, 230));
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             var ts = title.GetComponent<Shadow>(); ts.effectDistance = new Vector2(4f, -5f); ts.effectColor = new Color(0, 0, 0, 0.85f);
-            var line = MakeImage(canvas, "TitleLine", Vector2.zero, new Vector2(620, 3), null, Gold);
-            Corner(line, L, L, new Vector2(116, 52)); line.raycastTarget = false;
+            var title2 = MakeText(canvas, "TitleSub", GameTitleSub, 62, Vector2.zero, new Vector2(1100, 80), TextAnchor.MiddleLeft, U.head, Gold);
+            Corner(title2, L, L, new Vector2(116, 112));
+            title2.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var line = MakeImage(canvas, "TitleLine", Vector2.zero, new Vector2(520, 3), null, Gold);
+            Corner(line, L, L, new Vector2(116, 56)); line.raycastTarget = false;
             var sub = MakeText(canvas, "Subtitle", GameSubtitle, 46, Vector2.zero, new Vector2(1000, 70), TextAnchor.MiddleLeft, U.body, Cream);
-            Corner(sub, L, L, new Vector2(116, 2));
-            var lore = MakeText(canvas, "Lore", "Biri çan kulesinin tepesinde, diğeri zindanın dibinde.\nBirbirinizi göremezsiniz; yalnızca sesiniz var.", 34,
-                                Vector2.zero, new Vector2(900, 110), TextAnchor.UpperLeft, U.body, new Color(Cream.r, Cream.g, Cream.b, 0.72f));
-            Corner(lore, L, new Vector2(0f, 1f), new Vector2(116, -60));
-            var mic = MakeText(canvas, "MicHint", "Sesli sohbet için mikrofon izni istenir  ·  Kulaklık önerilir", 28,
-                               Vector2.zero, new Vector2(1000, 44), TextAnchor.LowerLeft, U.body, new Color(Cream.r, Cream.g, Cream.b, 0.55f));
-            Corner(mic, Vector2.zero, Vector2.zero, new Vector2(116, 54));
+            Corner(sub, L, L, new Vector2(116, 6));
 
-            // Sağ: giriş paneli
-            var panel = MakeImage(canvas, "Panel", Vector2.zero, new Vector2(700, 800), U.panel, Color.white, true);
-            Corner(panel, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-110, 0));
+            // Alt sol: ana menü sekmeleri (Oyna aktif; diğerleri ileride)
+            string[] tabs = { "OYNA", "MAĞAZA", "ARKADAŞLAR", "AYARLAR" };
+            float tx = 116;
+            for (int i = 0; i < tabs.Length; i++)
+            {
+                bool on = i == 0;
+                float w = 70 + tabs[i].Length * 26;
+                var tab = MakeText(canvas, "Tab_" + tabs[i], tabs[i], 36, Vector2.zero, new Vector2(w, 56), TextAnchor.MiddleLeft, U.head,
+                                   on ? GoldBright : new Color(Cream.r, Cream.g, Cream.b, 0.45f));
+                Corner(tab, Vector2.zero, Vector2.zero, new Vector2(tx, 92));
+                if (on)
+                {
+                    var ul = MakeImage(canvas, "TabLine", Vector2.zero, new Vector2(w - 70, 3), null, Gold);
+                    Corner(ul, Vector2.zero, Vector2.zero, new Vector2(tx, 82)); ul.raycastTarget = false;
+                }
+                else
+                {
+                    var soon = MakeText(canvas, "Soon", "YAKINDA", 18, Vector2.zero, new Vector2(w, 26), TextAnchor.MiddleLeft, U.body,
+                                        new Color(Gold.r, Gold.g, Gold.b, 0.5f), false);
+                    Corner(soon, Vector2.zero, Vector2.zero, new Vector2(tx, 64));
+                }
+                tx += w;
+            }
+
+            // Sağ: kompakt oyna kartı
+            var panel = MakeImage(canvas, "Panel", Vector2.zero, new Vector2(600, 560), U.panel, Color.white, true);
+            Corner(panel, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-104, -10));
             var p = panel.rectTransform;
-            MakeText(p, "Header", "ODAYA GİR", 44, new Vector2(0, 330), new Vector2(600, 60), TextAnchor.MiddleCenter, U.head, Gold);
-            Divider(p, new Vector2(0, 288), 420);
-            var create = MakeButton(p, "CreateButton", "YENİ ODA KUR", new Vector2(0, 190), new Vector2(580, 132), true, 50);
-            MakeText(p, "Or", "ya da arkadaşının kodunu gir", 30, new Vector2(0, 86), new Vector2(580, 44), TextAnchor.MiddleCenter, U.body,
+            var create = MakeButton(p, "CreateButton", "ODA KUR", new Vector2(0, 168), new Vector2(500, 112), true, 46);
+            MakeText(p, "Or", "ya da arkadaşının koduyla katıl", 28, new Vector2(0, 76), new Vector2(500, 40), TextAnchor.MiddleCenter, U.body,
                      new Color(Cream.r, Cream.g, Cream.b, 0.6f));
-            var input = MakeInput(p, "CodeInput", new Vector2(0, -8), new Vector2(580, 132));
-            var join = MakeButton(p, "JoinButton", "KATIL", new Vector2(0, -156), new Vector2(580, 120), false, 48);
-            Divider(p, new Vector2(0, -238), 420, 0.35f);
-            var status = MakeText(p, "Status", "", 32, new Vector2(0, -312), new Vector2(600, 120), TextAnchor.MiddleCenter, U.body, Cream);
+            var input = MakeInput(p, "CodeInput", new Vector2(-95, -26), new Vector2(310, 112));
+            var join = MakeButton(p, "JoinButton", "KATIL", new Vector2(165, -26), new Vector2(170, 112), false, 42);
+            Divider(p, new Vector2(0, -116), 400, 0.35f);
+            var status = MakeText(p, "Status", "", 28, new Vector2(0, -170), new Vector2(520, 80), TextAnchor.MiddleCenter, U.body, Cream);
+            MakeText(p, "MicHint", "Sesli sohbet · Kulaklık önerilir", 22, new Vector2(0, -236), new Vector2(520, 34), TextAnchor.MiddleCenter, U.body,
+                     new Color(Cream.r, Cream.g, Cream.b, 0.45f), false);
 
             var lobby = new GameObject("LobbyUI").AddComponent<LobbyUI>();
             var so = new SerializedObject(lobby);

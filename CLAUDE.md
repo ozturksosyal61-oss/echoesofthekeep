@@ -13,7 +13,7 @@ Sıradakiler: görsel geçişin cihaz testi + FPS (gerekirse CoopSetup.Art.cs Po
 Not: 3. şahıs/uzak oyuncu gövdesi hareket yönüne dönüyor, bakış yönüne değil; final salonunda düzelt.
 Tasarım belgesi: Docs/PuzzleDesign.md
 ## Görsel altyapı
-- CoopSetup üç dosya (partial): CoopSetup.cs (prefab/URP/build), CoopSetup.Art.cs (malzeme, ağ, odalar, menü arka planı), CoopSetup.UI.cs (tema, Lobby/Game sahneleri, HUD). Oyun adı: CoopSetup.UI.cs GameTitle.
+- CoopSetup üç dosya (partial): CoopSetup.cs (prefab/URP/build), CoopSetup.Art.cs (malzeme, ağ, odalar, menü arka planı), CoopSetup.UI.cs (tema, Lobby/Game sahneleri, HUD). Oyun adı: Echoes of the Keep (CoopSetup.UI.cs GameTitle/GameTitleSub, PlayerSettings.productName).
 - Varlıklar: Assets/ThirdParty (Poly Haven CC0 doku/model/gökyüzü, OFL fontlar; LICENSES.md). Üretilenler: Assets/Generated (ağ, sprite), Assets/Materials.
 - Görsel doğrulama: Unity kapalıyken batch `-executeMethod CoopGame.EditorTools.CoopSetup.SetupAndShots -shotDir <klasör>` (ya da yalnızca Shots) PNG üretir.
 - Nesne başına 4 ek ışık sınırı var: büyük yüzeyler Deck() ile parçalı; oda başına ~4-5 noktasal ışığı geçme.
