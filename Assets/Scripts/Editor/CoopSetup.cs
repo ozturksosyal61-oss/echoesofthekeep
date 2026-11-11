@@ -494,7 +494,9 @@ namespace CoopGame.EditorTools
 
             var perfText = MakeText(canvas, "PerfText", "FPS -", 34, Vector2.zero, new Vector2(480, 50), TextAnchor.MiddleLeft);
             Corner(perfText, TL, TL, new Vector2(60, -40));
-            perfText.raycastTarget = false;
+            perfText.raycastTarget = true; // uzun basınca gizli debug paneli açılır
+            perfText.gameObject.AddComponent<PerfLongPress>();
+            new GameObject("DebugPanel").AddComponent<DebugPanel>();
             var perf = new GameObject("PerfHud").AddComponent<PerfHud>();
             var pso = new SerializedObject(perf);
             SetRef(pso, "label", perfText);
@@ -672,6 +674,43 @@ namespace CoopGame.EditorTools
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.renderOutsideSafeArea = false; // içerik çentik/kavisli kenar altına taşmasın
+        }
+
+        static string Arg(string key)
+        {
+            var a = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < a.Length - 1; i++) if (a[i] == key) return a[i + 1];
+            return null;
+        }
+
+        /// <summary>Performans build'leri. Args: -perfName a|b|c  -perfDev 1|0  -perfApi vulkan|gles3. Çıktı: Builds/Android/CoopGame-perf-NAME.apk (taze dosya).</summary>
+        public static void BuildPerf()
+        {
+            string name = Arg("-perfName") ?? "x";
+            bool dev = Arg("-perfDev") == "1";
+            bool gles = Arg("-perfApi") == "gles3";
+            string path = "Builds/Android/CoopGame-perf-" + name + ".apk";
+
+            ConfigurePlayer();
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { gles ? UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3 : UnityEngine.Rendering.GraphicsDeviceType.Vulkan });
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            if (File.Exists(path)) File.Delete(path); // ölü alan birikmesin
+            EditorUserBuildSettings.buildAppBundle = false;
+
+            var opts = new BuildPlayerOptions
+            {
+                scenes = new[] { LobbyPath, GamePath },
+                target = BuildTarget.Android,
+                targetGroup = BuildTargetGroup.Android,
+                locationPathName = path,
+                options = dev ? BuildOptions.Development : BuildOptions.None,
+            };
+            var report = BuildPipeline.BuildPlayer(opts);
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, true); // proje ayarını geri al
+            Debug.Log("[CoopSetup] PerfBuild " + name + " dev=" + dev + " api=" + (gles ? "gles3" : "vulkan") + " -> " + report.summary.result + " " +
+                      (report.summary.result == BuildResult.Succeeded ? Path.GetFullPath(path) + " (" + (report.summary.totalSize / 1048576) + " MB)" : ""));
+            if (report.summary.result != BuildResult.Succeeded) EditorApplication.Exit(1);
         }
 
         [MenuItem("CoopGame/Build Android (Development)")]
