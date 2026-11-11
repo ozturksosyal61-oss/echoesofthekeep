@@ -13,5 +13,10 @@ Paper001, Metal008 (1K Color + NormalGL)
 ## Fontlar – SIL OFL 1.1 → Assets/ThirdParty/Fonts
 Cinzel, Cinzel Decorative, Spectral (OFL-*.txt)
 
-## Manuel indirilenler → Assets/ThirdParty/Manual
-(henüz yok; eklenince: ad, yazar, link, lisans)
+## Manuel indirilenler (Sketchfab) → Assets/ThirdParty/Manual
+CC-BY 4.0 (http://creativecommons.org/licenses/by/4.0/) – oyun içi jenerikte de yazar adı gösterilmeli. Dokular 1K'ya küçültülerek kullanılır.
+- amphora: "Bird_Amphora" – GetDeadEntertainment – https://sketchfab.com/3d-models/bird-amphora-84f81b96f1a74532afae63bcbb853aeb
+- armillary: "Armillary sphere" – KRei – https://sketchfab.com/3d-models/armillary-sphere-534e240ac6b0412cb526dd2b14bf8909
+- bell: "old church bell" – vertexgrocer – https://sketchfab.com/3d-models/old-church-bell-8aa10771481c4a0d83f7a47af6fdf9e1
+- statue: "Engel Statue Scan - Retopology" – Refref1990 – https://sketchfab.com/3d-models/engel-statue-scan-retopology-602e423e27ca4f9c938e98980c888b5d
+- chandelier: LİSANS/KAYNAK EKSİK – link bekleniyor
