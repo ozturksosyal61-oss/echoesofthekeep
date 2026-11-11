@@ -6,13 +6,13 @@ using UnityEngine.UI;
 
 namespace CoopGame
 {
-    /// <summary>Game HUD: rol, oda kodu, oyuncu sayısı, mikrofon durumu ve konuşan oyuncu göstergesi (A/B satırları).</summary>
+    /// <summary>Game HUD: rol, oda kodu, oyuncu sayısı, mikrofon durumu ve konuşan oyuncu göstergesi (giriş sırasına göre iki satır, rol X/O).</summary>
     public class GameHud : MonoBehaviour
     {
         [SerializeField] Text roleText;
         [SerializeField] Text infoText;
         [SerializeField] Text roomText;
-        [SerializeField] Image[] speakDots;   // [0]=A, [1]=B
+        [SerializeField] Image[] speakDots;   // giriş sırası (slot)
         [SerializeField] Text[] speakLabels;
         [SerializeField] Button leaveButton;
 
@@ -47,24 +47,31 @@ namespace CoopGame
             int count = 0;
             foreach (var _ in runner.ActivePlayers) count++;
 
-            if (runner.LocalPlayer != PlayerRef.None)
-                roleText.text = "Rol: " + Roles.Name(Roles.Index(runner, runner.LocalPlayer));
+            var me = PlayerAvatar.Local;
+            bool inHall = me != null && me.Room == Layout.AreaHall;
+            roleText.text = me == null ? "" : me.RoleIndex == Roles.None ? "Oda kodu: " + Session.Code : "Rol: " + Roles.Name(me.RoleIndex);
 
             infoText.text = "Kod: " + Session.Code + "   Oyuncu: " + count + "/" + Session.MaxPlayers +
                             (micGranted ? "" : "\nMikrofon kapalı (izin yok)");
 
             // Bulunduğun alan + paylaşılan durum (diğer odadaki etkileşimin sonucunu da görebil).
-            var me = PlayerAvatar.Local;
             roomText.text = me != null ? Layout.RoomName(me.Room) : "-";
-            foreach (var d in PuzzleDef.All) roomText.text += "\n" + d.Title + ": " + PuzzleDef.StateName(d.State);
+            if (inHall)
+            {
+                var gate = HallGate.Instance;
+                roomText.text += count < Session.MaxPlayers ? "\nArkadaşını bekliyorsun; kodu ona söyle."
+                               : gate != null && gate.Value == HallGate.Counting ? "\nYerinizde durun..."
+                               : "\nBiriniz X, diğeriniz O plakasına geçsin.\nX: yukarı, çan kulesi  ·  O: aşağı, mahzen";
+            }
+            else foreach (var d in PuzzleDef.All) roomText.text += "\n" + d.Title + ": " + PuzzleDef.StateName(d.State);
 
-            for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = Roles.Name(i); }
+            for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = "-"; }
             foreach (var avatar in FindObjectsByType<PlayerAvatar>(FindObjectsSortMode.None))
             {
                 if (avatar.Object == null || !avatar.Object.IsValid) continue;
-                int r = avatar.RoleIndex;
+                int r = avatar.Slot;
                 if (r < 0 || r >= speakDots.Length) continue;
-                speakLabels[r].text = Roles.Name(r) + (avatar.IsLocal ? " (sen)" : "");
+                speakLabels[r].text = (avatar.RoleIndex == Roles.None ? "Oyuncu " + (r + 1) : Roles.Name(avatar.RoleIndex)) + (avatar.IsLocal ? " (sen)" : "");
                 speakDots[r].color = avatar.Speaking ? Speaking : Idle;
             }
         }

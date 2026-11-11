@@ -41,9 +41,19 @@ namespace CoopGame
         void Spawn(PlayerRef player)
         {
             if (!spawned.Add(player)) return;
-            int role = Roles.Index(session, player);
-            // Rol A → Oda A, rol B → Oda B (250 m ötede). SpawnAsync: prefab yüklenene kadar bekler.
-            session.SpawnAsync(avatarPrefab.GetComponent<NetworkObject>(), Layout.Spawn(role), Quaternion.identity, player);
+            // Herkes Lobi Holü'nde doğar; roller plakalarla seçilir (HallGate). Yola çıkıldıktan sonra katılan (yeniden bağlanan)
+            // oyuncu boşta kalan rolü alır ve o rolün odasında doğar. SpawnAsync: prefab yüklenene kadar bekler.
+            int taken = Roles.None;
+            foreach (var a in PlayerAvatar.All)
+                if (a != null && a.Object != null && a.Object.IsValid && a.RoleIndex != Roles.None) taken = a.RoleIndex;
+            if (taken == Roles.None)
+            {
+                session.SpawnAsync(avatarPrefab.GetComponent<NetworkObject>(), Layout.HallSpawn(Roles.Slot(session, player)), Quaternion.identity, player);
+                return;
+            }
+            int role = taken == Roles.X ? Roles.O : Roles.X;
+            session.SpawnAsync(avatarPrefab.GetComponent<NetworkObject>(), Layout.Spawn(role), Quaternion.identity, player,
+                               (runner, obj) => obj.GetComponent<PlayerAvatar>().InitRole(role));
         }
 
         public void PlayerJoined(PlayerRef player)

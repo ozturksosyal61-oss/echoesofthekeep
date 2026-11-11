@@ -2,10 +2,15 @@ using Fusion;
 
 namespace CoopGame
 {
-    /// <summary>Giriş sırasına göre rol: aktif oyuncular arasında en düşük PlayerId = A, diğeri = B.</summary>
+    /// <summary>
+    /// Rol: X (yukarı, mekanizma/çan kulesi) ya da O (aşağı, mahzen/sarnıç). Lobi Holü'ndeki plakalarla seçilir (HallGate);
+    /// seçilene kadar None. Slot: giriş sırası (holdeki doğma noktası ve HUD satırı için).
+    /// </summary>
     public static class Roles
     {
-        public static int Index(NetworkRunner runner, PlayerRef player)
+        public const int None = -1, X = 0, O = 1;
+
+        public static int Slot(NetworkRunner runner, PlayerRef player)
         {
             int i = 0;
             foreach (var other in runner.ActivePlayers)
@@ -13,6 +18,6 @@ namespace CoopGame
             return i;
         }
 
-        public static string Name(int index) => index == 0 ? "A" : "B";
+        public static string Name(int role) => role == X ? "X" : role == O ? "O" : "?";
     }
 }

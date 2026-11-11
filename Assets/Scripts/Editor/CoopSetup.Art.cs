@@ -638,7 +638,7 @@ namespace CoopGame.EditorTools
             return lever;
         }
 
-        static void BuildPuzzle1(Transform roomA, Transform roomB)
+        static void BuildPuzzle1(Transform roomX, Transform roomO)
         {
             var def = new GameObject("Puzzle1").AddComponent<PuzzleDef>();
             var dso = new SerializedObject(def);
@@ -653,10 +653,10 @@ namespace CoopGame.EditorTools
             var colors = new[] { new Color(0.95f, 0.18f, 0.15f), new Color(0.2f, 0.85f, 0.3f), new Color(0.2f, 0.45f, 1f), new Color(1f, 0.82f, 0.15f) };
             var levers = new SyncedLever[4];
             for (int i = 0; i < 4; i++)
-                levers[i] = MakeLever(roomA, i, new Vector3(-4.5f + i * 3f, 0, 7f), shapes[i], colors[i]);
+                levers[i] = MakeLever(roomX, i, new Vector3(-4.5f + i * 3f, 0, 7f), shapes[i], colors[i]);
 
             var seq = new GameObject("Puzzle1_Sequence").AddComponent<SequenceInput>();
-            seq.transform.SetParent(roomA, false);
+            seq.transform.SetParent(roomX, false);
             var sso = new SerializedObject(seq);
             sso.FindProperty("puzzleId").intValue = 1;
             sso.FindProperty("nodeId").intValue = 4;
@@ -666,19 +666,19 @@ namespace CoopGame.EditorTools
             sso.ApplyModifiedPropertiesWithoutUndo();
 
             // Oda B: doğu duvarında fresk (soldan sağa = 1→4; doğuya bakınca sol = kuzey)
-            var board = Slab("HintBoard", roomB, new Vector3(7.9f, 2f, 0), new Vector3(0.18f, 2.2f, 9.6f), A.plaque, 2f, false);
-            Slab("HintBoardFrameTop", roomB, new Vector3(7.86f, 3.16f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
-            Slab("HintBoardFrameBottom", roomB, new Vector3(7.86f, 0.84f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
+            var board = Slab("HintBoard", roomO, new Vector3(7.9f, 2f, 0), new Vector3(0.18f, 2.2f, 9.6f), A.plaque, 2f, false);
+            Slab("HintBoardFrameTop", roomO, new Vector3(7.86f, 3.16f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
+            Slab("HintBoardFrameBottom", roomO, new Vector3(7.86f, 0.84f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
             var slots = new Transform[4];
             var plates = new Renderer[4];
             for (int i = 0; i < 4; i++)
             {
                 float z = 3.3f - i * 2.2f;
-                var plate = Slab("HintPlate" + (i + 1), roomB, new Vector3(7.78f, 2f, z), new Vector3(0.06f, 1.4f, 1.7f), A.plate, 1f, false);
+                var plate = Slab("HintPlate" + (i + 1), roomO, new Vector3(7.78f, 2f, z), new Vector3(0.06f, 1.4f, 1.7f), A.plate, 1f, false);
                 plate.isStatic = false;
                 plates[i] = plate.GetComponent<Renderer>();
                 var slot = new GameObject("HintSlot" + (i + 1)).transform;
-                slot.SetParent(roomB, false);
+                slot.SetParent(roomO, false);
                 slot.localPosition = new Vector3(7.5f, 2f, z);
                 slots[i] = slot;
             }
@@ -690,7 +690,7 @@ namespace CoopGame.EditorTools
             hso.ApplyModifiedPropertiesWithoutUndo();
 
             // Oda B: batı kasa kapısı + içinde ödül (altın dişli: bulmaca 3'e gönderme)
-            var vaultDoor = MakeDoor("VaultDoor", roomB, new Vector3(-8.25f, 1.5f, 0), false, A.iron);
+            var vaultDoor = MakeDoor("VaultDoor", roomO, new Vector3(-8.25f, 1.5f, 0), false, A.iron);
             var pd = vaultDoor.gameObject.AddComponent<PuzzleDoor>();
             var pso = new SerializedObject(pd);
             pso.FindProperty("puzzleId").intValue = 1;
@@ -770,9 +770,9 @@ namespace CoopGame.EditorTools
         /// Kule batı kapısı (bulmaca 1 açar) → aşağı inen merdiven → Saat Odası (zemin y=-4). Dönüş: oda çerçevesi
         /// (yerel x -8..1.5, z -5..5, y 0..4.5; batı duvarı x=-8.25), içindekiler eski kule batı duvarı koordinatlarıyla yerleşir.
         /// </summary>
-        static Transform BuildClockRoom(Transform roomA)
+        static Transform BuildClockRoom(Transform roomX)
         {
-            var door = MakeDoor("StairDoor", roomA, new Vector3(-8.25f, 1.5f, 0), false, A.wood);
+            var door = MakeDoor("StairDoor", roomX, new Vector3(-8.25f, 1.5f, 0), false, A.wood);
             var pd = door.gameObject.AddComponent<PuzzleDoor>();
             var pso = new SerializedObject(pd);
             pso.FindProperty("puzzleId").intValue = 1;
@@ -782,22 +782,22 @@ namespace CoopGame.EditorTools
             // Merdiven: x -8.5 → -16, y 0 → -4. Çarpışma tek rampa, basamaklar görsel.
             const float x0 = -8.5f, x1 = -16f, drop = 4f;
             float run = x0 - x1, ang = Mathf.Atan2(drop, run);
-            var ramp = Slab("StairRamp", roomA, Vector3.zero, new Vector3(Mathf.Sqrt(run * run + drop * drop) + 0.3f, 0.3f, 3f), A.flagstone, 1f);
+            var ramp = Slab("StairRamp", roomX, Vector3.zero, new Vector3(Mathf.Sqrt(run * run + drop * drop) + 0.3f, 0.3f, 3f), A.flagstone, 1f);
             ramp.GetComponent<MeshRenderer>().enabled = false;
             ramp.transform.localPosition = new Vector3((x0 + x1) * 0.5f + 0.15f * Mathf.Sin(ang), -drop * 0.5f - 0.15f * Mathf.Cos(ang), 0);
             ramp.transform.localRotation = Quaternion.Euler(0, 0, ang * Mathf.Rad2Deg);
             const int steps = 16;
             float sr = run / steps, sh = drop / steps;
             for (int i = 0; i < steps; i++)
-                Slab("Step" + i, roomA, new Vector3(x0 - sr * (i + 0.5f), -sh * i - 0.25f, 0), new Vector3(sr, 0.5f, 3f), A.flagstone, 1f, false);
-            Wall(roomA, "StairWallN", new Vector3((x0 + x1) * 0.5f, -drop, 1.75f), true, run, 7f, A.towerWall, 3f);
-            Wall(roomA, "StairWallS", new Vector3((x0 + x1) * 0.5f, -drop, -1.75f), true, run, 7f, A.towerWall, 3f);
-            Deck(roomA, "StairCeil", new Vector3((x0 + x1) * 0.5f, 3.25f, 0), run, 4f, 0.5f, A.darkWood, 2, 1);
-            Torch(roomA, "StairTorch", new Vector3(-12.25f, 0f, 1.48f), Vector3.back, 6f, 8f);
+                Slab("Step" + i, roomX, new Vector3(x0 - sr * (i + 0.5f), -sh * i - 0.25f, 0), new Vector3(sr, 0.5f, 3f), A.flagstone, 1f, false);
+            Wall(roomX, "StairWallN", new Vector3((x0 + x1) * 0.5f, -drop, 1.75f), true, run, 7f, A.towerWall, 3f);
+            Wall(roomX, "StairWallS", new Vector3((x0 + x1) * 0.5f, -drop, -1.75f), true, run, 7f, A.towerWall, 3f);
+            Deck(roomX, "StairCeil", new Vector3((x0 + x1) * 0.5f, 3.25f, 0), run, 4f, 0.5f, A.darkWood, 2, 1);
+            Torch(roomX, "StairTorch", new Vector3(-12.25f, 0f, 1.48f), Vector3.back, 6f, 8f);
 
             // Oda çerçevesi: kule koordinatına göre (-18, -4, 0)
             var root = new GameObject("RoomA2_SaatOdasi").transform;
-            root.SetParent(roomA, false);
+            root.SetParent(roomX, false);
             root.localPosition = new Vector3(-18f, -drop, 0);
             const float h = 4.5f;
             Deck(root, "Floor", new Vector3(-3.25f, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.towerFloor, 2, 2);
@@ -831,7 +831,7 @@ namespace CoopGame.EditorTools
             return root;
         }
 
-        static void BuildPuzzle2(Transform roomA, Transform roomB)
+        static void BuildPuzzle2(Transform roomX, Transform roomO)
         {
             var def = new GameObject("Puzzle2").AddComponent<PuzzleDef>();
             var dso = new SerializedObject(def);
@@ -844,26 +844,26 @@ namespace CoopGame.EditorTools
             // ---- Oda B: kasa odasının batısında geçit + karanlık mahzen (iç: x -15.25..-24.75, z -5..5) ----
             const float h = 3.2f;
             var wall = A.dungeonWall;
-            Deck(roomB, "CryptCorridorFloor", new Vector3(-13.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
-            Deck(roomB, "CryptCorridorCeil", new Vector3(-13.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomB, "CryptCorridorN", new Vector3(-13.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
-            Wall(roomB, "CryptCorridorS", new Vector3(-13.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
-            Deck(roomB, "CryptFloor", new Vector3(-20f, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.dungeonFloor, 2, 2);
-            Deck(roomB, "CryptCeil", new Vector3(-20f, h + 0.25f, 0), 10.5f, 10.5f, 0.5f, A.dungeonCeil, 2, 2);
+            Deck(roomO, "CryptCorridorFloor", new Vector3(-13.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
+            Deck(roomO, "CryptCorridorCeil", new Vector3(-13.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
+            Wall(roomO, "CryptCorridorN", new Vector3(-13.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
+            Wall(roomO, "CryptCorridorS", new Vector3(-13.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
+            Deck(roomO, "CryptFloor", new Vector3(-20f, -0.25f, 0), 10.5f, 10.5f, 0.5f, A.dungeonFloor, 2, 2);
+            Deck(roomO, "CryptCeil", new Vector3(-20f, h + 0.25f, 0), 10.5f, 10.5f, 0.5f, A.dungeonCeil, 2, 2);
             var arch = new Opening(0f, 3f, 0f, 3f);
-            Wall(roomB, "CryptWallE", new Vector3(-15f, 0, 0), false, 10.5f, h, wall, 3f, arch);
-            Wall(roomB, "CryptWallW", new Vector3(-25f, 0, 0), false, 10.5f, h, wall, 3f, arch);
-            Wall(roomB, "CryptWallN", new Vector3(-20f, 0, 5.25f), true, 10.5f, h, wall, 3f);
-            Wall(roomB, "CryptWallS", new Vector3(-20f, 0, -5.25f), true, 10.5f, h, wall, 3f);
+            Wall(roomO, "CryptWallE", new Vector3(-15f, 0, 0), false, 10.5f, h, wall, 3f, arch);
+            Wall(roomO, "CryptWallW", new Vector3(-25f, 0, 0), false, 10.5f, h, wall, 3f, arch);
+            Wall(roomO, "CryptWallN", new Vector3(-20f, 0, 5.25f), true, 10.5f, h, wall, 3f);
+            Wall(roomO, "CryptWallS", new Vector3(-20f, 0, -5.25f), true, 10.5f, h, wall, 3f);
             // Batı nişi (bulmaca 3 geçidi olacak)
-            Deck(roomB, "NicheFloor", new Vector3(-26.4f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.flagstone, 1, 1);
-            Deck(roomB, "NicheCeil", new Vector3(-26.4f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomB, "NicheW", new Vector3(-27.5f, 0, 0), false, 3.5f, 3f, wall, 3f, new Opening(0f, 3f, 0f, 3f)); // sarnıç geçidi (bulmaca 3)
-            Wall(roomB, "NicheN", new Vector3(-26.4f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
-            Wall(roomB, "NicheS", new Vector3(-26.4f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
+            Deck(roomO, "NicheFloor", new Vector3(-26.4f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.flagstone, 1, 1);
+            Deck(roomO, "NicheCeil", new Vector3(-26.4f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
+            Wall(roomO, "NicheW", new Vector3(-27.5f, 0, 0), false, 3.5f, 3f, wall, 3f, new Opening(0f, 3f, 0f, 3f)); // sarnıç geçidi (bulmaca 3)
+            Wall(roomO, "NicheN", new Vector3(-26.4f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
+            Wall(roomO, "NicheS", new Vector3(-26.4f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
 
-            var gate = MakeDoor("CryptGate", roomB, new Vector3(-15f, 1.5f, 0), false, A.iron);
-            var rewardGate = MakeDoor("CryptRewardGate", roomB, new Vector3(-25f, 1.5f, 0), false, A.iron);
+            var gate = MakeDoor("CryptGate", roomO, new Vector3(-15f, 1.5f, 0), false, A.iron);
+            var rewardGate = MakeDoor("CryptRewardGate", roomO, new Vector3(-25f, 1.5f, 0), false, A.iron);
 
             // Lahitler: kuzeyde 3, güneyde 3. Kapakta sembol (orta) ve rakam (ayak ucu, koridor tarafı); ayak ucundan düz okunur.
             var syms = new Transform[6];
@@ -874,7 +874,7 @@ namespace CoopGame.EditorTools
                 bool north = i < 3;
                 float zc = north ? 3.9f : -3.9f, toward = north ? -1f : 1f;
                 var c = new GameObject("Coffin" + i).transform;
-                c.SetParent(roomB, false);
+                c.SetParent(roomO, false);
                 c.localPosition = new Vector3(xs[i % 3], 0, zc);
                 Slab("Body", c, new Vector3(0, 0.35f, 0), new Vector3(1.0f, 0.7f, 2.0f), A.flagstone, 1.2f);
                 Slab("Lid", c, new Vector3(0, 0.76f, 0), new Vector3(1.15f, 0.12f, 2.15f), A.plaque, 1.2f, false);
@@ -891,11 +891,11 @@ namespace CoopGame.EditorTools
 
             // Mangallar: kaseler hep var; alev + ışık yalnızca çözülünce
             var lit = new GameObject("CryptLit").transform;
-            lit.SetParent(roomB, false);
+            lit.SetParent(roomO, false);
             foreach (var p in new[] { new Vector3(-24f, 0, 4.2f), new Vector3(-24f, 0, -4.2f) })
             {
-                Slab("BrazierStand", roomB, p + new Vector3(0, 0.45f, 0), new Vector3(0.18f, 0.9f, 0.18f), A.iron, 1f, false);
-                Prim("BrazierBowl", roomB, PrimitiveType.Cylinder, p + new Vector3(0, 0.95f, 0), new Vector3(0.6f, 0.1f, 0.6f), A.iron);
+                Slab("BrazierStand", roomO, p + new Vector3(0, 0.45f, 0), new Vector3(0.18f, 0.9f, 0.18f), A.iron, 1f, false);
+                Prim("BrazierBowl", roomO, PrimitiveType.Cylinder, p + new Vector3(0, 0.95f, 0), new Vector3(0.6f, 0.1f, 0.6f), A.iron);
                 var f = Prim("BrazierFlame", lit, PrimitiveType.Sphere, p + new Vector3(0, 1.2f, 0), new Vector3(0.38f, 0.5f, 0.38f), A.flame);
                 f.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                 PointLight(lit, "BrazierLight", p + new Vector3(0.6f, 1.8f, p.z > 0 ? -0.6f : 0.6f), TorchColor, 6f, 10f);
@@ -904,15 +904,15 @@ namespace CoopGame.EditorTools
             lit.gameObject.SetActive(false);
 
             var respawn = new GameObject("CryptRespawn").transform;
-            respawn.SetParent(roomB, false);
+            respawn.SetParent(roomO, false);
             respawn.localPosition = new Vector3(-11.6f, 0.05f, -2f);
 
             var crypt = new GameObject("Puzzle2_Crypt").AddComponent<CryptPuzzle>();
-            crypt.transform.SetParent(roomB, false);
+            crypt.transform.SetParent(roomO, false);
             crypt.transform.localPosition = new Vector3(-20f, 0, 0);
 
             // ---- Oda A2: Saat Odası (kulenin altında; bulmaca 1 çözülünce merdiven kapısı açılır) ----
-            var clock = BuildClockRoom(roomA);
+            var clock = BuildClockRoom(roomX);
             Slab("InscriptionBoard", clock, new Vector3(-7.92f, 3.55f, 0), new Vector3(0.1f, 0.9f, 5.6f), A.plaque, 1.5f, false);
             Slab("InscriptionFrame", clock, new Vector3(-7.96f, 3.55f, 0), new Vector3(0.06f, 1.04f, 5.76f), A.iron, 1f, false);
             var ins = new Transform[3];
@@ -937,7 +937,7 @@ namespace CoopGame.EditorTools
             cso.FindProperty("nodeId").intValue = 10;
             SetRefArray(cso, "dials", dials);
             SetRef(cso, "confirm", confirm);
-            cso.FindProperty("zoneCenter").vector3Value = roomB.position + new Vector3(-20.2f, 1.5f, 0);
+            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-20.2f, 1.5f, 0);
             cso.FindProperty("zoneSize").vector3Value = new Vector3(8.8f, 3f, 10f);
             SetRef(cso, "respawn", respawn);
             cso.ApplyModifiedPropertiesWithoutUndo();
@@ -1038,7 +1038,7 @@ namespace CoopGame.EditorTools
             return v;
         }
 
-        static void BuildPuzzle3(Transform roomA, Transform roomB)
+        static void BuildPuzzle3(Transform roomX, Transform roomO)
         {
             var def = new GameObject("Puzzle3").AddComponent<PuzzleDef>();
             var dso = new SerializedObject(def);
@@ -1049,54 +1049,54 @@ namespace CoopGame.EditorTools
 
             var wall = A.dungeonWall;
             // ---- Oda B: mahzen nişinin batısında geçit + sarnıç (iç: x -30.25..-41.75, z -6..6) ----
-            Deck(roomB, "CisternCorridorFloor", new Vector3(-28.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
-            Deck(roomB, "CisternCorridorCeil", new Vector3(-28.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomB, "CisternCorridorN", new Vector3(-28.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
-            Wall(roomB, "CisternCorridorS", new Vector3(-28.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
-            var gate = MakeDoor("CisternGate", roomB, new Vector3(-28.9f, 1.5f, 0), false, A.iron);
+            Deck(roomO, "CisternCorridorFloor", new Vector3(-28.9f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonFloor, 1, 1);
+            Deck(roomO, "CisternCorridorCeil", new Vector3(-28.9f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
+            Wall(roomO, "CisternCorridorN", new Vector3(-28.9f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
+            Wall(roomO, "CisternCorridorS", new Vector3(-28.9f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
+            var gate = MakeDoor("CisternGate", roomO, new Vector3(-28.9f, 1.5f, 0), false, A.iron);
             const float h = 4f;
-            Deck(roomB, "CisternFloor", new Vector3(-36f, -0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonFloor, 3, 3);
-            Deck(roomB, "CisternCeil", new Vector3(-36f, h + 0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonCeil, 3, 3);
+            Deck(roomO, "CisternFloor", new Vector3(-36f, -0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonFloor, 3, 3);
+            Deck(roomO, "CisternCeil", new Vector3(-36f, h + 0.25f, 0), 12.5f, 12.5f, 0.5f, A.dungeonCeil, 3, 3);
             var arch = new Opening(0f, 3f, 0f, 3f);
-            Wall(roomB, "CisternWallE", new Vector3(-30f, 0, 0), false, 12.5f, h, wall, 3f, arch);
-            Wall(roomB, "CisternWallW", new Vector3(-42f, 0, 0), false, 12.5f, h, wall, 3f);
-            Wall(roomB, "CisternWallN", new Vector3(-36f, 0, 6.25f), true, 12.5f, h, wall, 3f);
-            Wall(roomB, "CisternWallS", new Vector3(-36f, 0, -6.25f), true, 12.5f, h, wall, 3f, arch);
+            Wall(roomO, "CisternWallE", new Vector3(-30f, 0, 0), false, 12.5f, h, wall, 3f, arch);
+            Wall(roomO, "CisternWallW", new Vector3(-42f, 0, 0), false, 12.5f, h, wall, 3f);
+            Wall(roomO, "CisternWallN", new Vector3(-36f, 0, 6.25f), true, 12.5f, h, wall, 3f);
+            Wall(roomO, "CisternWallS", new Vector3(-36f, 0, -6.25f), true, 12.5f, h, wall, 3f, arch);
             // Güney nişi: bulmaca 4 geçidi (şimdilik kapalı oda)
-            Deck(roomB, "CisternNicheFloor", new Vector3(-36f, -0.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.flagstone, 1, 1);
-            Deck(roomB, "CisternNicheCeil", new Vector3(-36f, 3.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.dungeonCeil, 1, 1);
-            Wall(roomB, "CisternNicheS", new Vector3(-36f, 0, -8.5f), true, 3.5f, 3f, wall, 3f);
-            Wall(roomB, "CisternNicheE", new Vector3(-34.25f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
-            Wall(roomB, "CisternNicheW", new Vector3(-37.75f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
-            var nextGate = MakeDoor("CisternNextGate", roomB, new Vector3(-36f, 1.5f, -6.25f), true, A.iron);
+            Deck(roomO, "CisternNicheFloor", new Vector3(-36f, -0.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.flagstone, 1, 1);
+            Deck(roomO, "CisternNicheCeil", new Vector3(-36f, 3.25f, -7.4f), 3.5f, 2.3f, 0.5f, A.dungeonCeil, 1, 1);
+            Wall(roomO, "CisternNicheS", new Vector3(-36f, 0, -8.5f), true, 3.5f, 3f, wall, 3f);
+            Wall(roomO, "CisternNicheE", new Vector3(-34.25f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
+            Wall(roomO, "CisternNicheW", new Vector3(-37.75f, 0, -7.4f), false, 2.3f, 3f, wall, 3f);
+            var nextGate = MakeDoor("CisternNextGate", roomO, new Vector3(-36f, 1.5f, -6.25f), true, A.iron);
             foreach (float x in new[] { -33.5f, -38.5f })
                 foreach (float z in new[] { -3f, 3f })
                 {
-                    Slab("CisternPillar", roomB, new Vector3(x, h * 0.5f, z), new Vector3(0.7f, h, 0.7f), A.flagstone, 1.6f);
-                    Slab("CisternPillarCap", roomB, new Vector3(x, h - 0.2f, z), new Vector3(1f, 0.4f, 1f), A.flagstone, 1.6f, false);
+                    Slab("CisternPillar", roomO, new Vector3(x, h * 0.5f, z), new Vector3(0.7f, h, 0.7f), A.flagstone, 1.6f);
+                    Slab("CisternPillarCap", roomO, new Vector3(x, h - 0.2f, z), new Vector3(1f, 0.4f, 1f), A.flagstone, 1.6f, false);
                 }
             // Tavandan inen büyük besleme borusu (suyun geldiği yer)
-            Prim("InflowPipe", roomB, PrimitiveType.Cylinder, new Vector3(-36f, 3.2f, 5.6f), new Vector3(0.5f, 0.8f, 0.5f), A.iron);
-            var water = Slab("CisternWater", roomB, new Vector3(-36f, 0.02f, 0), new Vector3(11.5f, 0.04f, 12f), A.water, 1f, false);
+            Prim("InflowPipe", roomO, PrimitiveType.Cylinder, new Vector3(-36f, 3.2f, 5.6f), new Vector3(0.5f, 0.8f, 0.5f), A.iron);
+            var water = Slab("CisternWater", roomO, new Vector3(-36f, 0.02f, 0), new Vector3(11.5f, 0.04f, 12f), A.water, 1f, false);
             water.isStatic = false;
             water.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-            Torch(roomB, "CisternTorchW1", new Vector3(-41.73f, 2.9f, -3f), Vector3.right, 8f, 10f);
-            Torch(roomB, "CisternTorchW2", new Vector3(-41.73f, 2.9f, 3f), Vector3.right, 8f, 10f);
-            Torch(roomB, "CisternTorchN", new Vector3(-33f, 2.9f, 5.98f), Vector3.back, 7f, 10f);
-            Torch(roomB, "CisternTorchS", new Vector3(-39f, 2.9f, -5.98f), Vector3.forward, 7f, 10f);
+            Torch(roomO, "CisternTorchW1", new Vector3(-41.73f, 2.9f, -3f), Vector3.right, 8f, 10f);
+            Torch(roomO, "CisternTorchW2", new Vector3(-41.73f, 2.9f, 3f), Vector3.right, 8f, 10f);
+            Torch(roomO, "CisternTorchN", new Vector3(-33f, 2.9f, 5.98f), Vector3.back, 7f, 10f);
+            Torch(roomO, "CisternTorchS", new Vector3(-39f, 2.9f, -5.98f), Vector3.forward, 7f, 10f);
 
             var respawn = new GameObject("CisternRespawn").transform;
-            respawn.SetParent(roomB, false);
+            respawn.SetParent(roomO, false);
             respawn.localPosition = new Vector3(-22f, 0.05f, 0);
 
             var cistern = new GameObject("Puzzle3_Cistern").AddComponent<CisternPuzzle>();
-            cistern.transform.SetParent(roomB, false);
+            cistern.transform.SetParent(roomO, false);
             cistern.transform.localPosition = new Vector3(-36f, 0, 0);
             var valves = new CisternValve[4];
-            for (int i = 0; i < 4; i++) valves[i] = MakeValve(roomB, i, new Vector3(-41.65f, 0, -4.5f + i * 3f), cistern);
+            for (int i = 0; i < 4; i++) valves[i] = MakeValve(roomO, i, new Vector3(-41.65f, 0, -4.5f + i * 3f), cistern);
 
             // ---- Oda A3: Hazne Odası (Saat Odası'nın güneyinden merdivenle; bulmaca 2 çözülünce kapı açılır) ----
-            var clock = roomA.Find("RoomA2_SaatOdasi");
+            var clock = roomX.Find("RoomA2_SaatOdasi");
             var door = MakeDoor("HazneDoor", clock, new Vector3(-0.5f, 1.5f, -5.25f), true, A.wood);
             var pd = door.gameObject.AddComponent<PuzzleDoor>();
             var pso = new SerializedObject(pd);
@@ -1177,7 +1177,7 @@ namespace CoopGame.EditorTools
             cso.FindProperty("nodeId").intValue = 20;
             SetRefArray(cso, "valves", valves);
             SetRef(cso, "seal", seal);
-            cso.FindProperty("zoneCenter").vector3Value = roomB.position + new Vector3(-36f, 1.5f, 0);
+            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-36f, 1.5f, 0);
             cso.FindProperty("zoneSize").vector3Value = new Vector3(11f, 3f, 12f);
             SetRef(cso, "respawn", respawn);
             cso.ApplyModifiedPropertiesWithoutUndo();
@@ -1337,12 +1337,14 @@ namespace CoopGame.EditorTools
 
         static void BuildWorld()
         {
-            var roomA = BuildTower(Layout.RoomA);
-            var roomB = BuildDungeon(Layout.RoomB);
+            var roomX = BuildTower(Layout.RoomX);
+            var roomO = BuildDungeon(Layout.RoomO);
             new GameObject("PuzzleChime").AddComponent<PuzzleChime>();
-            BuildPuzzle1(roomA, roomB);
-            BuildPuzzle2(roomA, roomB);
-            BuildPuzzle3(roomA, roomB);
+            BuildPuzzle1(roomX, roomO);
+            BuildPuzzle2(roomX, roomO);
+            BuildPuzzle3(roomX, roomO);
+            ExcludeFromBake();        // eski (gerçek zamanlı ışıklı) odalar bake'e girmez
+            BuildHall(Layout.Hall);   // Lobi Holü: Art kit + baked ışık (CoopSetup.Hall.cs)
         }
 
         // ---------- Menü arka planı: şato kapısı, gece ----------

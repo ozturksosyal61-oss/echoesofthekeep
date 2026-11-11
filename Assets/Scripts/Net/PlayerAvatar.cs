@@ -6,7 +6,7 @@ namespace CoopGame
 {
     /// <summary>
     /// Oyuncu avatarı. Host-authoritative: girdi (PlayerInput) host'a gider, NetworkCharacterController hareketi simüle eder.
-    /// Yerelde tahmin, uzakta snapshot enterpolasyonu. Rol: giriş sırası. Alan kuralı: uzak avatar yalnızca aynı odadaysa görünür
+    /// Yerelde tahmin, uzakta snapshot enterpolasyonu. Rol (X/O): Lobi Holü plakalarıyla host atar. Alan kuralı: uzak avatar yalnızca aynı odadaysa görünür
     /// (renderer yerel kapanır; ağ durumu ve ses etkilenmez).
     /// </summary>
     [RequireComponent(typeof(NetworkCharacterController))]
@@ -23,11 +23,18 @@ namespace CoopGame
         Animator animator;
         Renderer[] renderers;
         bool remoteVisible = true;
+        int shownRole = -99;
         Vector3 lastPos;
         float smoothSpeed;
 
         public bool IsLocal => Object != null && Object.IsValid && Object.HasInputAuthority;
-        public int RoleIndex => Roles.Index(Runner, Object.InputAuthority);
+        /// <summary>0 = seçilmedi, 1 = X, 2 = O (host yazar).</summary>
+        [Networked] int RoleCode { get; set; }
+
+        /// <summary>Roles.X / Roles.O; holde henüz seçilmediyse Roles.None.</summary>
+        public int RoleIndex => RoleCode - 1;
+        /// <summary>Giriş sırası (0/1).</summary>
+        public int Slot => Roles.Slot(Runner, Object.InputAuthority);
         public int Room => Layout.RoomOf(transform.position);
 
         /// <summary>Yerel oyuncu için mikrofon iletiyor mu, uzak oyuncu için ses çalıyor mu.</summary>
@@ -44,11 +51,30 @@ namespace CoopGame
             if (IsLocal) Local = this;
             if (!All.Contains(this)) All.Add(this);
 
+            ApplyRoleLook();
+        }
+
+        /// <summary>Host: rolü atar ve avatarı o rolün başlangıç odasına ışınlar.</summary>
+        public void ServerAssignRole(int role, bool teleport = true)
+        {
+            if (!Object.HasStateAuthority) return;
+            RoleCode = role + 1;
+            if (teleport) cc.Teleport(Layout.Spawn(role), Quaternion.identity);
+            Dbg.Puzzle(name + " rol=" + Roles.Name(role));
+        }
+
+        /// <summary>Host, spawn öncesi (OnBeforeSpawned): yeniden bağlanan oyuncuya boştaki rol.</summary>
+        public void InitRole(int role) => RoleCode = role + 1;
+
+        void ApplyRoleLook()
+        {
             int role = RoleIndex;
+            if (role == shownRole) return;
+            shownRole = role;
             name = "Avatar_" + Roles.Name(role) + (IsLocal ? "_local" : "");
-            var color = role == 0 ? new Color(0.25f, 0.55f, 1f) : new Color(1f, 0.55f, 0.2f);
+            var color = role == Roles.X ? new Color(0.25f, 0.55f, 1f) : role == Roles.O ? new Color(1f, 0.55f, 0.2f) : new Color(0.6f, 0.6f, 0.62f);
             foreach (var r in renderers)
-                if (r.gameObject.name != "Nose") r.material.color = color;
+                if (r != null && r.gameObject.name != "Nose") r.material.color = color;
         }
 
         public override void Despawned(NetworkRunner runner, bool hasState)
@@ -65,6 +91,7 @@ namespace CoopGame
 
         public override void Render()
         {
+            ApplyRoleLook();
             // Animasyon hızı: enterpole edilmiş görsel konumdan.
             float dt = Mathf.Max(Time.deltaTime, 0.0001f);
             var p = transform.position;

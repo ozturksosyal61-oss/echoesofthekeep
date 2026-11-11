@@ -478,6 +478,16 @@ namespace CoopGame.EditorTools
             return m;
         }
 
+        /// <summary>Ay huzmesi: Art/Kit/Shaders/LightShaft.shader (yandan bakınca sönen toplamalı kart).</summary>
+        static Material KShaft(string name, Texture2D tex, Color color)
+        {
+            var m = MakeMat(name, color, "CoopGame/LightShaft");
+            m.SetTexture("_BaseMap", tex);
+            m.SetFloat("_Fade", 2f);
+            EditorUtility.SetDirty(m);
+            return m;
+        }
+
         /// <summary>Alfa kesmeli, çift taraflı Lit (flama, vitray). emission > 0: doku aynı zamanda ışıma haritası.</summary>
         static Material KCutout(string name, Texture2D tex, Color color, float emission = 0f)
         {
@@ -493,7 +503,8 @@ namespace CoopGame.EditorTools
                 m.EnableKeyword("_EMISSION");
                 m.SetTexture("_EmissionMap", tex);
                 m.SetColor("_EmissionColor", Color.white * emission);
-                m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
+                // Bake'e girmez: renkli camın ışıması lightmap'te alacalı leke yapıyor; ışığı pencerenin ay spotu verir.
+                m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
             }
             EditorUtility.SetDirty(m);
             return m;
@@ -523,7 +534,7 @@ namespace CoopGame.EditorTools
                 beam = KTex("K_Beam", "dark_wooden_planks", new Color(0.5f, 0.44f, 0.4f), 0.15f, 1.2f),
                 parquet = KTex("K_Parquet", "old_wood_floor", new Color(0.6f, 0.5f, 0.43f), 0.28f),
                 furniture = KTex("K_Furniture", "wood_cabinet_worn_long", new Color(0.5f, 0.41f, 0.35f), 0.25f),
-                castleStone = KTex("K_CastleStone", "medieval_blocks_05", new Color(0.66f, 0.66f, 0.72f), 0.15f, 1.2f),
+                castleStone = KTex("K_CastleStone", "medieval_blocks_05", new Color(0.5f, 0.53f, 0.62f), 0.15f, 1.2f),
                 hallFloor = KTex("K_HallFloor", "monastery_stone_floor", new Color(0.5f, 0.5f, 0.56f), 0.55f, 1.1f),
                 cellarBrick = KTex("K_CellarBrick", "castle_brick_01", new Color(0.78f, 0.62f, 0.52f), 0.2f, 1.3f),
                 cellarFloor = KTex("K_CellarFloor", "slab_tiles", new Color(0.75f, 0.64f, 0.58f), 0.72f, 1.2f),
@@ -551,7 +562,7 @@ namespace CoopGame.EditorTools
                 clearGlass = KUnlit("K_ClearGlass", null, new Color(0.5f, 0.55f, 0.6f, 0.06f), false),
                 bottleGlass = MakeMat("K_BottleGlass", new Color(0.1f, 0.17f, 0.11f)),
                 cobweb = KUnlit("K_Cobweb", TexCobweb(), new Color(0.75f, 0.78f, 0.85f, 0.55f), false),
-                shaft = KUnlit("K_LightShaft", TexShaft(), new Color(Pal.Moon.r, Pal.Moon.g, Pal.Moon.b, 0.2f), true),
+                shaft = KShaft("K_LightShaft", TexShaft(), new Color(Pal.Moon.r, Pal.Moon.g, Pal.Moon.b, 0.22f)),
                 vitray = KCutout("K_Vitray", TexLancet(), Color.white, 0.5f),
                 rose = KCutout("K_VitrayRose", TexRose(), Color.white, 0.5f),
                 banner = KCutout("K_Banner", TexBanner(), new Color(0.6f, 0.56f, 0.56f)),
@@ -1166,14 +1177,19 @@ namespace CoopGame.EditorTools
         }
 
         /// <summary>Oda içine light probe ızgarası (dekor ve oyuncular baked ışığı buradan alır). size: odanın iç ölçüsü; ızgara zemine/duvara 20-25 cm kalır (gövdenin dışında kalan nesne kararır).</summary>
-        static void KitProbes(Transform root, Vector3 center, Vector3 size, int nx, int ny, int nz)
+        static void KitProbes(Transform root, Vector3 center, Vector3 size, int nx, int ny, int nz, params Bounds[] skip)
         {
             var go = new GameObject("LightProbes");
             go.transform.SetParent(root, false);
             go.transform.localPosition = center;
             var pts = new List<Vector3>();
             for (int i = 0; i < nx; i++) for (int j = 0; j < ny; j++) for (int k = 0; k < nz; k++)
-                pts.Add(new Vector3((size.x - 0.5f) * (i / (nx - 1f) - 0.5f), (size.y - 0.4f) * (j / (ny - 1f) - 0.5f), (size.z - 0.5f) * (k / (nz - 1f) - 0.5f)));
+            {
+                var pt = new Vector3((size.x - 0.5f) * (i / (nx - 1f) - 0.5f), (size.y - 0.4f) * (j / (ny - 1f) - 0.5f), (size.z - 0.5f) * (k / (nz - 1f) - 0.5f));
+                bool blocked = false; // dolu hacmin (merdiven gövdesi vb.) içindeki probe simsiyah pişer
+                foreach (var b in skip) if (b.Contains(center + pt)) blocked = true;
+                if (!blocked) pts.Add(pt);
+            }
             go.AddComponent<LightProbeGroup>().probePositions = pts.ToArray();
         }
 

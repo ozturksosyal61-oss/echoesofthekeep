@@ -262,7 +262,7 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7249778028899784085}
     m_Modifications:
-    - target: {fileID: 117247153838078700, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+    - target: {fileID: 1792988299072085242, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
@@ -318,15 +318,15 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
+    - target: {fileID: 4126375251269003940, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 85
+      objectReference: {fileID: 0}
     - target: {fileID: 4151404275905272608, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
-    - target: {fileID: 7186264653120121140, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 85
-      objectReference: {fileID: 0}
-    - target: {fileID: 7993661659770732105, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+    - target: {fileID: 7664107530553050792, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}

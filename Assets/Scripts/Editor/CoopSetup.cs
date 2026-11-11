@@ -44,6 +44,11 @@ namespace CoopGame.EditorTools
 
             CreateLobbyScene();
             CreateGameScene(avatar);
+            if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBake") < 0)
+            {
+                KitBake(); // Game sahnesi açık ve kayıtlı: kit odalarının ışığı pişer
+                EditorSceneManager.SaveOpenScenes();
+            }
 
             EditorBuildSettings.scenes = new[]
             {

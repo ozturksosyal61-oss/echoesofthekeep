@@ -20,14 +20,21 @@ namespace CoopGame
 
         void Awake() { if (top != null) topUp = top.localPosition; }
 
-        public override void ServerFixedUpdate()
+        /// <summary>Plakanın üstündeki avatar (except hariç); yoksa null.</summary>
+        public PlayerAvatar Occupant(PlayerAvatar except)
         {
-            bool any = false;
             foreach (var a in PlayerAvatar.All)
             {
+                if (a == except) continue;
                 var p = transform.InverseTransformPoint(a.transform.position);
-                if (Mathf.Abs(p.x) <= size.x * 0.5f && Mathf.Abs(p.z) <= size.y * 0.5f && p.y >= -0.2f && p.y <= height) { any = true; break; }
+                if (Mathf.Abs(p.x) <= size.x * 0.5f && Mathf.Abs(p.z) <= size.y * 0.5f && p.y >= -0.2f && p.y <= height) return a;
             }
+            return null;
+        }
+
+        public override void ServerFixedUpdate()
+        {
+            bool any = Occupant(null) != null;
             if (any == Pressed) return;
             ServerSetValue(any ? 1 : 0, stamp: any);
             Dbg.Puzzle(name + (any ? " basıldı tick=" + PressedTick : " bırakıldı"));

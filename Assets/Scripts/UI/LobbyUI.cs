@@ -5,12 +5,16 @@ using Fusion;
 
 namespace CoopGame
 {
-    /// <summary>Lobby: 4 haneli oda kodu gir (Katıl) ya da oluştur (Oda Kur).</summary>
+    /// <summary>Ana menü: Oda Kur (4 haneli kod üretir, holde gösterilir) ya da Odaya Katıl (kod girme paneli açılır).</summary>
     public class LobbyUI : MonoBehaviour
     {
         [SerializeField] InputField codeInput;
         [SerializeField] Button createButton;
-        [SerializeField] Button joinButton;
+        [SerializeField] Button joinButton;      // kod panelindeki "Katıl"
+        [SerializeField] Button openJoinButton;  // ana paneldeki "Odaya Katıl"
+        [SerializeField] Button backButton;
+        [SerializeField] GameObject mainPanel;
+        [SerializeField] GameObject joinPanel;
         [SerializeField] Text status;
 
         bool busy;
@@ -21,7 +25,17 @@ namespace CoopGame
             codeInput.characterLimit = 4;
             createButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(true)); });
             joinButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(false)); });
-            status.text = "Oda kodu gir ya da yeni oda kur.";
+            openJoinButton.onClick.AddListener(() => { if (!busy) ShowJoin(true); });
+            backButton.onClick.AddListener(() => { if (!busy) ShowJoin(false); });
+            ShowJoin(false);
+        }
+
+        void ShowJoin(bool join)
+        {
+            mainPanel.SetActive(!join);
+            joinPanel.SetActive(join);
+            status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "Yeni oda kur ya da bir odaya katıl.";
+            if (join) codeInput.text = "";
         }
 
         void SetBusy(bool b)
@@ -29,6 +43,8 @@ namespace CoopGame
             busy = b;
             createButton.interactable = !b;
             joinButton.interactable = !b;
+            openJoinButton.interactable = !b;
+            backButton.interactable = !b;
             codeInput.interactable = !b;
         }
 

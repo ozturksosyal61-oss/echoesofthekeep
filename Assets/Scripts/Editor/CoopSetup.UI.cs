@@ -364,21 +364,34 @@ namespace CoopGame.EditorTools
             var panel = MakeImage(canvas, "Panel", Vector2.zero, new Vector2(600, 560), U.panel, Color.white, true);
             Corner(panel, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-104, -10));
             var p = panel.rectTransform;
-            var create = MakeButton(p, "CreateButton", "ODA KUR", new Vector2(0, 168), new Vector2(500, 112), true, 46);
-            MakeText(p, "Or", "ya da arkadaşının koduyla katıl", 28, new Vector2(0, 76), new Vector2(500, 40), TextAnchor.MiddleCenter, U.body,
-                     new Color(Cream.r, Cream.g, Cream.b, 0.6f));
-            var input = MakeInput(p, "CodeInput", new Vector2(-95, -26), new Vector2(310, 112));
-            var join = MakeButton(p, "JoinButton", "KATIL", new Vector2(165, -26), new Vector2(170, 112), false, 42);
+            // Ana panel: iki büyük seçenek
+            var main = new GameObject("MainPanel", typeof(RectTransform)).GetComponent<RectTransform>();
+            main.SetParent(p, false); main.sizeDelta = new Vector2(600, 330); main.anchoredPosition = new Vector2(0, 80);
+            var create = MakeButton(main, "CreateButton", "ODA KUR", new Vector2(0, 88), new Vector2(500, 124), true, 48);
+            var openJoin = MakeButton(main, "OpenJoinButton", "ODAYA KATIL", new Vector2(0, -62), new Vector2(500, 124), false, 44);
+            // Katıl paneli: kod gir
+            var joinP = new GameObject("JoinPanel", typeof(RectTransform)).GetComponent<RectTransform>();
+            joinP.SetParent(p, false); joinP.sizeDelta = new Vector2(600, 330); joinP.anchoredPosition = new Vector2(0, 80);
+            MakeText(joinP, "JoinTitle", "ODA KODU", 40, new Vector2(0, 126), new Vector2(500, 50), TextAnchor.MiddleCenter, U.head, GoldBright);
+            var input = MakeInput(joinP, "CodeInput", new Vector2(0, 30), new Vector2(500, 116));
+            var back = MakeButton(joinP, "BackButton", "GERİ", new Vector2(-152, -98), new Vector2(196, 104), false, 38);
+            var join = MakeButton(joinP, "JoinButton", "KATIL", new Vector2(102, -98), new Vector2(296, 104), true, 44);
             Divider(p, new Vector2(0, -116), 400, 0.35f);
             var status = MakeText(p, "Status", "", 28, new Vector2(0, -170), new Vector2(520, 80), TextAnchor.MiddleCenter, U.body, Cream);
             MakeText(p, "MicHint", "Sesli sohbet · Kulaklık önerilir", 22, new Vector2(0, -236), new Vector2(520, 34), TextAnchor.MiddleCenter, U.body,
                      new Color(Cream.r, Cream.g, Cream.b, 0.45f), false);
 
+            joinP.gameObject.SetActive(false);
+            status.text = "Yeni oda kur ya da bir odaya katıl.";
             var lobby = new GameObject("LobbyUI").AddComponent<LobbyUI>();
             var so = new SerializedObject(lobby);
             SetRef(so, "codeInput", input);
             SetRef(so, "createButton", create);
             SetRef(so, "joinButton", join);
+            SetRef(so, "openJoinButton", openJoin);
+            SetRef(so, "backButton", back);
+            SetRef(so, "mainPanel", main.gameObject);
+            SetRef(so, "joinPanel", joinP.gameObject);
             SetRef(so, "status", status);
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -456,11 +469,11 @@ namespace CoopGame.EditorTools
             for (int i = 0; i < 2; i++)
             {
                 float y = -100 - i * 58;
-                var dot = MakeImage(canvas, "SpeakDot" + (i == 0 ? "A" : "B"), Vector2.zero, new Vector2(46, 46), U.glow);
+                var dot = MakeImage(canvas, "SpeakDot" + i, Vector2.zero, new Vector2(46, 46), U.glow);
                 Corner(dot, TL, TL, new Vector2(58, y));
                 dot.raycastTarget = false;
                 dots[i] = dot;
-                labels[i] = MakeText(canvas, "SpeakLabel" + (i == 0 ? "A" : "B"), i == 0 ? "A" : "B", 34, Vector2.zero, new Vector2(380, 50),
+                labels[i] = MakeText(canvas, "SpeakLabel" + i, "-", 34, Vector2.zero, new Vector2(380, 50),
                                      TextAnchor.MiddleLeft, U.head, Cream);
                 Corner(labels[i], TL, TL, new Vector2(118, y + 2));
             }
@@ -568,17 +581,25 @@ namespace CoopGame.EditorTools
             EditorSceneManager.OpenScene(LobbyPath);
             Shot(dir + "/lobby.png", null, Vector3.zero, true);
             EditorSceneManager.OpenScene(GamePath);
-            var a = Layout.RoomA; var b = Layout.RoomB;
-            Shot(dir + "/a_levers.png", a + new Vector3(0.5f, 1.72f, -3.5f), a + new Vector3(0, 2.6f, 8f), false);
-            Shot(dir + "/a_windows.png", a + new Vector3(4.5f, 1.72f, 5f), a + new Vector3(-6f, 2.4f, -8f), false);
-            Shot(dir + "/a_hud.png", a + new Vector3(-2f, 1.72f, 2.5f), a + new Vector3(-1.5f, 1.5f, 7f), true);
-            Shot(dir + "/b_fresco.png", b + new Vector3(-2.5f, 1.72f, -1f), b + new Vector3(8f, 2f, 0.5f), false);
-            Shot(dir + "/b_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
-            Shot(dir + "/a_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
-            Shot(dir + "/a_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
-            Shot(dir + "/b_cistern.png", b + new Vector3(-31.5f, 1.72f, 1f), b + new Vector3(-41.5f, 1.3f, -1f), false);
-            Shot(dir + "/b_crypt.png", b + new Vector3(-16.2f, 1.72f, 0.5f), b + new Vector3(-21f, 0.6f, 2.5f), false);
-            Shot(dir + "/a_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
+            var a = Layout.RoomX; var b = Layout.RoomO; var h = Layout.Hall;
+            Shot(dir + "/hall_entry.png", h + new Vector3(0f, 1.72f, -9.6f), h + new Vector3(0f, 3.2f, 6f), false);
+            Shot(dir + "/hall_west.png", h + new Vector3(3.5f, 1.72f, -6.5f), h + new Vector3(-8f, 2.4f, -3.5f), false);
+            Shot(dir + "/hall_east.png", h + new Vector3(-3.5f, 1.72f, -7.5f), h + new Vector3(9f, 2.2f, -2.5f), false);
+            Shot(dir + "/hall_stairs.png", h + new Vector3(-2.5f, 1.72f, -1.5f), h + new Vector3(1.5f, 4.2f, 10f), false);
+            Shot(dir + "/hall_plateO.png", h + new Vector3(4.2f, 1.72f, 0.4f), h + new Vector3(11.5f, 1.0f, 3.2f), false);
+            Shot(dir + "/hall_plateX.png", h + new Vector3(-3.2f, 4.72f, 8.7f), h + new Vector3(0.5f, 3.6f, 10.6f), false);
+            Shot(dir + "/hall_back.png", h + new Vector3(0f, 4.72f, 8.4f), h + new Vector3(0f, 2.5f, -6f), false);
+            Shot(dir + "/hall_hud.png", h + new Vector3(0f, 1.72f, -8.5f), h + new Vector3(0f, 2.6f, 4f), true);
+            Shot(dir + "/x_levers.png", a + new Vector3(0.5f, 1.72f, -3.5f), a + new Vector3(0, 2.6f, 8f), false);
+            Shot(dir + "/x_windows.png", a + new Vector3(4.5f, 1.72f, 5f), a + new Vector3(-6f, 2.4f, -8f), false);
+            Shot(dir + "/x_hud.png", a + new Vector3(-2f, 1.72f, 2.5f), a + new Vector3(-1.5f, 1.5f, 7f), true);
+            Shot(dir + "/o_fresco.png", b + new Vector3(-2.5f, 1.72f, -1f), b + new Vector3(8f, 2f, 0.5f), false);
+            Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
+            Shot(dir + "/x_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
+            Shot(dir + "/x_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
+            Shot(dir + "/o_cistern.png", b + new Vector3(-31.5f, 1.72f, 1f), b + new Vector3(-41.5f, 1.3f, -1f), false);
+            Shot(dir + "/o_crypt.png", b + new Vector3(-16.2f, 1.72f, 0.5f), b + new Vector3(-21f, 0.6f, 2.5f), false);
+            Shot(dir + "/x_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
             Debug.Log("[CoopSetup] Shots -> " + Path.GetFullPath(dir));
         }
 
