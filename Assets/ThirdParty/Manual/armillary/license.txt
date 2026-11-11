@@ -1,0 +1,11 @@
+Model Information:
+* title:	Armillary sphere
+* source:	https://sketchfab.com/3d-models/armillary-sphere-534e240ac6b0412cb526dd2b14bf8909
+* author:	KRei (https://sketchfab.com/krei1012)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Armillary sphere" (https://sketchfab.com/3d-models/armillary-sphere-534e240ac6b0412cb526dd2b14bf8909) by KRei (https://sketchfab.com/krei1012) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

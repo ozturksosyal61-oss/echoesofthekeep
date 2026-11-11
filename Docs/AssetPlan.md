@@ -11,7 +11,7 @@ Poligon sayısı yüksek modeller (≥15k) kitte LOD/decimate ile kullanılır.
 | Halı | PH dirty_carpet (bordo) |
 | Flamalar (zambak) | PH velour_velvet + ÜRET zambak deseni |
 | Avize (demir çember + mumlar) | ÜRET (kit) — ya da MAN |
-| Şamdanlar | PH brass_candleholders, wooden_candlestick |
+| Şamdanlar | PH brass_candleholders |
 | Heykel + niş | PH gothic_statue, marble_bust_01 — MAN: kadın heykeli |
 | Sandık | PH treasure_chest (103k → LOD) |
 | Masa, konsol, komodin | PH WoodenTable_01, ClassicConsole_01, GothicCommode_01, GothicCabinet_01 |
@@ -34,7 +34,7 @@ Poligon sayısı yüksek modeller (≥15k) kitte LOD/decimate ile kullanılır.
 | Kol plakaları (çerçeveli) | ÜRET + palet bulmaca renkleri |
 | Tezgah | PH WoodenTable_01, vintage_wooden_drawer_01 |
 | Aletler | PH combination_wrench, cross_pein_hammer, wooden_hammer_01, bench_vice_01, hand_plane_no4 |
-| Fener, aplik mum | PH wooden_lantern_01, wooden_candlestick |
+| Fener, aplik mum | PH wooden_lantern_01 |
 | Notlar/kağıtlar | ÜRET kart + aCG Paper001 |
 | Tabure, merdiven, kova | PH wooden_stool_01, wooden_ladder_02, wooden_bucket_01 |
 | Büyük saat (Saat Odası) | PH vintage_grandfather_clock_01 |
@@ -51,7 +51,7 @@ Poligon sayısı yüksek modeller (≥15k) kitte LOD/decimate ile kullanılır.
 | Kapı | PH large_castle_door |
 | Sembol paneli (bulmaca 2 duvarı) | ÜRET kabartma + pirinç semboller |
 | Fenerler (demir kollu) | PH wooden_lantern_01 + ÜRET kol |
-| Masa, bordo örtü, mum, kadeh, kase | PH WoodenTable_01, velour_velvet, wooden_candlestick, brass_goblets, wooden_bowl_02 |
+| Masa, bordo örtü, mum, kadeh, kase | PH WoodenTable_01, velour_velvet, brass_goblets, wooden_bowl_02 |
 | Testi/küp | PH brass_pot_01, brass_vase_03 — MAN: toprak amfora |
 | Izgara (zemin gideri) | ÜRET |
 

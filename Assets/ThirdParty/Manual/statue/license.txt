@@ -1,0 +1,11 @@
+Model Information:
+* title:	Engel Statue Scan - Retopology
+* source:	https://sketchfab.com/3d-models/engel-statue-scan-retopology-602e423e27ca4f9c938e98980c888b5d
+* author:	Refref1990 (https://sketchfab.com/refref1990)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Engel Statue Scan - Retopology" (https://sketchfab.com/3d-models/engel-statue-scan-retopology-602e423e27ca4f9c938e98980c888b5d) by Refref1990 (https://sketchfab.com/refref1990) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
