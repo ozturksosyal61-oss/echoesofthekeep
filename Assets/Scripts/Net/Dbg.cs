@@ -14,5 +14,6 @@ namespace CoopGame
         }
 
         public static void Interact(string msg) => UnityEngine.Debug.Log("[Interact] " + Who + " " + msg);
+        public static void Puzzle(string msg) => UnityEngine.Debug.Log("[Puzzle] " + Who + " " + msg);
     }
 }

@@ -59,6 +59,7 @@ namespace CoopGame
             roomText.text = (me != null ? Layout.RoomName(me.Room) : "-") +
                             "\nLamba: " + (st != null && st.LampOn ? "açık" : "kapalı") +
                             "   Kapı: " + (st != null && st.DoorOpen ? "açık" : "kapalı");
+            foreach (var d in PuzzleDef.All) roomText.text += "\n" + d.Title + ": " + PuzzleDef.StateName(d.State);
 
             for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = Roles.Name(i); }
             foreach (var avatar in FindObjectsByType<PlayerAvatar>(FindObjectsSortMode.None))

@@ -15,6 +15,8 @@ namespace CoopGame
         static readonly int SpeedParam = Animator.StringToHash("Speed");
 
         public static PlayerAvatar Local { get; private set; }
+        /// <summary>Spawn edilmiş tüm avatarlar (host'ta basınç plakası vb. için).</summary>
+        public static readonly System.Collections.Generic.List<PlayerAvatar> All = new System.Collections.Generic.List<PlayerAvatar>();
 
         VoiceNetworkObject voice;
         NetworkCharacterController cc;
@@ -40,6 +42,7 @@ namespace CoopGame
             renderers = GetComponentsInChildren<Renderer>(true);
             lastPos = transform.position;
             if (IsLocal) Local = this;
+            if (!All.Contains(this)) All.Add(this);
 
             int role = RoleIndex;
             name = "Avatar_" + Roles.Name(role) + (IsLocal ? "_local" : "");
@@ -51,6 +54,7 @@ namespace CoopGame
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
             if (Local == this) Local = null;
+            All.Remove(this);
         }
 
         public override void FixedUpdateNetwork()
@@ -84,14 +88,14 @@ namespace CoopGame
 
         // ---- Etkileşim: istemci → host (RPC), host doğrular, RoomState (state authority host) günceller ----
 
-        public void RequestInteract(InteractId id)
+        public void RequestInteract(int id)
         {
             // (2a) RPC gönderilmeden önce: yetki durumu
             Dbg.Interact("(2a) RPC gönderiliyor id=" + id + " avatar=" + name +
                          " HasInputAuthority=" + Object.HasInputAuthority + " HasStateAuthority=" + Object.HasStateAuthority +
                          " inputAuth=p" + Object.InputAuthority.PlayerId + " stateAuth=p" + Object.StateAuthority.PlayerId +
                          " RoomState.Instance=" + (RoomState.Instance != null));
-            RPC_Interact((int)id);
+            RPC_Interact(id);
             Dbg.Interact("(2b) RPC_Interact çağrısı döndü (host'a iletilmiş olmalı)");
         }
 
@@ -99,17 +103,19 @@ namespace CoopGame
         void RPC_Interact(int id)
         {
             // (3a) Host RPC'yi aldı mı
-            var target = Interactable.Find((InteractId)id);
+            var target = Interactable.Find(id);
             var state = RoomState.Instance;
-            Dbg.Interact("(3a) RPC ALINDI id=" + (InteractId)id + " gönderen=p" + Object.InputAuthority.PlayerId +
+            Dbg.Interact("(3a) RPC ALINDI id=" + id + " gönderen=p" + Object.InputAuthority.PlayerId +
                          " avatarKonum=" + transform.position.ToString("F1") + " oda=" + Room +
-                         " target=" + (target != null) + " state=" + (state != null));
-            if (target == null || state == null) { Dbg.Interact("(3a) REDDEDİLDİ: target/state yok"); return; }
+                         " target=" + (target != null ? target.name : "YOK") + " state=" + (state != null));
+            if (target == null) { Dbg.Interact("(3a) REDDEDİLDİ: target yok"); return; }
             // Host doğrulaması: aynı odada ve yeterince yakın mı.
             int targetRoom = Layout.RoomOf(target.transform.position);
             float dist = Vector3.Distance(transform.position, target.transform.position);
             if (targetRoom != Room) { Dbg.Interact("(3a) REDDEDİLDİ: farklı oda hedef=" + targetRoom + " avatar=" + Room); return; }
             if (dist > Interactable.ServerRange) { Dbg.Interact("(3a) REDDEDİLDİ: uzak d=" + dist.ToString("F1")); return; }
+            if (target.ServerHandler != null) { target.ServerHandler(this); return; } // bulmaca düğümü
+            if (state == null) { Dbg.Interact("(3a) REDDEDİLDİ: RoomState yok"); return; }
             state.Toggle((InteractId)id);
         }
     }

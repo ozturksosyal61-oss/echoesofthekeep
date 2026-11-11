@@ -47,7 +47,7 @@ namespace CoopGame
                 button.gameObject.SetActive(show);
                 // (1a) Hedef algılandı mı: butona girdi/çıktı
                 Dbg.Interact("(1a) " + (fp ? "raycast" : "yakınlık") + ": " +
-                             (show ? "GİRDİ " + current.Id + " d=" + Vector3.Distance(me.transform.position, current.transform.position).ToString("F1") : "ÇIKTI") +
+                             (show ? "GİRDİ " + current.name + " d=" + Vector3.Distance(me.transform.position, current.transform.position).ToString("F1") : "ÇIKTI") +
                              (me != null ? " konum=" + me.transform.position.ToString("F1") : " (yerel avatar yok)"));
             }
             if (!show) return;
@@ -78,9 +78,9 @@ namespace CoopGame
         void Fire()
         {
             // (1b) Dokunma/E algılandı mı
-            Dbg.Interact("(1b) Etkileş basıldı: current=" + (current != null ? current.Id.ToString() : "YOK") +
+            Dbg.Interact("(1b) Etkileş basıldı: current=" + (current != null ? current.name : "YOK") +
                          " yerelAvatar=" + (PlayerAvatar.Local != null ? "var" : "YOK"));
-            if (current != null && PlayerAvatar.Local != null) PlayerAvatar.Local.RequestInteract(current.Id);
+            if (current != null && PlayerAvatar.Local != null) PlayerAvatar.Local.RequestInteract(current.Key);
         }
     }
 }
