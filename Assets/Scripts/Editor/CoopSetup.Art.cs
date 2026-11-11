@@ -686,11 +686,6 @@ namespace CoopGame.EditorTools
             SetRef(pso, "door", vaultDoor);
             pso.ApplyModifiedPropertiesWithoutUndo();
 
-            Slab("RewardPedestal", roomB, new Vector3(-10.9f, 0.45f, 0), new Vector3(0.8f, 0.9f, 0.8f), A.flagstone, 1.2f);
-            var reward = MeshObj("Reward", roomB, new Vector3(-10.9f, 1.55f, 0), GearMesh(10, 0.5f, 0.11f, 0.14f, 0.12f), A.gold);
-            reward.transform.localRotation = Quaternion.Euler(0, 90, 0);
-            AddSpin(reward, 40f);
-            PointLight(roomB, "RewardGlow", new Vector3(-10.4f, 1.7f, 0), new Color(1f, 0.75f, 0.3f), 3f, 3.5f); // mahzene sızmasın
         }
 
         // ---------- Bulmaca 2: kibrit mahzeni (B karanlıkta okur, A kulede kadranları çevirir) ----------
@@ -848,16 +843,12 @@ namespace CoopGame.EditorTools
             Wall(roomB, "CryptWallW", new Vector3(-25f, 0, 0), false, 10.5f, h, wall, 3f, arch);
             Wall(roomB, "CryptWallN", new Vector3(-20f, 0, 5.25f), true, 10.5f, h, wall, 3f);
             Wall(roomB, "CryptWallS", new Vector3(-20f, 0, -5.25f), true, 10.5f, h, wall, 3f);
-            // Ödül nişi (batı): gümüş çan (bulmaca 4'e gönderme)
+            // Batı nişi (bulmaca 3 geçidi olacak)
             Deck(roomB, "NicheFloor", new Vector3(-26.4f, -0.25f, 0), 2.3f, 3.5f, 0.5f, A.flagstone, 1, 1);
             Deck(roomB, "NicheCeil", new Vector3(-26.4f, 3.25f, 0), 2.3f, 3.5f, 0.5f, A.dungeonCeil, 1, 1);
             Wall(roomB, "NicheW", new Vector3(-27.5f, 0, 0), false, 3.5f, 3f, wall, 3f);
             Wall(roomB, "NicheN", new Vector3(-26.4f, 0, 1.75f), true, 2.3f, 3f, wall, 3f);
             Wall(roomB, "NicheS", new Vector3(-26.4f, 0, -1.75f), true, 2.3f, 3f, wall, 3f);
-            Slab("NichePedestal", roomB, new Vector3(-26.6f, 0.45f, 0), new Vector3(0.8f, 0.9f, 0.8f), A.flagstone, 1.2f);
-            var bell = MeshObj("SilverBell", roomB, new Vector3(-26.6f, 0.92f, 0), LatheMesh("bell", BellProfile, 28), A.brass);
-            bell.transform.localScale = Vector3.one * 0.28f;
-            AddSpin(bell, 30f);
 
             var gate = MakeDoor("CryptGate", roomB, new Vector3(-15f, 1.5f, 0), false, A.iron);
             var rewardGate = MakeDoor("CryptRewardGate", roomB, new Vector3(-25f, 1.5f, 0), false, A.iron);
@@ -964,7 +955,7 @@ namespace CoopGame.EditorTools
 
         // ---------- Oda A: çan kulesi tepesi ----------
 
-        static Transform BuildTower(Vector3 center, out Light lampLight, out Renderer lampRenderer)
+        static Transform BuildTower(Vector3 center)
         {
             var root = new GameObject("RoomA_Mekanizma").transform;
             root.position = center;
@@ -1029,18 +1020,6 @@ namespace CoopGame.EditorTools
             Torch(root, "TorchN2", new Vector3(3f, 2.7f, 7.98f), Vector3.back, 9f, 12f);
             Torch(root, "TorchS", new Vector3(0f, 2.7f, -7.98f), Vector3.forward, 8f, 12f);
 
-            // Bulmaca lambası (B'deki düğme açar): kirişten zincirle asılı küre
-            var lampRoot = new GameObject("LampHanger").transform;
-            lampRoot.SetParent(root, false);
-            lampRoot.localPosition = new Vector3(-5.5f, 3.3f, -2.5f);
-            Slab("Chain", lampRoot, new Vector3(0, 1.7f, 0), new Vector3(0.04f, 2.7f, 0.04f), A.iron, 1f, false);
-            Slab("CageTop", lampRoot, new Vector3(0, 0.38f, 0), new Vector3(0.5f, 0.06f, 0.5f), A.iron, 1f, false);
-            Slab("CageBottom", lampRoot, new Vector3(0, -0.38f, 0), new Vector3(0.5f, 0.06f, 0.5f), A.iron, 1f, false);
-            var lamp = Prim("Lamp", lampRoot, PrimitiveType.Sphere, Vector3.zero, Vector3.one * 0.62f, MakeMat("LampMat", new Color(0.2f, 0.2f, 0.2f)));
-            lamp.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-            lampLight = PointLight(lamp.transform, "LampLight", Vector3.zero, new Color(1f, 0.9f, 0.6f), 14f, 16f);
-            lampLight.enabled = false;
-            lampRenderer = lamp.GetComponent<Renderer>();
 
             // Eşyalar
             Prop("WoodenTable_01", root, new Vector3(5.6f, 0, -5.8f), 20f, 0.85f);
@@ -1066,16 +1045,9 @@ namespace CoopGame.EditorTools
             var doorway = new Opening(0f, 3f, 0f, 3f);
             Wall(root, "WallS", new Vector3(0, 0, -8.25f), true, 17, h, wall, 3f);
             Wall(root, "WallE", new Vector3(8.25f, 0, 0), false, 17, h, wall, 3f);
-            Wall(root, "WallN", new Vector3(0, 0, 8.25f), true, 17, h, wall, 3f, doorway);  // alkov kapısı (RoomVisuals)
+            Wall(root, "WallN", new Vector3(0, 0, 8.25f), true, 17, h, wall, 3f);
             Wall(root, "WallW", new Vector3(-8.25f, 0, 0), false, 17, h, wall, 3f, doorway); // kasa kapısı (PuzzleDoor)
 
-            // Kuzeyde alkov
-            Deck(root, "AlcoveFloor", new Vector3(0, -0.25f, 10.625f), 17, 4.25f, 0.5f, A.dungeonFloor, 3, 1);
-            Deck(root, "AlcoveCeiling", new Vector3(0, h + 0.25f, 10.625f), 17, 4.25f, 0.5f, A.dungeonCeil, 3, 1);
-            Wall(root, "AlcoveWallN", new Vector3(0, 0, 12.75f), true, 17, h, wall, 3f);
-            Wall(root, "AlcoveWallE", new Vector3(8.25f, 0, 10.625f), false, 4.25f, h, wall, 3f);
-            Wall(root, "AlcoveWallW", new Vector3(-8.25f, 0, 10.625f), false, 4.25f, h, wall, 3f);
-            PointLight(root, "AlcoveLight", new Vector3(0, 3.2f, 10.6f), new Color(0.5f, 0.75f, 1f), 4f, 10f);
 
             // Batıda kasa odası
             Deck(root, "VaultFloor", new Vector3(-10.625f, -0.25f, 0), 4.25f, 7f, 0.5f, A.flagstone, 1, 1);
@@ -1112,21 +1084,9 @@ namespace CoopGame.EditorTools
 
         static void BuildWorld()
         {
-            var roomA = BuildTower(Layout.RoomA, out var lampLight, out var lampRenderer);
+            var roomA = BuildTower(Layout.RoomA);
             var roomB = BuildDungeon(Layout.RoomB);
-
-            // Oda A: alkov kapısını kontrol eden düğme. Oda B: lambayı kontrol eden düğme + alkov kapısı.
-            MakeButtonProp("DoorButton", roomA, new Vector3(-5f, 0, -6f), new Color(0.95f, 0.2f, 0.15f), InteractId.DoorButton, "Kapıyı aç/kapat");
-            MakeButtonProp("LampButton", roomB, new Vector3(5f, 0, -6f), new Color(0.2f, 0.9f, 0.35f), InteractId.LampButton, "Lambayı aç/kapat");
-            var door = MakeDoor("Door", roomB, new Vector3(0, 1.5f, 8.25f), true, A.wood);
-
-            var vis = new GameObject("RoomVisuals").AddComponent<RoomVisuals>();
-            var so = new SerializedObject(vis);
-            SetRef(so, "lampLight", lampLight);
-            SetRef(so, "lampRenderer", lampRenderer);
-            SetRef(so, "door", door);
-            so.ApplyModifiedPropertiesWithoutUndo();
-
+            new GameObject("PuzzleChime").AddComponent<PuzzleChime>();
             BuildPuzzle1(roomA, roomB);
             BuildPuzzle2(roomA, roomB);
         }

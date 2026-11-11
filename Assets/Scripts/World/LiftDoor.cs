@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace CoopGame
 {
-    /// <summary>Yukarı kalkan kapı paneli (yerel görsel + collider). Open'ı RoomVisuals veya PuzzleDoor ayarlar.</summary>
+    /// <summary>Yukarı kalkan kapı paneli (yerel görsel + collider). Open'ı PuzzleDoor veya bulmaca görselleri ayarlar.</summary>
     public class LiftDoor : MonoBehaviour
     {
         [SerializeField] float lift = 3.2f;

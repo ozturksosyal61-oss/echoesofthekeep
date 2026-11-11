@@ -55,10 +55,7 @@ namespace CoopGame
 
             // Bulunduğun alan + paylaşılan durum (diğer odadaki etkileşimin sonucunu da görebil).
             var me = PlayerAvatar.Local;
-            var st = RoomState.Instance;
-            roomText.text = (me != null ? Layout.RoomName(me.Room) : "-") +
-                            "\nLamba: " + (st != null && st.LampOn ? "açık" : "kapalı") +
-                            "   Kapı: " + (st != null && st.DoorOpen ? "açık" : "kapalı");
+            roomText.text = me != null ? Layout.RoomName(me.Room) : "-";
             foreach (var d in PuzzleDef.All) roomText.text += "\n" + d.Title + ": " + PuzzleDef.StateName(d.State);
 
             for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = Roles.Name(i); }
