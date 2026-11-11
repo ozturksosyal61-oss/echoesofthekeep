@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8665457266585594998}
   - component: {fileID: 1902048388898794025}
   - component: {fileID: 5928927130466999085}
+  - component: {fileID: 5389018733631032756}
   m_Layer: 0
   m_Name: RoomState
   m_TagString: Untagged
@@ -52,6 +53,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 5928927130466999085}
+  - {fileID: 5389018733631032756}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5928927130466999085
 MonoBehaviour:
@@ -69,3 +71,18 @@ MonoBehaviour:
     RawValue: 0
   _DoorOpen:
     RawValue: 0
+--- !u!114 &5389018733631032756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031182322638722940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018ba62dbb274964e8329302b2c294c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoopGame.PuzzleManager
+  _States: 
+  _Values: 
+  _Ticks: 

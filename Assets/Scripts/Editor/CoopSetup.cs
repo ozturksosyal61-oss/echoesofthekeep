@@ -84,6 +84,7 @@ namespace CoopGame.EditorTools
             var go = new GameObject("RoomState");
             go.AddComponent<NetworkObject>();
             go.AddComponent<RoomState>();
+            go.AddComponent<PuzzleManager>(); // bulmaca durumu aynı ağ nesnesinde (tek SpawnAsync)
             PrefabUtility.SaveAsPrefabAsset(go, RoomStatePath);
             Object.DestroyImmediate(go);
         }
@@ -182,7 +183,7 @@ namespace CoopGame.EditorTools
         }
 
         /// <summary>İç ölçü 16x16, yükseklik 4. Zemin üstü y=0. Duvar kalınlığı 0.5. withAlcove: arka duvarda kapılı küçük oda.</summary>
-        static Transform BuildRoom(string name, Vector3 center, Material floorMat, Material wallMat, bool withAlcove)
+        static Transform BuildRoom(string name, Vector3 center, Material floorMat, Material wallMat, bool withAlcove, bool withWestVault = false)
         {
             var root = new GameObject(name).transform;
             root.position = center;
@@ -191,7 +192,23 @@ namespace CoopGame.EditorTools
             Box("Ceiling", root, new Vector3(0, h + 0.25f, 0), new Vector3(17, 0.5f, 17), wallMat);
             Box("WallS", root, new Vector3(0, h / 2, -8.25f), new Vector3(17, h, 0.5f), wallMat);
             Box("WallE", root, new Vector3(8.25f, h / 2, 0), new Vector3(0.5f, h, 17), wallMat);
-            Box("WallW", root, new Vector3(-8.25f, h / 2, 0), new Vector3(0.5f, h, 17), wallMat);
+            if (!withWestVault) Box("WallW", root, new Vector3(-8.25f, h / 2, 0), new Vector3(0.5f, h, 17), wallMat);
+            else
+            {
+                // Batı duvarında 3x3 kapı boşluğu (kapı paneli PuzzleDoor/LiftDoor ile açılır) + arkada küçük kasa odası
+                Box("WallW_S", root, new Vector3(-8.25f, h / 2, -5f), new Vector3(0.5f, h, 7f), wallMat);
+                Box("WallW_N", root, new Vector3(-8.25f, h / 2, 5f), new Vector3(0.5f, h, 7f), wallMat);
+                Box("WallW_Lintel", root, new Vector3(-8.25f, 3.5f, 0), new Vector3(0.5f, 1f, 3f), wallMat);
+                Box("VaultFloor", root, new Vector3(-10.625f, -0.25f, 0), new Vector3(4.25f, 0.5f, 7f), floorMat);
+                Box("VaultCeiling", root, new Vector3(-10.625f, h + 0.25f, 0), new Vector3(4.25f, 0.5f, 7f), wallMat);
+                Box("VaultWallW", root, new Vector3(-12.75f, h / 2, 0), new Vector3(0.5f, h, 7f), wallMat);
+                Box("VaultWallS", root, new Vector3(-10.625f, h / 2, -3.25f), new Vector3(4.25f, h, 0.5f), wallMat);
+                Box("VaultWallN", root, new Vector3(-10.625f, h / 2, 3.25f), new Vector3(4.25f, h, 0.5f), wallMat);
+                var vaultLight = new GameObject("VaultLight").AddComponent<Light>();
+                vaultLight.transform.SetParent(root, false);
+                vaultLight.transform.localPosition = new Vector3(-10.6f, 3.5f, 0);
+                vaultLight.type = LightType.Point; vaultLight.range = 8f; vaultLight.intensity = 3f;
+            }
 
             var roomLight = new GameObject("RoomLight").AddComponent<Light>();
             roomLight.transform.SetParent(root, false);
@@ -225,8 +242,122 @@ namespace CoopGame.EditorTools
             var b = Box(name, parent, pos, new Vector3(0.7f, 1.2f, 0.4f), MakeMat(name + "Mat", color));
             b.isStatic = false;
             var i = b.AddComponent<Interactable>();
-            i.Id = id; i.Label = label;
+            i.Key = (int)id; i.Label = label;
             return b;
+        }
+
+        static LiftDoor MakeDoor(string name, Transform parent, Vector3 pos, Vector3 scale, Material mat)
+        {
+            var d = Box(name, parent, pos, scale, mat);
+            d.isStatic = false;
+            return d.AddComponent<LiftDoor>();
+        }
+
+        static void SetRefArray(SerializedObject so, string field, Object[] values)
+        {
+            var p = so.FindProperty(field);
+            if (p == null) { Debug.LogError("[CoopSetup] Alan yok: " + field); return; }
+            p.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++) p.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+        }
+
+        // ---------- Bulmaca 1 (gri kutu): A'da 4 kol, B'de doğru sırayı gösteren 4 sembol + kasa kapısı ----------
+
+        /// <summary>Varsayılan doğru sıra (kol indeksleri). Setup sonrası Inspector'dan SequenceInput.order ile değiştirilebilir.</summary>
+        static readonly int[] Puzzle1Order = { 2, 0, 3, 1 };
+
+        static SyncedLever MakeLever(Transform parent, int index, Vector3 pos, PrimitiveType shape, Color symbolColor, Material baseMat, Material armMat)
+        {
+            var root = new GameObject("Lever" + index).transform;
+            root.SetParent(parent, false);
+            root.localPosition = pos;
+            Box("Base", root, new Vector3(0, 0.3f, 0), new Vector3(0.8f, 0.6f, 0.5f), baseMat).isStatic = false;
+            var pivot = new GameObject("Pivot").transform;
+            pivot.SetParent(root, false);
+            pivot.localPosition = new Vector3(0, 0.6f, 0);
+            Box("Arm", pivot, new Vector3(0, 0.45f, 0), new Vector3(0.12f, 0.9f, 0.12f), armMat).isStatic = false;
+            Box("Knob", pivot, new Vector3(0, 0.95f, 0), new Vector3(0.22f, 0.22f, 0.22f), armMat).isStatic = false;
+
+            var sym = GameObject.CreatePrimitive(shape);
+            sym.name = "Symbol_" + shape;
+            Object.DestroyImmediate(sym.GetComponent<Collider>());
+            sym.transform.SetParent(root, false);
+            sym.transform.localPosition = new Vector3(0, 2.1f, 0);
+            sym.transform.localScale = Vector3.one * 0.45f;
+            sym.GetComponent<Renderer>().sharedMaterial = MakeMat("Symbol" + index + "Mat", symbolColor);
+
+            var it = root.gameObject.AddComponent<Interactable>();
+            it.Label = "Kolu çek";
+            var lever = root.gameObject.AddComponent<SyncedLever>();
+            var so = new SerializedObject(lever);
+            so.FindProperty("puzzleId").intValue = 1;
+            so.FindProperty("nodeId").intValue = index;
+            SetRef(so, "handle", pivot);
+            SetRef(so, "symbol", sym);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return lever;
+        }
+
+        static void BuildPuzzle1(Transform roomA, Transform roomB)
+        {
+            var def = new GameObject("Puzzle1").AddComponent<PuzzleDef>();
+            var dso = new SerializedObject(def);
+            dso.FindProperty("id").intValue = 1;
+            dso.FindProperty("title").stringValue = "Bulmaca 1 (kollar)";
+            dso.FindProperty("startsActive").boolValue = true;
+            dso.ApplyModifiedPropertiesWithoutUndo();
+
+            // Oda A: kuzey duvarı önünde 4 kol, her birinin üstünde farklı şekil+renk sembol
+            var baseMat = MakeMat("LeverBaseMat", new Color(0.3f, 0.3f, 0.32f));
+            var armMat = MakeMat("LeverArmMat", new Color(0.8f, 0.8f, 0.8f));
+            var shapes = new[] { PrimitiveType.Cube, PrimitiveType.Sphere, PrimitiveType.Cylinder, PrimitiveType.Capsule };
+            var colors = new[] { new Color(0.9f, 0.2f, 0.2f), new Color(0.2f, 0.8f, 0.3f), new Color(0.2f, 0.4f, 0.95f), new Color(0.95f, 0.85f, 0.2f) };
+            var levers = new SyncedLever[4];
+            for (int i = 0; i < 4; i++)
+                levers[i] = MakeLever(roomA, i, new Vector3(-4.5f + i * 3f, 0, 7f), shapes[i], colors[i], baseMat, armMat);
+
+            var seq = new GameObject("Puzzle1_Sequence").AddComponent<SequenceInput>();
+            seq.transform.SetParent(roomA, false);
+            var sso = new SerializedObject(seq);
+            sso.FindProperty("puzzleId").intValue = 1;
+            sso.FindProperty("nodeId").intValue = 4;
+            SetRefArray(sso, "inputs", levers);
+            var op = sso.FindProperty("order"); op.arraySize = Puzzle1Order.Length;
+            for (int i = 0; i < Puzzle1Order.Length; i++) op.GetArrayElementAtIndex(i).intValue = Puzzle1Order[i];
+            sso.ApplyModifiedPropertiesWithoutUndo();
+
+            // Oda B: doğu duvarında ipucu panosu (soldan sağa = 1→4; doğuya bakınca sol = kuzey)
+            var boardMat = MakeMat("HintBoardMat", new Color(0.12f, 0.12f, 0.14f));
+            var plateMat = MakeMat("HintPlateMat", new Color(0.15f, 0.15f, 0.18f));
+            var board = Box("HintBoard", roomB, new Vector3(7.95f, 2f, 0), new Vector3(0.1f, 1.8f, 9f), boardMat);
+            var slots = new Transform[4];
+            var plates = new Renderer[4];
+            for (int i = 0; i < 4; i++)
+            {
+                float z = 3.3f - i * 2.2f;
+                var plate = Box("HintPlate" + (i + 1), roomB, new Vector3(7.88f, 2f, z), new Vector3(0.05f, 1.3f, 1.6f), plateMat);
+                plate.isStatic = false;
+                plates[i] = plate.GetComponent<Renderer>();
+                var slot = new GameObject("HintSlot" + (i + 1)).transform;
+                slot.SetParent(roomB, false);
+                slot.localPosition = new Vector3(7.5f, 2f, z);
+                slots[i] = slot;
+            }
+            var hint = board.AddComponent<SequenceHint>();
+            var hso = new SerializedObject(hint);
+            SetRef(hso, "sequence", seq);
+            SetRefArray(hso, "slots", slots);
+            SetRefArray(hso, "slotPlates", plates);
+            hso.ApplyModifiedPropertiesWithoutUndo();
+
+            // Oda B: batı kasa kapısı + içinde ödül kutusu
+            var vaultDoor = MakeDoor("VaultDoor", roomB, new Vector3(-8.25f, 1.5f, 0), new Vector3(0.3f, 3f, 3f), MakeMat("VaultDoorMat", new Color(0.45f, 0.45f, 0.5f)));
+            var pd = vaultDoor.gameObject.AddComponent<PuzzleDoor>();
+            var pso = new SerializedObject(pd);
+            pso.FindProperty("puzzleId").intValue = 1;
+            SetRef(pso, "door", vaultDoor);
+            pso.ApplyModifiedPropertiesWithoutUndo();
+            Box("Reward", roomB, new Vector3(-10.8f, 0.4f, 0), new Vector3(0.8f, 0.8f, 0.8f), MakeMat("RewardMat", new Color(1f, 0.8f, 0.2f)));
         }
 
         static void BuildWorld()
@@ -237,7 +368,7 @@ namespace CoopGame.EditorTools
             var wallB = MakeMat("WallB", new Color(0.35f, 0.42f, 0.5f));
 
             var roomA = BuildRoom("RoomA_Mekanizma", Layout.RoomA, orangeFloor, wallA, false);
-            var roomB = BuildRoom("RoomB_Sarnic", Layout.RoomB, blueFloor, wallB, true);
+            var roomB = BuildRoom("RoomB_Sarnic", Layout.RoomB, blueFloor, wallB, true, withWestVault: true);
 
             // Oda A: lamba (tavanda asılı) + kapıyı kontrol eden buton
             var lamp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -256,16 +387,16 @@ namespace CoopGame.EditorTools
 
             // Oda B: lambayı kontrol eden buton + alkov kapısı
             MakeButtonProp("LampButton", roomB, new Vector3(5f, 0.6f, -6f), new Color(0.15f, 0.8f, 0.3f), InteractId.LampButton, "Lambayı aç/kapat");
-            var door = Box("Door", roomB, new Vector3(0, 1.5f, 8.25f), new Vector3(3f, 3f, 0.3f), MakeMat("DoorMat", new Color(0.4f, 0.25f, 0.1f)));
-            door.isStatic = false;
+            var door = MakeDoor("Door", roomB, new Vector3(0, 1.5f, 8.25f), new Vector3(3f, 3f, 0.3f), MakeMat("DoorMat", new Color(0.4f, 0.25f, 0.1f)));
 
             var vis = new GameObject("RoomVisuals").AddComponent<RoomVisuals>();
             var so = new SerializedObject(vis);
             SetRef(so, "lampLight", lampLight);
             SetRef(so, "lampRenderer", lamp.GetComponent<Renderer>());
-            SetRef(so, "door", door.transform);
-            SetRef(so, "doorCollider", door.GetComponent<Collider>());
+            SetRef(so, "door", door);
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            BuildPuzzle1(roomA, roomB);
         }
 
         // ---------- Avatar modeli + yürüme animasyonu (primitiflerden, Animator ile) ----------
