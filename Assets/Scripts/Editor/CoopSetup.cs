@@ -33,6 +33,7 @@ namespace CoopGame.EditorTools
 
             SetupUrp(); // önce pipeline: materyaller URP/Lit ile üretilsin
             PrepareArt(); // dokulu malzemeler, gökyüzü, post-fx (CoopSetup.Art.cs)
+            PrepareKit(); // Art kit: malzeme kütüphanesi, dekor prefabları, ışık profili (CoopSetup.Kit.cs)
             PrepareUi();  // fontlar + prosedürel sprite'lar (CoopSetup.UI.cs)
 
             var avatar = CreateAvatarPrefab();
@@ -157,16 +158,26 @@ namespace CoopGame.EditorTools
             Debug.Log("[CoopSetup] URP atandı: " + UrpAssetPath + " (kalite seviyesi: " + QualitySettings.names.Length + ")");
         }
 
-        static Material MakeMat(string name, Color color)
+        /// <summary>Malzeme klasörü: Art kit kurulurken Assets/Art/Kit/Materials olur.</summary>
+        static string matDir = "Assets/Materials";
+
+        /// <summary>Malzemeyi üretir ya da var olanı sıfırlar (GUID sabit kalır: prefab/sahne referansları ve git farkı bozulmaz).</summary>
+        static Material MakeMat(string name, Color color, string shaderName = "Universal Render Pipeline/Lit")
         {
-            Directory.CreateDirectory("Assets/Materials");
-            string path = "Assets/Materials/" + name + ".mat";
-            var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (existing != null) AssetDatabase.DeleteAsset(path);
-            var shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null) throw new System.Exception("URP/Lit shader bulunamadı (URP paketi yüklü mü?)");
-            var m = new Material(shader) { color = color };
-            AssetDatabase.CreateAsset(m, path);
+            Directory.CreateDirectory(matDir);
+            string path = matDir + "/" + name + ".mat";
+            var shader = Shader.Find(shaderName);
+            if (shader == null) throw new System.Exception(shaderName + " shader bulunamadı (URP paketi yüklü mü?)");
+            var fresh = new Material(shader) { color = color };
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m == null) { AssetDatabase.CreateAsset(fresh, path); return fresh; }
+            m.shader = shader;
+            m.CopyPropertiesFromMaterial(fresh);
+            m.shaderKeywords = fresh.shaderKeywords;
+            m.renderQueue = -1;
+            m.globalIlluminationFlags = fresh.globalIlluminationFlags;
+            Object.DestroyImmediate(fresh);
+            EditorUtility.SetDirty(m);
             return m;
         }
 

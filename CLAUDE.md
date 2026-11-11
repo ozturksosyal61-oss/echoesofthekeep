@@ -17,6 +17,9 @@ Tasarım belgesi: Docs/PuzzleDesign.md
 - CoopSetup üç dosya (partial): CoopSetup.cs (prefab/URP/build), CoopSetup.Art.cs (malzeme, ağ, odalar, menü arka planı), CoopSetup.UI.cs (tema, Lobby/Game sahneleri, HUD). Oyun adı: Echoes of the Keep (CoopSetup.UI.cs GameTitle/GameTitleSub, PlayerSettings.productName).
 - Varlıklar: Assets/ThirdParty (Poly Haven CC0 doku/model/gökyüzü, OFL fontlar; LICENSES.md). Üretilenler: Assets/Generated (ağ, sprite), Assets/Materials.
 - Görsel doğrulama: Unity kapalıyken batch `-executeMethod CoopGame.EditorTools.CoopSetup.SetupAndShots -shotDir <klasör>` (ya da yalnızca Shots) PNG üretir.
+- Art kit (CoopSetup.Kit.cs → Assets/Art/Kit): malzemeler `K.*`, palet `Pal.*`, dekor `Kit("Ad", parent, pos, yaw)` (74 prefab; liste Assets/Art/Kit/Prefabs), ışık prefabları L_Candle/L_Candelabra/L_Chandelier (baked), L_Lantern (realtime), pencereler WindowLancet/WindowRose (ışıyan vitray + baked ay spotu, duvarda delik gerekmez). Mimari: Wainscot (lambri), BeamCeiling, KitProbes, KitReflection, KitBake. Post-fx: Art/Kit/Lighting/KitPostFx.asset.
+- Kit doğrulama: batch `-executeMethod CoopGame.EditorTools.CoopSetup.KitShots -shotDir <klasör>` (sergi odası Assets/Art/Kit/KitShowroom.unity, bake ~20 sn). Model dökümü: Logs/kit_dump.txt.
+- Baked ışık: duvar/zemin lightmap, dekor light probe. Probe ızgarası odayı zeminden tavana kaplamalı; gövde dışında kalan nesne simsiyah olur (prefablardaki ProbeAnchor bunu zemin/duvar dekoru için çözer).
 - Nesne başına 4 ek ışık sınırı var: büyük yüzeyler Deck() ile parçalı; oda başına ~4-5 noktasal ışığı geçme.
 ## Art direction (kalıcı)
 - Referanslar: Docs/Reference/ → lobi_hol.png, mekanizma.jpg, mahzen.png, genel_ic.jpg. Oda tasarlamadan önce hepsini incele. Her yeni oda bu detay seviyesinde, aynı şato stilinde.

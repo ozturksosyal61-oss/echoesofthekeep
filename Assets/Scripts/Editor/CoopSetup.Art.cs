@@ -19,7 +19,7 @@ namespace CoopGame.EditorTools
         const string ModelRoot = "Assets/ThirdParty/PolyHaven/Models/";
         const string SkyPath = "Assets/ThirdParty/PolyHaven/Sky/rogland_clear_night.jpg";
         const string GenMeshDir = "Assets/Generated/Meshes";
-        const string PostFxPath = "Assets/Settings/PostFx.asset";
+        const string PostFxPath = "Assets/Art/Kit/Lighting/KitPostFx.asset";
 
         /// <summary>HDR + bloom/vinyet/renk. Düşük cihazda FPS sorun olursa false yap ve Setup All çalıştır.</summary>
         const bool PostFx = true;
@@ -48,6 +48,13 @@ namespace CoopGame.EditorTools
             if (ti.textureType != want) { ti.textureType = want; dirty = true; }
             if (ti.maxTextureSize != maxSize) { ti.maxTextureSize = maxSize; dirty = true; }
             if (ti.anisoLevel != 4) { ti.anisoLevel = 4; dirty = true; }
+            var want6 = normal ? TextureImporterFormat.ASTC_5x5 : TextureImporterFormat.ASTC_6x6;
+            var ps = ti.GetPlatformTextureSettings("Android");
+            if (!ps.overridden || ps.format != want6 || ps.maxTextureSize != maxSize)
+            {
+                ps.overridden = true; ps.format = want6; ps.maxTextureSize = maxSize;
+                ti.SetPlatformTextureSettings(ps); dirty = true;
+            }
             if (dirty) ti.SaveAndReimport();
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
@@ -139,20 +146,23 @@ namespace CoopGame.EditorTools
 
         static void SetupPostFx()
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(PostFxPath));
             if (AssetDatabase.LoadAssetAtPath<VolumeProfile>(PostFxPath) != null) AssetDatabase.DeleteAsset(PostFxPath);
+            AssetDatabase.DeleteAsset("Assets/Settings/PostFx.asset"); // eski konum
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
             AssetDatabase.CreateAsset(profile, PostFxPath);
 
+            // Değerler: Docs/StyleGuide.md "Post-process (tek profil)"
             var bloom = profile.Add<Bloom>(true);
-            bloom.threshold.Override(1.05f); bloom.intensity.Override(0.55f); bloom.scatter.Override(0.62f);
+            bloom.threshold.Override(1.0f); bloom.intensity.Override(0.5f); bloom.scatter.Override(0.62f);
             bloom.highQualityFiltering.Override(false);
             var vig = profile.Add<Vignette>(true);
-            vig.intensity.Override(0.34f); vig.smoothness.Override(0.45f);
+            vig.intensity.Override(0.28f); vig.smoothness.Override(0.45f);
             var col = profile.Add<ColorAdjustments>(true);
-            col.postExposure.Override(0.25f); col.contrast.Override(14f); col.saturation.Override(-6f);
+            col.postExposure.Override(0f); col.contrast.Override(10f); col.saturation.Override(-8f);
             col.colorFilter.Override(new Color(1f, 0.97f, 0.93f));
             var tone = profile.Add<Tonemapping>(true);
-            tone.mode.Override(TonemappingMode.Neutral);
+            tone.mode.Override(TonemappingMode.ACES);
 
             foreach (var c in profile.components)
             {
@@ -263,6 +273,7 @@ namespace CoopGame.EditorTools
             var m = new Mesh();
             m.SetVertices(v); m.SetNormals(n); m.SetUVs(0, uv); m.SetTriangles(tris, 0);
             m.RecalculateTangents(); m.RecalculateBounds();
+            Unwrapping.GenerateSecondaryUVSet(m); // lightmap UV'si (baked ışık)
             return SaveMesh(m, key);
         }
 
