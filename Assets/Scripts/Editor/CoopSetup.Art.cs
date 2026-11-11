@@ -894,8 +894,8 @@ namespace CoopGame.EditorTools
             cso.FindProperty("nodeId").intValue = 10;
             SetRefArray(cso, "dials", dials);
             SetRef(cso, "confirm", confirm);
-            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-20.2f, 1.5f, 0);
-            cso.FindProperty("zoneSize").vector3Value = new Vector3(8.8f, 3f, 10f);
+            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-20f, 1.5f, 0); // oda x -25..-15; kapı önündeki aydınlık şerit kalmasın
+            cso.FindProperty("zoneSize").vector3Value = new Vector3(9.2f, 3f, 10f);
             SetRef(cso, "respawn", respawn);
             cso.ApplyModifiedPropertiesWithoutUndo();
 

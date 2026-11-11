@@ -59,7 +59,7 @@ namespace CoopGame
         {
             if (!Object.HasStateAuthority) return;
             RoleCode = role + 1;
-            if (teleport) cc.Teleport(Layout.Spawn(role), Quaternion.identity);
+            if (teleport) { cc.Teleport(Layout.Spawn(role), Quaternion.identity); hasSafe = false; }
             Dbg.Puzzle(name + " rol=" + Roles.Name(role));
         }
 
@@ -87,7 +87,27 @@ namespace CoopGame
         {
             if (GetInput(out PlayerInput input))
                 cc.Move(new Vector3(input.Move.x, 0f, input.Move.y));
+
+            // NCC hızı konum farkından türetir: basamak/eşya kenarına tırmanınca dikey hız fırlatma etkisi yapıyordu.
+            // Oyunda zıplama yok → yukarı hız asla taşınmaz.
+            var v = cc.Velocity;
+            if (v.y > 0f) { v.y = 0f; cc.Velocity = v; }
+
+            // Düşme güvencesi (host): son sağlam zemine geri al.
+            if (!Object.HasStateAuthority || Runner.IsResimulation) return;
+            var p = transform.position;
+            if (cc.Grounded) { lastSafe = p; hasSafe = true; }
+            else if (p.y < (hasSafe ? lastSafe.y : 0f) - 6f)
+            {
+                var back = hasSafe ? lastSafe + Vector3.up * 0.1f
+                         : RoleIndex == Roles.None ? Layout.HallSpawn(0) : Layout.Spawn(RoleIndex);
+                cc.Teleport(back, transform.rotation);
+                cc.Velocity = Vector3.zero;
+            }
         }
+
+        Vector3 lastSafe;
+        bool hasSafe;
 
         public override void Render()
         {
