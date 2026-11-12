@@ -133,7 +133,7 @@ namespace CoopGame.EditorTools
             {
                 var o = i == 0 ? Vector3.zero : Quaternion.Euler(0, i * 90f + 20f, 0) * Vector3.forward * 0.2f;
                 var f = MeshObj("Flame", t, Vector3.up * 0.95f + o, FlameMesh(), K.flame);
-                f.transform.localScale = new Vector3(9f, i == 0 ? 16f : 10f, 9f);
+                f.transform.localScale = i == 0 ? new Vector3(0.26f, 0.5f, 0.26f) : new Vector3(0.18f, 0.32f, 0.18f);
                 f.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
             }
             if (light)
