@@ -362,6 +362,76 @@ namespace CoopGame.EditorTools
 
         // ---------------- Mezar kütüphanesi (O) ----------------
 
+        /// <summary>Mezar kütüphanesi v2 dekor turu: yan neflerde kitaplıklar + okuma masaları, nefte halı ve şamdanlar, kâtibin dağınıklığı.</summary>
+        static void LibraryDressing(Transform root, float hx, float hz, float NW, float SP)
+        {
+            foreach (int s in new[] { -1, 1 })
+            {
+                float wy = s < 0 ? 90f : -90f, wx = s * (hx - 0.4f);
+                foreach (float z in new[] { -4.5f, 4.0f, -12.9f }) Books(root, new Vector3(wx, 0, z), wy);
+                Kit("Ladder", root, new Vector3(s * (hx - 0.75f), 0, s < 0 ? 0.9f : -3.8f), wy, 0.95f);
+                // Okuma masası (yan nef): kitaplar, mum, kâğıt, mürekkep
+                var dp = new Vector3(s * 6.6f, 0, s < 0 ? 6.4f : -11.0f);
+                Kit("Table", root, dp, 90f);
+                Kit("ChairWood", root, dp + new Vector3(-s * 0.85f, 0, 0), s < 0 ? 90f : -90f);
+                Kit("BookStack", root, dp + new Vector3(0.05f, 0.82f, 0.5f), 30f, 0.8f);
+                Kit("PaperA", root, dp + new Vector3(0f, 0.825f, -0.1f), 70f);
+                Kit("PaperC", root, dp + new Vector3(0.12f, 0.826f, -0.45f), 15f);
+                Kit("Candlestick", root, dp + new Vector3(-0.1f, 0.82f, 0.8f));
+                Kit("L_Candle", root, dp + new Vector3(-0.1f, 1.35f, 0.8f));
+                Kit(s < 0 ? "Magnifier" : "Spectacles", root, dp + new Vector3(0.1f, 0.82f, 0.2f), 40f);
+                Kit("PaperScatter", root, dp + new Vector3(-s * 0.4f, 0.01f, -0.9f), 110f);
+                // Zeminde kitap kuleleri, mumlar
+                foreach (float z in new[] { -1.2f, 7.6f, -13.0f })
+                {
+                    Kit("BookStack", root, new Vector3(s * 5.4f, 0, z), z * 17f);
+                    Kit("CandleCluster", root, new Vector3(s * 5.25f, 0, z + 0.6f));
+                }
+                Kit("BookStack", root, new Vector3(s * 7.9f, 0, -7.9f), 200f, 0.9f);
+                Kit("BookStack", root, new Vector3(s * 7.95f, 0.38f, -7.85f), 160f, 0.8f);
+                // Sütunlardan nefe sarkan sancaklar
+                foreach (float z in new[] { -9f, 0f, 9f })
+                    Kit("Banner", root, new Vector3(s * (NW - 0.46f), SP - 0.5f, z), s < 0 ? 90f : -90f, 1.1f);
+                // Lahit başlarında mum + kadeh, ayak ucunda dağılmış kemik/kâğıt
+                foreach (float z in new[] { -6.8f, 2.2f })
+                {
+                    Kit("CandleCluster", root, new Vector3(s * 6.7f, 1.02f, z - 1.05f));
+                    Kit("Goblet1", root, new Vector3(s * 6.4f, 1.02f, z - 1.0f));
+                    Kit("PaperB", root, new Vector3(s * 5.75f, 0.005f, z + 1.4f), z * 13f);
+                }
+                Kit("Crate", root, new Vector3(s * 8.3f, 0, 12.9f), s * 20f, 0.8f);
+                Kit("CrateLong", root, new Vector3(s * 8.4f, 0, -10.0f), 90f, 0.85f);
+            }
+            // Orta nef: halı yolu, ayaklı şamdanlar, kâtip sandalyesi
+            foreach (float z in new[] { -5.5f, 5.5f }) Kit("Rug", root, new Vector3(0, 0, z), 90f, 1.1f);
+            foreach (int s2 in new[] { -1, 1 })
+                foreach (float z in new[] { -9f, 0f, 9f })
+                {   // yan nef dolgusu (baked): kitaplık yüzleri okunsun
+                    var f = LightGo("AisleFill", LightType.Point, Pal.Candle, 2.2f, 7f, true);
+                    f.transform.SetParent(root, false); f.transform.localPosition = new Vector3(s2 * 7.2f, 3.2f, z);
+                }
+            foreach (float z in new[] { -11.5f, -2.3f, 5.5f })
+                foreach (int s in new[] { -1, 1 })
+                    Kit("CandelabraFloor", root, new Vector3(s * 3.2f, 0, z), s * 30f, 0.9f);
+            Kit("L_Candelabra", root, new Vector3(-3.2f, 1.6f, -2.3f));
+            Kit("L_Candelabra", root, new Vector3(3.2f, 1.6f, 5.5f));
+            // Kâtibin köşesi (kuzeybatı, StudyTable yanında): sandık, kitaplar, saat, küre
+            Kit("Chest", root, new Vector3(-8.1f, 0, 12.6f), 90f, 0.85f);
+            Kit("Armillary", root, new Vector3(-5.6f, 0, 12.7f), 30f, 0.9f);
+            Kit("MantelClock", root, new Vector3(-6.7f, 0.78f, 11.2f), 90f);
+            Kit("BookStack", root, new Vector3(-7.6f, 0, 11.0f), 40f);
+            Kit("Lantern", root, new Vector3(-8.2f, 0, 9.9f), 10f);
+            // Hikâye: kürsünün yanına devrilmiş taburesi ve dökülmüş mürekkep (mektubu yazan kaçmış)
+            Kit("Stool", root, new Vector3(-6.4f, 0.2f, -11.4f), 0f).transform.localRotation = Quaternion.Euler(0, 20, 86);
+            Prim("InkSpill", root, PrimitiveType.Cylinder, new Vector3(-6.6f, 0.003f, -10.7f), new Vector3(0.5f, 0.002f, 0.32f), MakeMat("K_InkSpill", new Color(0.03f, 0.03f, 0.05f)));
+            Kit("Bottle3", root, new Vector3(-6.45f, 0.05f, -10.6f), 0f).transform.localRotation = Quaternion.Euler(0, 60, 90);
+            Kit("Rat", root, new Vector3(7.4f, 0, 7.8f), 210f);
+            Kit("Rat", root, new Vector3(-5.6f, 0, -2.9f), 30f, 0.9f);
+            foreach (var (p, r) in new[] { (new Vector3(-hx + 0.03f, 0, -hz + 0.03f), Quaternion.Euler(0, 90, 0)), (new Vector3(hx - 0.03f, 0, 0.9f), Quaternion.Euler(0, -90, 0)),
+                                          (new Vector3(-NW - 0.5f, SP - 0.4f, 9f), Quaternion.Euler(0, -90, 180)), (new Vector3(NW + 0.5f, SP - 0.4f, -9f), Quaternion.Euler(0, 90, 180)) })
+                KitR("Cobweb", root, p, r, 1.3f);
+        }
+
         static Transform BuildLibrary(Transform roomO, out Transform lockRoot, out Transform lectern, out Transform arrive, out LiftDoor door)
         {
             const float SX = 18f, SZ = 28f, hx = SX * 0.5f, hz = SZ * 0.5f, NW = 4.5f, SP = 6f, RS = 2.6f, AH = 6.2f;
@@ -371,7 +441,7 @@ namespace CoopGame.EditorTools
             var stone = K.castleStone;
             float top = SP + RS;
 
-            Deck(root, "Floor", new Vector3(0, -0.25f, 0), SX, SZ, 0.5f, K.cellarFloor, 3, 5);
+            Deck(root, "Floor", new Vector3(0, -0.25f, 0), SX, SZ, 0.5f, KTex("K_LibraryFloor", "rectangular_paving", new Color(0.58f, 0.57f, 0.6f), 0.35f, 1.1f), 3, 5); // dikdörtgen taş döşeme (turuncu derz yok)
             Wall(root, "WallE", new Vector3(hx + 0.25f, 0, 0), false, SZ, AH + 0.3f, stone, 2f);
             Wall(root, "WallW", new Vector3(-hx - 0.25f, 0, 0), false, SZ, AH + 0.3f, stone, 2f);
             Wall(root, "WallN", new Vector3(0, 0, hz + 0.25f), true, SX + 1f, top + 0.4f, stone, 2f);
@@ -588,6 +658,8 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", root, new Vector3(NW + 0.5f, SP - 0.4f, 4.5f), Quaternion.Euler(0, 90, 180), 1.4f);
             KitR("Cobweb", root, new Vector3(-NW - 0.5f, SP - 0.4f, -4.5f), Quaternion.Euler(0, -90, 180), 1.4f);
             KitR("Cobweb", root, new Vector3(hx - 0.03f, 0, hz - 0.03f), Quaternion.Euler(0, 0, 0), 1.2f);
+
+            LibraryDressing(root, hx, hz, NW, SP);
 
             arrive = new GameObject("LibraryArrive").transform;
             arrive.SetParent(root, false);
