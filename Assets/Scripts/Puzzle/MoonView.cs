@@ -14,6 +14,7 @@ namespace CoopGame
         [SerializeField] Material[] skyMats = new Material[8], tileMats = new Material[8];
         [SerializeField] Renderer[] tiles = new Renderer[8]; // kuyu zemini döşemeleri (dizin = döşeme)
         [SerializeField] Material beamMat;
+        [SerializeField] Material flareMat;              // ayna/mercek çarpma noktasında parlama (billboard)
         [SerializeField] Transform mouth;                // çatıda kuyu ağzı merkezi (mercekler çevresinde)
         [SerializeField] float lensRadius = 0.95f;
         [SerializeField] Transform wellTop;              // kuyu odasında ışığın girdiği nokta (şaft tepesi)
@@ -21,23 +22,69 @@ namespace CoopGame
         [SerializeField] Light spotLight;
         [SerializeField] float moonDistance = 40f, moonHeight = 21f, moonSize = 5.5f; // kamera uzak düzlemi 140 m + sis: yakın ve büyük
 
-        Transform[] beams;
+        Transform[] beams, flares;
         int shownSeed = -1;
+        static Mesh tube;
+
+        /// <summary>Kapaksız tüp, y: -1..1 (silindir ölçek düzeniyle aynı), uv.y boy boyunca 0..1.</summary>
+        static Mesh Tube()
+        {
+            if (tube != null) return tube;
+            const int n = 14;
+            var v = new Vector3[(n + 1) * 2]; var nr = new Vector3[v.Length]; var uv = new Vector2[v.Length];
+            var tri = new int[n * 6];
+            for (int i = 0; i <= n; i++)
+            {
+                float a = i * Mathf.PI * 2f / n;
+                var d = new Vector3(Mathf.Cos(a), 0, Mathf.Sin(a));
+                v[i * 2] = d * 0.5f + Vector3.down; v[i * 2 + 1] = d * 0.5f + Vector3.up;
+                nr[i * 2] = nr[i * 2 + 1] = d;
+                uv[i * 2] = new Vector2(i / (float)n, 0); uv[i * 2 + 1] = new Vector2(i / (float)n, 1);
+                if (i == n) break;
+                int k = i * 6, b = i * 2;
+                tri[k] = b; tri[k + 1] = b + 1; tri[k + 2] = b + 2; tri[k + 3] = b + 2; tri[k + 4] = b + 1; tri[k + 5] = b + 3;
+            }
+            tube = new Mesh { name = "MoonBeamTube", vertices = v, normals = nr, uv = uv, triangles = tri };
+            tube.bounds = new Bounds(Vector3.zero, new Vector3(1.2f, 2.2f, 1.2f));
+            return tube;
+        }
 
         void Start()
         {
             beams = new Transform[5];
             for (int i = 0; i < beams.Length; i++)
             {
-                var go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                Destroy(go.GetComponent<Collider>());
-                go.name = "MoonBeam" + i;
+                var go = new GameObject("MoonBeam" + i);
                 go.transform.SetParent(transform, false);
-                var r = go.GetComponent<Renderer>();
-                r.sharedMaterial = beamMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                go.AddComponent<MeshFilter>().sharedMesh = Tube();
+                var r = go.AddComponent<MeshRenderer>();
+                r.sharedMaterial = beamMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                r.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off; r.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
                 go.SetActive(false);
                 beams[i] = go.transform;
             }
+            flares = new Transform[5];
+            for (int i = 0; i < flares.Length; i++)
+            {
+                var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Destroy(go.GetComponent<Collider>());
+                go.name = "MoonFlare" + i;
+                go.transform.SetParent(transform, false);
+                var r = go.GetComponent<Renderer>();
+                r.sharedMaterial = flareMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                r.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+                go.SetActive(false);
+                flares[i] = go.transform;
+            }
+        }
+
+        void Flare(int i, Vector3 p, float size)
+        {
+            if (flareMat == null) return;
+            var t = flares[i];
+            t.gameObject.SetActive(true);
+            t.position = p;
+            t.localScale = Vector3.one * size;
         }
 
         void Beam(int i, Vector3 a, Vector3 b, float w)
@@ -68,6 +115,7 @@ namespace CoopGame
                 }
             }
             for (int i = 0; i < beams.Length; i++) beams[i].gameObject.SetActive(false);
+            for (int i = 0; i < flares.Length; i++) flares[i].gameObject.SetActive(false);
             if (spot != null) spot.gameObject.SetActive(false);
             if (spotLight != null) spotLight.enabled = false;
 
@@ -92,20 +140,25 @@ namespace CoopGame
             Vector3 W(Vector3 local) => roof.TransformPoint(local);
             Vector3 Mp(int i) => mir[i].transform.position + Vector3.up * 1.6f;
             var moonPos = roof.TransformPoint(MoonPuzzle.Dir(az) * 34f + Vector3.up * 18f);
-            Beam(0, moonPos, Mp(0), 0.35f);
-            if (hits == 1) { if (a1Out != Vector3.zero) Beam(1, Mp(0), Mp(0) + roof.TransformDirection(a1Out) * 9f, 0.18f); return; }
-            Beam(1, Mp(0), Mp(1), 0.22f);
-            if (hits == 2) { if (a2Out != Vector3.zero) Beam(2, Mp(1), Mp(1) + roof.TransformDirection(a2Out) * 9f, 0.18f); return; }
-            Beam(2, Mp(1), Mp(2), 0.22f);
+            Beam(0, moonPos, Mp(0), 0.9f);
+            Flare(0, Mp(0), 1.3f);
+            if (hits == 1) { if (a1Out != Vector3.zero) Beam(1, Mp(0), Mp(0) + roof.TransformDirection(a1Out) * 9f, 0.45f); return; }
+            Beam(1, Mp(0), Mp(1), 0.55f);
+            Flare(1, Mp(1), 1.1f);
+            if (hits == 2) { if (a2Out != Vector3.zero) Beam(2, Mp(1), Mp(1) + roof.TransformDirection(a2Out) * 9f, 0.45f); return; }
+            Beam(2, Mp(1), Mp(2), 0.55f);
+            Flare(2, Mp(2), 1.1f);
             if (lens < 0 || mouth == null) return;
             var lensPos = mouth.position + roof.TransformDirection(MoonPuzzle.Dir(mir[2].NormalAz)) * lensRadius;
-            Beam(3, Mp(2), lensPos, 0.16f);
+            Beam(3, Mp(2), lensPos, 0.4f);
+            Flare(3, lensPos, 0.7f);
             // kuyu odası: şaft tepesinden döşemeye
             int tile = s.lensToTile[lens];
             if (wellTop != null && tile < tiles.Length && tiles[tile] != null)
             {
                 var p = tiles[tile].transform.position;
-                Beam(4, wellTop.position, p, 0.55f);
+                Beam(4, wellTop.position, p, 1.2f);
+                Flare(4, p + Vector3.up * 0.1f, 1.6f);
                 if (spot != null) { spot.gameObject.SetActive(true); spot.position = p + Vector3.up * 0.015f; }
                 if (spotLight != null)
                 {
