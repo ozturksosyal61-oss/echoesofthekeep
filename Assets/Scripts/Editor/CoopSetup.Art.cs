@@ -1026,8 +1026,8 @@ namespace CoopGame.EditorTools
             cso.FindProperty("nodeId").intValue = 20;
             SetRefArray(cso, "valves", valves);
             SetRef(cso, "seal", seal);
-            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-36f + OWestShift, 1.5f, 0);
-            cso.FindProperty("zoneSize").vector3Value = new Vector3(11f, 3f, 12f);
+            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-36f + OWestShift + (CsXW + CsXE) * 0.5f, 1.5f, 0);
+            cso.FindProperty("zoneSize").vector3Value = new Vector3(CsXE - CsXW - 0.2f, 3f, CsZ * 2f - 0.2f);
             SetRef(cso, "respawn", respawn);
             cso.ApplyModifiedPropertiesWithoutUndo();
 

@@ -636,8 +636,15 @@ namespace CoopGame.EditorTools
                 var an = so.FindProperty("symbolAnchor").objectReferenceValue as Transform;
                 if (an != null) Glyphs.Symbol(an, so.FindProperty("valveIndex").intValue, so.FindProperty("symbolMat").objectReferenceValue as Material, 0.5f);
             }
-            Shot(dir + "/o_cistern.png", b + new Vector3(-44.9f, 1.72f, 0.7f), b + new Vector3(-55.7f, 1.45f, -0.6f), false);
-            Shot(dir + "/o_cistern_back.png", b + new Vector3(-54.4f, 1.72f, 3.2f), b + new Vector3(-45.5f, 0.9f, -4.4f), false);
+            {   // Sarnıç v3: kök b + (-50, 0, 0), iç x -13.75..5.75
+                var cz = b + new Vector3(-50f, 0, 0);
+                Shot(dir + "/o_cistern.png", cz + new Vector3(4.8f, 1.72f, 0.4f), cz + new Vector3(-13f, 1.6f, -1.2f), false);
+                Shot(dir + "/o_cistern_back.png", cz + new Vector3(-12.2f, 1.72f, 2.5f), cz + new Vector3(3f, 1.2f, -5f), false);
+                Shot(dir + "/o_cistern_valves.png", cz + new Vector3(-8.5f, 1.72f, -1.5f), cz + new Vector3(-13.7f, 1.8f, 2f), false);
+                Shot(dir + "/o_cistern_up.png", cz + new Vector3(-1f, 1.4f, -5f), cz + new Vector3(-6f, 5.5f, 3f), false);
+                Shot(dir + "/o_cistern_dais.png", cz + new Vector3(-1.5f, 1.72f, 3.5f), cz + new Vector3(4.5f, 1f, 8f), false);
+                Shot(dir + "/o_cistern_statue.png", cz + new Vector3(-1.5f, 1.72f, 0.3f), cz + new Vector3(-10.5f, 0.6f, 5.5f), false);
+            }
             {   // Mahzen: çözülmüş hali (ışıklar açık) + örnek semboller; sahne kaydedilmez
                 var ro = GameObject.Find("RoomB_Sarnic");
                 var cl = ro != null ? ro.transform.Find("OWest/CellarLit") : null;

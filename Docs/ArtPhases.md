@@ -27,6 +27,7 @@ Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kul
 - Zindan v3 doğrulandı (ekran görüntüsü): zemin cobblestone_floor_08, saman dirt_floor, gardiyan köşesi dolduruldu. ONAYLANDI (kullanıcı Unity'de test etti, 2026-11-12).
 - Kasa v2 YAZILDI (CoopSetup.Vault.cs, ref kasa.png): sekizgen rotunda 18 m, kaburgalı kubbe + oculus (tepe ~13.4), 4.2 m galeri halkası, serbest döner merdiven, kadife astarlı nişler, parmaklıklı hazine bölmesi. Mahzen + sarnıç OWestShift=-14 ile batıya kaydı (kök OWest). Taslak bake ile doğrulandı; kullanıcı testi bekliyor. Shots: o_vt_*.
 - Mahzen v2 YAZILDI (CoopSetup.Cellar.cs): 10x14, 2x3 çapraz tonoz (GroinMesh) + kaburgalar, orta sütun çifti, kemerli şişe rafı nişleri, şarap presi, musluklu fıçılar; panel batı duvarı kuzey hücresinde (z 4.67). CryptPuzzle zoneSize z 13.6. Kit Barrel2/3/4 artık ahşap fıçı (eski modeller metal varildi). Kullanıcı testi bekliyor.
+- Sarnıç v3 YAZILDI (CoopSetup.Cistern.cs, ref sarnic2.png): 19.5x18 bazilika, 4x4 sütun, 25 yelken kubbe (SailMesh) + kemerler, 3 oculus, batı vana rıhtımı, kuzey savağı, KD kuru sekide bakımcı köşesi, yıkık sütun, yarı batık kayık. Güney nişi x=-4 (Puzzle4 geçidi CsNicheX). Zon Art.cs Cs* sabitlerinden. Kullanıcı testi bekliyor.
 - Shots: -shotFilter önek listesi eklendi (o_dg*, o_fresco, o_vault).
 - Batch bake ~8-9 GB RAM kullanıyor; makinede bellek dar.
 

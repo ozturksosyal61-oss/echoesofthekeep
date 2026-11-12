@@ -84,10 +84,10 @@ namespace CoopGame.EditorTools
             var hazne = roomX.Find("RoomA2_SaatOdasi/RoomA3_Hazne");
             var cis = roomO.Find("Cistern");
             if (hazne != null) HazneExit(hazne, archiveArrive);
-            if (cis != null) MakePassage("PassageO", cis, 43, cis.TransformPoint(new Vector3(0, 1f, -7.9f)), new Vector3(3f, 2f, 1.0f), libraryArrive);
+            if (cis != null) MakePassage("PassageO", cis, 43, cis.TransformPoint(new Vector3(CsNicheX, 1f, -CsZ - 1.65f)), new Vector3(3f, 2f, 1.0f), libraryArrive);
             if (cis != null)
             {
-                var t = ArchTrim(cis, "NicheDark", new Vector3(0, 0, -8.25f), Vector3.forward, 2.6f, 3.0f, true);
+                var t = ArchTrim(cis, "NicheDark", new Vector3(CsNicheX, 0, -CsZ - 2.24f), Vector3.forward, 2.6f, 3.0f, true);
                 KeepBaked(t);
             }
             KeepBaked(archive);
