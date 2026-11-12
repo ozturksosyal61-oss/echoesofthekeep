@@ -25,6 +25,9 @@ namespace CoopGame
         /// <summary>Host tarafı işleyici (PuzzleNode atar). Null ise RoomState.Toggle((InteractId)Key).</summary>
         [NonSerialized] public Action<PlayerAvatar> ServerHandler;
 
+        /// <summary>Yalnız yerel etkileşim (mektup okuma vb.): atanmışsa RPC gönderilmez, bu çağrılır.</summary>
+        [NonSerialized] public Action LocalHandler;
+
         void OnEnable() => All.Add(this);
         void OnDisable() => All.Remove(this);
 

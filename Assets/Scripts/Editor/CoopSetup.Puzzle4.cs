@@ -175,6 +175,7 @@ namespace CoopGame.EditorTools
             Kit("Table", root, tp, 0f, 1.05f);
             float ty = 0.82f * 1.05f;
             Kit("ChairWood", root, tp + new Vector3(0, 0, -0.8f), 10f);
+            Letter(root, tp + new Vector3(-1.05f, ty + 0.004f, 0.1f), -15f, 8);
             Prim("WaxPot", det, PrimitiveType.Cylinder, tp + new Vector3(0.4f, ty + 0.06f, 0.1f), new Vector3(0.14f, 0.06f, 0.14f), K.iron);
             Prim("WaxMelt", det, PrimitiveType.Cylinder, tp + new Vector3(0.4f, ty + 0.115f, 0.1f), new Vector3(0.12f, 0.005f, 0.12f), wax);
             KCandle(root, tp + new Vector3(0.4f, ty, -0.15f), 0.06f, 0.025f);
@@ -535,6 +536,7 @@ namespace CoopGame.EditorTools
                 Kit("BookStack", root, dp + new Vector3(0.05f, 0.82f, 0.5f), 30f, 0.8f);
                 Kit("PaperA", root, dp + new Vector3(0f, 0.825f, -0.1f), 70f);
                 Kit("PaperC", root, dp + new Vector3(0.12f, 0.826f, -0.45f), 15f);
+                if (s < 0) Letter(root, dp + new Vector3(0f, 0.826f, -1.0f), 85f, 9);
                 Kit("Candlestick", root, dp + new Vector3(-0.1f, 0.82f, 0.8f));
                 Kit("L_Candle", root, dp + new Vector3(-0.1f, 1.35f, 0.8f));
                 Kit(s < 0 ? "Magnifier" : "Spectacles", root, dp + new Vector3(0.1f, 0.82f, 0.2f), 40f);

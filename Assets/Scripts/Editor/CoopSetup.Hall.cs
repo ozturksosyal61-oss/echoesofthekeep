@@ -284,6 +284,7 @@ namespace CoopGame.EditorTools
             Kit("Candelabra", root, new Vector3(-6.75f, 0.82f, -7.9f), 80f);
             Kit("L_Candelabra", root, new Vector3(-6.0f, 1.8f, -8.0f));
             Kit("PaperPile", root, new Vector3(-6.45f, 0.82f, -8.95f), 60f);
+            Letter(root, new Vector3(-6.45f, 0.83f, -9.5f), 75f, 0); // kâhyanın notu
             Kit("Chest", root, new Vector3(-7.9f, 0, -10.0f), 160f, 1.2f);
             Kit("PaperScatter", root, new Vector3(-5.2f, 0, -7.4f), 40f);
             Kit("PaperScatter", root, new Vector3(2.6f, 0, 1.2f), 200f);

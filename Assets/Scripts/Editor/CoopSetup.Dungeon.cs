@@ -283,6 +283,7 @@ namespace CoopGame.EditorTools
             Kit("ChairWood", root, new Vector3(5.0f, 0, -11.7f), 10f, 0.95f);
             Kit("BookStack", root, new Vector3(4.5f, 0.71f, -10.5f), 15f);
             Kit("PaperPile", root, new Vector3(5.4f, 0.71f, -10.4f), 80f);
+            Letter(root, new Vector3(4.95f, 0.715f, -10.85f), 15f, 3);
             Kit("Spectacles", root, new Vector3(5.6f, 0.71f, -10.9f), 200f);
             Kit("PocketWatch", root, new Vector3(5.9f, 0.71f, -10.5f), 30f);
             Kit("CandlestickWood", root, new Vector3(6.1f, 0.71f, -10.2f));

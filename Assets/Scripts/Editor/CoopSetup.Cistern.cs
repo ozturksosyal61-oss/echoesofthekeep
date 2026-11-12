@@ -498,6 +498,7 @@ namespace CoopGame.EditorTools
                 Kit("L_Candle", cis, tp + new Vector3(0.3f, th + 0.5f, -0.4f));
                 Kit("PaperA", cis, tp + new Vector3(-0.25f, th + 0.004f, -0.1f), 20f);
                 Kit("PaperC", cis, tp + new Vector3(0f, th + 0.006f, -0.2f), -35f);
+                Letter(cis, tp + new Vector3(-0.85f, th + 0.004f, 0.05f), 10f, 7);
                 Kit("Wrench", cis, tp + new Vector3(-0.45f, th + 0.004f, 0.15f), 30f);
                 Kit("Hammer", cis, tp + new Vector3(0.15f, th + 0.004f, 0.2f), -60f);
                 Kit("Bottle1", cis, tp + new Vector3(0.35f, th, -0.2f), 50f);

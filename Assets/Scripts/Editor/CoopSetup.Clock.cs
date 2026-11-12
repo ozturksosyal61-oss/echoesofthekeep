@@ -144,6 +144,7 @@ namespace CoopGame.EditorTools
             MeshObj("RepairGear", det, new Vector3(x0 + 3.3f, 0.86f, z0 + 0.8f), GearMesh(16, 0.3f, 0.07f, 0.07f, 0.04f), K.brass).transform.localRotation = Quaternion.Euler(90, 10, 0);
             Kit("MantelClock", root, new Vector3(x0 + 4.0f, 0.82f, z0 + 0.8f), 160f);
             Kit("Magnifier", root, new Vector3(x0 + 3.0f, 0.82f, z0 + 0.65f), 30f);
+            Letter(root, new Vector3(x0 + 4.6f, 0.826f, z0 + 0.75f), -10f, 4);
             Kit("Candlestick", root, new Vector3(x0 + 4.3f, 0.82f, z0 + 0.6f));
             Kit("Stool", root, new Vector3(x0 + 3.6f, 0, z0 + 1.7f), 10f);
             Kit("Barrel", root, new Vector3(x0 + 0.7f, 0, z0 + 0.7f), 30f);
@@ -397,6 +398,7 @@ namespace CoopGame.EditorTools
                 }
                 Kit("BookStack", r, tp + new Vector3(0.1f, 0.82f, -0.5f), 20f, 0.8f);
                 Kit("PaperA", r, tp + new Vector3(-0.1f, 0.825f, -0.05f), 80f);
+                Letter(r, tp + new Vector3(-0.05f, 0.826f, -0.95f), 95f, 6);
                 Kit("Bottle3", r, tp + new Vector3(0.2f, 0.85f, 0.1f), 0f).transform.localRotation = Quaternion.Euler(0, 60, 90);
                 Prim("InkSpill", det, PrimitiveType.Cylinder, tp + new Vector3(0.28f, 0.825f, 0.2f), new Vector3(0.3f, 0.002f, 0.2f), MakeMat("K_InkSpill", new Color(0.03f, 0.03f, 0.05f)));
                 Kit("Candlestick", r, tp + new Vector3(-0.2f, 0.82f, 0.75f));

@@ -320,6 +320,7 @@ namespace CoopGame.EditorTools
                 Kit("Candelabra", root, tp + new Vector3(0.85f, ty, 0.1f), 0f, 0.9f);
                 Kit("L_Candelabra", root, tp + new Vector3(0.85f, ty + 0.45f, 0.1f));
                 Kit("ChairWood", root, tp + new Vector3(0, 0, -0.8f), 5f);
+                Letter(root, tp + new Vector3(-1.15f, ty + 0.002f, 0.05f), 20f, 2);
                 Kit("Rug", root, tp + new Vector3(0, 0, -0.2f), 0f, 0.95f);
                 Kit("CrateLong", root, new Vector3(-0.6f, 0, -2.0f), 35f);
                 Kit("Basket", root, new Vector3(-1.4f, 0, 3.0f), 20f);

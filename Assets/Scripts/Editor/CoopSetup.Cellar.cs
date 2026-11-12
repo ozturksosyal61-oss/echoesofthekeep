@@ -373,6 +373,7 @@ namespace CoopGame.EditorTools
                 Kit("Bowl", roomO, tp + new Vector3(-0.2f, th, -0.3f));
                 Kit("PaperA", roomO, tp + new Vector3(-0.15f, th + 0.004f, -0.65f), 25f);
                 Kit("Dagger", roomO, tp + new Vector3(0.2f, th + 0.004f, -0.7f), -40f);
+                Letter(roomO, tp + new Vector3(0.05f, th + 0.004f, -1.05f), 100f, 5);
                 Prim("Bread", roomO, PrimitiveType.Sphere, tp + new Vector3(-0.1f, th + 0.04f, 0.6f), new Vector3(0.22f, 0.08f, 0.12f), bread);
                 Kit("Stool", roomO, tp + new Vector3(-1.1f, 0.2f, 0.2f), 35f).transform.localRotation = Quaternion.Euler(0, 35, 88); // devrilmiş tabure
                 Kit("Chest", roomO, new Vector3(X1 - 0.5f, 0, -1.95f), -90f);

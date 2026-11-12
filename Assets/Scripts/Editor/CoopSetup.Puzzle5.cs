@@ -204,6 +204,7 @@ namespace CoopGame.EditorTools
             Kit("BookStack", root, new Vector3(-3.2f, PY + 0.78f, 5.4f), 15f);
             Kit("PaperPile", root, new Vector3(-2.5f, PY + 0.78f, 5.3f), -10f);
             Kit("Compass", root, new Vector3(-2.0f, PY + 0.78f, 5.2f), 40f);
+            Letter(root, new Vector3(-3.7f, PY + 0.8f, 5.25f), 170f, 10);
             Kit("L_Candle", root, new Vector3(-2.2f, PY + 1.3f, 5.3f));
             Kit("CandlestickWood", root, new Vector3(-2.2f, PY + 0.78f, 5.45f));
             Kit("Chest", root, new Vector3(3.0f, PY, 5.3f), 180f, 0.85f);
@@ -637,6 +638,7 @@ namespace CoopGame.EditorTools
                 Kit("Lantern", root, cp + new Vector3(0.8f, 0.12f, -0.3f), 0f).transform.localRotation = Quaternion.Euler(0, 30, 80); // devrik fener
                 Kit("BookStack", root, cp + new Vector3(0.7f, 0, 0.6f), 30f, 0.7f);
                 Kit("PaperA", root, cp + new Vector3(0.9f, 0.005f, 0.2f), 70f);
+                Letter(root, cp + new Vector3(0.5f, 0.005f, -0.4f), 40f, 11); // kâşifin günlüğü
                 Kit("PaperScatter", root, cp + new Vector3(1.4f, 0.005f, -0.8f), 20f);
                 Kit("Basket", root, cp + new Vector3(-0.5f, 0, -1.3f), 40f);
                 Kit("Bowl", root, cp + new Vector3(0.6f, 0, 1.2f), 0f);

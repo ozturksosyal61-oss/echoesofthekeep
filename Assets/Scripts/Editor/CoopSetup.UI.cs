@@ -504,6 +504,30 @@ namespace CoopGame.EditorTools
             SetRef(pro, "crosshair", cross);
             pro.ApplyModifiedPropertiesWithoutUndo();
 
+            // Mektup okuma ekranı (en üstte; tam ekran karartma dokununca kapatır)
+            {
+                var dim = MakeImage(root, "LetterView", Vector2.zero, Vector2.zero, null, new Color(0f, 0f, 0f, 0.74f));
+                Stretch(dim, Vector2.zero, Vector2.one);
+                var closeBtn = dim.gameObject.AddComponent<Button>(); closeBtn.targetGraphic = dim; closeBtn.transition = Selectable.Transition.None;
+                var panel = MakeImage(dim.rectTransform, "LetterPanel", Vector2.zero, new Vector2(1500, 920), null, new Color(0.12f, 0.095f, 0.075f, 0.97f));
+                panel.raycastTarget = false;
+                var ol = panel.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.8f); ol.effectDistance = new Vector2(3f, -3f);
+                var lt = MakeText(panel.rectTransform, "LetterTitle", "", 52, new Vector2(0, 380), new Vector2(1300, 76), TextAnchor.MiddleCenter, U.head, GoldBright);
+                var rule = MakeImage(panel.rectTransform, "LetterRule", new Vector2(0, 330), new Vector2(560, 3), null, Gold); rule.raycastTarget = false;
+                var lb = MakeText(panel.rectTransform, "LetterBody", "", 34, new Vector2(0, -20), new Vector2(1320, 640), TextAnchor.UpperLeft, U.body, Cream);
+                lb.lineSpacing = 1.12f; lb.verticalOverflow = VerticalWrapMode.Truncate;
+                lb.resizeTextForBestFit = true; lb.resizeTextMinSize = 22; lb.resizeTextMaxSize = 34;
+                var ls = MakeText(panel.rectTransform, "LetterSign", "", 36, new Vector2(0, -372), new Vector2(1300, 60), TextAnchor.MiddleRight, U.body, Gold);
+                ls.fontStyle = FontStyle.Italic;
+                MakeText(panel.rectTransform, "LetterHint", "kapatmak için dokun", 24, new Vector2(0, -428), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
+                         new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
+                var lv = new GameObject("LetterViewCtl").AddComponent<LetterView>();
+                var lso = new SerializedObject(lv);
+                SetRef(lso, "root", dim.gameObject);
+                SetRef(lso, "title", lt); SetRef(lso, "body", lb); SetRef(lso, "sign", ls); SetRef(lso, "close", closeBtn);
+                lso.ApplyModifiedPropertiesWithoutUndo();
+            }
+
             var camToggle = new GameObject("CameraToggle").AddComponent<CameraToggle>();
             var cto = new SerializedObject(camToggle);
             SetRef(cto, "button", camBtn);

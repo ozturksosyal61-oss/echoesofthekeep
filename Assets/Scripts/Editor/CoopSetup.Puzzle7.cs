@@ -435,6 +435,7 @@ namespace CoopGame.EditorTools
             Kit("BookStack", root, new Vector3(HX - 0.9f, 0.82f, -0.2f), 80f);
             Kit("Candlestick", root, new Vector3(HX - 1.1f, 0.82f, 0.5f), 0f);
             Kit("PaperPile", root, new Vector3(HX - 1.2f, 0.82f, 0.9f), 30f);
+            Letter(root, new Vector3(HX - 1.05f, 0.825f, -0.55f), -80f, 14);
             Kit("OilLamp", root, new Vector3(HX - 0.8f, 0.82f, 0.2f), 0f);
             Kit("Stool", root, new Vector3(HX - 2.0f, 0, 0.4f), 15f);
             Kit("L_Candle", root, new Vector3(HX - 1.1f, 1.25f, 0.5f));
@@ -778,6 +779,7 @@ namespace CoopGame.EditorTools
             Kit("Console", root, new Vector3(-5.0f, 0, 10.6f), 120f);
             Kit("BookStack", root, new Vector3(-5.0f, 0.85f, 10.6f), 10f);
             Kit("PaperA", root, new Vector3(-4.8f, 0.86f, 10.4f), 40f);
+            Letter(root, new Vector3(-4.8f, 0.857f, 10.95f), 120f, 15);
             Kit("Chest", root, new Vector3(-5.6f, 0, -12.8f), 70f);
             Kit("Amphora", root, new Vector3(-6.2f, 0, -9.0f), 0f, 1.1f);
             Kit("VaseCeramic", root, new Vector3(6.2f, 0, -3.0f), 0f);

@@ -52,7 +52,7 @@ namespace CoopGame
             }
             if (!show) return;
             label.text = current.Label;
-            if (Input.GetKeyDown(KeyCode.E)) Fire();
+            if (Input.GetKeyDown(KeyCode.E) && !LetterView.IsOpen) Fire();
         }
 
         /// <summary>Kamera merkezinden ileri ışın; ilk çarpan collider bir Interactable ise o. Duvar/kapı arkasındakini görmez.</summary>
@@ -80,6 +80,7 @@ namespace CoopGame
             // (1b) Dokunma/E algılandı mı
             Dbg.Interact("(1b) Etkileş basıldı: current=" + (current != null ? current.name : "YOK") +
                          " yerelAvatar=" + (PlayerAvatar.Local != null ? "var" : "YOK"));
+            if (current != null && current.LocalHandler != null) { current.LocalHandler(); return; }
             if (current != null && PlayerAvatar.Local != null) PlayerAvatar.Local.RequestInteract(current.Key);
         }
     }

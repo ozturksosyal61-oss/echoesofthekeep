@@ -334,6 +334,7 @@ namespace CoopGame.EditorTools
             // --- Gökbilimci köşesi, eşyalar ---
             Kit("GothicTable", root, new Vector3(5.0f, 0, -1.0f), 15f);
             Kit("PaperPile", root, new Vector3(4.8f, 0.56f, -1.1f), 20f);
+            Letter(root, new Vector3(5.45f, 0.565f, -1.35f), 30f, 12);
             Kit("Compass", root, new Vector3(5.3f, 0.56f, -0.8f), 60f);
             Kit("Magnifier", root, new Vector3(4.6f, 0.56f, -0.7f), 130f);
             Kit("Stool", root, new Vector3(4.0f, 0, -1.9f), 30f);
@@ -706,6 +707,7 @@ namespace CoopGame.EditorTools
                 Telescope(root, dp + Quaternion.Euler(0, 72f, 0) * new Vector3(-1.5f, 0, 0.1f), 160f, 55f, 0.9f); // şafta dönük dürbün
                 Kit("Compass", root, dp + Vector3.up * 0.78f + Quaternion.Euler(0, 72f, 0) * new Vector3(0.3f, 0, 0), 20f);
                 Kit("L_Candle", root, dp + Vector3.up * 1.4f - dir * 0.3f);
+                Letter(root, dp + Vector3.up * 0.785f + Quaternion.Euler(0, 72f, 0) * new Vector3(-0.95f, 0, 0), 72f, 13);
                 foreach (int i in new[] { 2, 6, 10, 14, 18 })
                 {
                     float a = i * 360f / segs; var d = Quaternion.Euler(0, a, 0) * Vector3.forward;

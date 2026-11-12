@@ -455,8 +455,7 @@ namespace CoopGame.EditorTools
                 }
                 else
                 {
-                    Slab("SealedLetter", th, new Vector3(0, 1.2f, 0.15f), new Vector3(0.24f, 0.01f, 0.17f), K.paperA, 1f, false).transform.localRotation = Quaternion.Euler(0, 25f, 0);
-                    Prim("WaxSeal", th, PrimitiveType.Cylinder, new Vector3(0, 1.21f, 0.15f), new Vector3(0.05f, 0.005f, 0.05f), K.leatherRed);
+                    Letter(th, new Vector3(0, 1.195f, 0.15f), 25f, 16); // Aurel ve Mira'nın son mektubu
                 }
                 ProbeLit(th.gameObject);
             }
