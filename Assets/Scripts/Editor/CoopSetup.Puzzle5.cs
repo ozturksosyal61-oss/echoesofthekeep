@@ -221,8 +221,7 @@ namespace CoopGame.EditorTools
             {
                 float th = 0.82f * 1.1f;
                 Slab("UnderMap", root, new Vector3(0.1f, th + 0.004f, 3.0f), new Vector3(1.0f, 0.004f, 1.3f), K.paperA, 1f, false).transform.localRotation = Quaternion.Euler(0, 6, 0);
-                Kit("Plate", root, new Vector3(-0.3f, th, 2.4f));
-                Kit("Goblet2", root, new Vector3(0.3f, th, 2.3f));
+                Kit("TeaSet", root, new Vector3(-0.1f, th, 2.5f), 90f);
                 Kit("L_Candle", root, new Vector3(0, PY - 0.9f, 3.0f));
             }
             Kit("CandleCluster", root, new Vector3(px0 + 0.7f, 0, pz0 + 0.8f));
@@ -273,8 +272,10 @@ namespace CoopGame.EditorTools
                 Kit("Goblet1", root, new Vector3(fx + 0.5f, 1.82f, fz - 0.35f));
                 Kit("Jug", root, new Vector3(fx + 0.55f, 1.82f, fz + 0.9f), 30f);
                 Kit("Console", root, new Vector3(fx + 3.6f, 0, fz), 90f, 0.8f);
-                Kit("Bottle2", root, new Vector3(fx + 3.6f, 0.68f, fz + 0.2f));
-                Kit("Goblet2", root, new Vector3(fx + 3.6f, 0.68f, fz - 0.25f));
+                Kit("ChessSet", root, new Vector3(fx + 3.6f, 0.68f, fz), 90f, 0.8f);
+                Kit("Bottle2", root, new Vector3(fx + 3.3f, 0, fz + 2.1f));
+                Kit("Goblet2", root, new Vector3(fx + 0.5f, 1.82f, fz - 0.8f));
+                Kit("MantelClock", root, new Vector3(fx + 0.5f, 1.82f, fz + 0.1f), 90f);
                 Kit("Rug", root, new Vector3(fx + 2.6f, 0, fz), 90f, 1.2f);
                 // silah panosu (ocak üstü): kalkan, topuz ve savaş çekici çapraz
                 KitR("Shield", root, new Vector3(fx + 0.53f, 4.6f, fz), Quaternion.Euler(0, 90, 0), 1.0f);
@@ -354,6 +355,44 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", root, new Vector3(px0 + 0.3f, PY - 0.42f, pz0 + 0.3f), Quaternion.Euler(0, 180, 180), 1.0f);
             KitR("Cobweb", root, new Vector3(-hx + 0.03f, 0, hz - 0.03f), Quaternion.identity, 1.2f);
 
+            // --- Kâşif koleksiyonu (yeni CC0 modeller): gemi maketi, top, balina heykeli, aslan başları, kılıçlar, deniz kabukları ---
+            Kit("GothicTable", root, new Vector3(hx - 1.5f, 0, 0), 90f);
+            Kit("ShipModel", root, new Vector3(hx - 1.5f, 0.56f, 0), 0f);
+            Kit("Cannon", root, new Vector3(hx - 2.2f, 0, -4.6f), -100f);
+            Kit("Bucket", root, new Vector3(hx - 1.2f, 0, -5.4f), 0f, 0.8f);
+            Slab("WhalePlinth", root, new Vector3(-6.0f, 0.3f, 8.2f), new Vector3(1.3f, 0.6f, 1.3f), stone, 1f);
+            Kit("WhaleStatue", root, new Vector3(-6.0f, 0.6f, 8.2f), 140f);
+            foreach (int s in new[] { -1, 1 })
+            {
+                Kit("LionHead", root, new Vector3(s * 1.8f, 3.9f, -hz + 0.06f), 0f);
+                Kit("BookSet", root, new Vector3(s * 6.6f, 2.78f, hz - 0.4f), 180f, 0.42f);
+                Kit("BrassVase", root, new Vector3(s * 4.2f, 0, -hz + 0.5f), 0f);
+                foreach (float z in new[] { -3.25f, 3.25f })
+                    KitR("Saber", root, new Vector3(hx - 0.06f, 2.0f, z), Quaternion.Euler(s * 38f, 0, 0));
+            }
+            Kit("Shell", root, new Vector3(hx - 0.4f, 0.85f, -3.0f), 40f);
+            Kit("Shell", root, new Vector3(hx - 0.4f, 0.85f, 3.55f), 200f);
+            Kit("Shell", root, new Vector3(-1.9f, PY + 0.78f, 5.05f), 80f);
+            Kit("Elephant", root, new Vector3(-3.4f, PY + 0.78f, 5.1f), 150f);
+            Kit("Elephant", root, new Vector3(-hx + 0.4f, 0.95f, 8.95f), 70f);
+            // çerçeveli haritalar (duvar)
+            foreach (var (pos, rot) in new[] { (new Vector3(-hx + 0.06f, 4.6f, 3.0f), Quaternion.Euler(0, 90, 0)), (new Vector3(-hx + 0.06f, 4.6f, -4.3f), Quaternion.Euler(0, 90, 0)),
+                                               (new Vector3(-6.0f, 6.0f, -hz + 0.06f), Quaternion.identity), (new Vector3(6.0f, 6.0f, -hz + 0.06f), Quaternion.identity) })
+            {
+                var fm = new GameObject("FramedMap").transform;
+                fm.SetParent(root, false); fm.localPosition = pos; fm.localRotation = rot;
+                Slab("Frame", fm, Vector3.zero, new Vector3(1.5f, 1.1f, 0.06f), wood, 1f, false);
+                Slab("Map", fm, new Vector3(0, 0, 0.035f), new Vector3(1.32f, 0.92f, 0.01f), K.paperB, 1f, false);
+                Slab("Coast", fm, new Vector3(-0.2f, 0.1f, 0.042f), new Vector3(0.5f, 0.4f, 0.005f), K.paperC, 1f, false);
+                Slab("Route", fm, new Vector3(0.15f, -0.1f, 0.045f), new Vector3(0.7f, 0.02f, 0.004f), soot, 1f, false).transform.localRotation = Quaternion.Euler(0, 0, 20);
+            }
+            Kit("BookStack", root, new Vector3(-5.0f, 0, hz - 0.9f), 50f);
+            Kit("PaperPile", root, new Vector3(5.2f, 0, hz - 1.0f), 20f);
+            Kit("CandleCluster", root, new Vector3(4.9f, 0, -hz + 0.6f));
+            Kit("CandleCluster", root, new Vector3(-hx + 1.4f, 0, 6.3f));
+            KitR("Cobweb", root, new Vector3(px1 - 0.3f, PY - 0.42f, pz1 - 0.3f), Quaternion.Euler(0, 0, 180), 0.9f);
+            KitR("Cobweb", root, new Vector3(hx - 0.03f, TOP - 1.2f, -hz + 0.03f), Quaternion.Euler(0, -90, 180), 1.8f);
+
             arrive = new GameObject("MapArrive").transform;
             arrive.SetParent(root, false);
             arrive.localPosition = new Vector3(0, 0.05f, -hz + 1.6f);
@@ -406,13 +445,15 @@ namespace CoopGame.EditorTools
             var boneMat = MakeMat("K_Bone", new Color(0.6f, 0.55f, 0.46f));
             boneMat.SetFloat("_Smoothness", 0.25f);
             var voidM = MakeMat("K_CellarVoid", new Color(0.012f, 0.01f, 0.01f));
-            float entryX = -h + 0.5f * C, exitX = -h + (N - 0.5f) * C;
+            float entryX = -h + 0.5f * C;
 
             // --- Labirent kabuğu: zemin, tavan, dış duvarlar (giriş güneyde, çıkış kuzeyde), ızgara sütunları, tavan kaburgaları ---
             Deck(root, "Floor", new Vector3(0, -0.25f, 0), L + 1.2f, L + 1.2f, 0.5f, K.cellarFloor, 3, 3); // kapı eşiklerinin altını da kaplar
             Deck(root, "Ceil", new Vector3(0, H + 0.25f, 0), L + 0.6f, L + 0.6f, 0.5f, brick, 3, 3);
             Wall(root, "WallS", new Vector3(0, 0, -h - 0.25f), true, L + 5f, H, stone, 2f, new Opening(entryX, 2.4f, 0f, 3f));
-            Wall(root, "WallN", new Vector3(0, 0, h + 0.25f), true, L + 5f, H, stone, 2f, new Opening(exitX, 2.4f, 0f, 3f));
+            var northOps = new Opening[N]; // her hücreye açıklık; çıkış dışındakileri LabyrinthView çalışma anında kapatır
+            for (int i = 0; i < N; i++) northOps[i] = new Opening(-h + (i + 0.5f) * C, C - 0.5f, 0f, 3f);
+            Wall(root, "WallN", new Vector3(0, 0, h + 0.25f), true, L + 5f, H, stone, 2f, northOps);
             Wall(root, "WallW", new Vector3(-h - 0.25f, 0, 0), false, L, H, stone, 2f);
             Wall(root, "WallE", new Vector3(h + 0.25f, 0, 0), false, L, H, stone, 2f);
             for (int i = 0; i <= N; i++)
@@ -457,7 +498,7 @@ namespace CoopGame.EditorTools
                 {
                     if ((i + edge) % 2 == 1) continue; // her iki kenardan biri
                     if (edge == 2 && i == 0) continue; // giriş
-                    if (edge == 3 && i == N - 1) continue; // çıkış
+                    if (edge == 3) continue; // kuzey: açıklıklar (çıkış her denemede değişir)
                     float a = -h + (i + 0.5f) * C;
                     Vector3 wallPt = edge == 0 ? new Vector3(-h, 0, a) : edge == 1 ? new Vector3(h, 0, a) : edge == 2 ? new Vector3(a, 0, -h) : new Vector3(a, 0, h);
                     var along = edge < 2 ? Vector3.forward : Vector3.right;
@@ -517,17 +558,19 @@ namespace CoopGame.EditorTools
                 Skull(new Vector3(ax - 1.2f, 0.03f, zc - 1.6f), 40f);
                 Bone(new Vector3(ax - 0.7f, 0.04f, zc - 2.1f), new Vector3(ax - 0.2f, 0.04f, zc - 1.8f));
             }
-            // --- Çıkış odası (kuzey): kapalı kapı (sonraki bölüm), mumlar ---
+            // --- Çıkış galerisi (kuzey, tüm genişlik): hangi açıklığın açık olduğu dışarıdan anlaşılmaz; ortada kapalı kapı (sonraki bölüm) ---
             {
-                float zc = h + 0.5f + 2f;
-                Deck(root, "ExitFloor", new Vector3(exitX, -0.25f, zc), 4f, 4f, 0.5f, K.cellarFloor, 1, 1);
-                Deck(root, "ExitCeil", new Vector3(exitX, 3.75f, zc), 4f, 4f, 0.5f, brick, 1, 1);
-                Wall(root, "ExitN", new Vector3(exitX, 0, zc + 2.25f), true, 4.5f, 3.5f, stone, 2f);
-                Wall(root, "ExitW", new Vector3(exitX - 2.25f, 0, zc), false, 4f, 3.5f, stone, 2f);
-                Wall(root, "ExitE", new Vector3(exitX + 2.25f, 0, zc), false, 4f, 3.5f, stone, 2f);
-                Kit("Door", root, new Vector3(exitX, 0, zc + 1.88f), 180f);
-                Kit("CandleCluster", root, new Vector3(exitX - 1.4f, 0, zc + 1.4f));
-                Kit("CandleCluster", root, new Vector3(exitX + 1.4f, 0, zc + 1.4f));
+                const float gw = 2.6f; float zc = h + 0.5f + gw * 0.5f, gl = L + 1f;
+                Deck(root, "ExitFloor", new Vector3(0, -0.25f, zc), gl, gw, 0.5f, K.cellarFloor, 3, 1);
+                Deck(root, "ExitCeil", new Vector3(0, 3.25f, zc), gl, gw, 0.5f, brick, 3, 1);
+                Wall(root, "ExitN", new Vector3(0, 0, zc + gw * 0.5f + 0.25f), true, gl + 1f, 3.5f, stone, 2f);
+                Wall(root, "ExitW", new Vector3(-gl * 0.5f - 0.25f, 0, zc), false, gw, 3.5f, stone, 2f);
+                Wall(root, "ExitE", new Vector3(gl * 0.5f + 0.25f, 0, zc), false, gw, 3.5f, stone, 2f);
+                Kit("Door", root, new Vector3(0, 0, zc + gw * 0.5f - 0.12f), 180f);
+                foreach (float x in new[] { -6.5f, -2.2f, 2.2f, 6.5f })
+                    Kit("CandleCluster", root, new Vector3(x, 0, zc + gw * 0.5f - 0.4f));
+                for (int k = 0; k < 6; k++)
+                    Skull(new Vector3(-8.5f + k * 3.3f, 0.03f, zc + 0.6f - (k % 2) * 0.4f), k * 57f);
             }
             KitProbes(root, new Vector3(0, 2f, 0), new Vector3(L, 3.6f, L), 6, 2, 6);
             return root;

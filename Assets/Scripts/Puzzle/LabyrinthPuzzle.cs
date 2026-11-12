@@ -10,12 +10,12 @@ namespace CoopGame
     /// Tuzaklar çözüm yolundan sapan neredeyse her kolun ilk hücresinde: X'in yönlendirmesi olmadan ilerlemek ölümcül. X harita odasındaki makette duvarları, hücre işaretlerini, tuzakları ve çıkışı görür.
     /// O girişten içeri adım atınca yağ sayacı başlar. Tuzak hücre ya da yağın bitmesi → kısa karanlık, girişe dönüş, yeni tohum
     /// (duvarlar, işaretler, tuzaklar karışır). Çıkış hücresine varınca çözülür. Bu düğümün değeri = tohum.
-    /// Hücre (x,z): origin'den +x (doğu) ve +z (kuzey). Giriş (0,0) güney duvarında, çıkış (N-1,N-1) kuzey duvarında.
+    /// Hücre (x,z): origin'den +x (doğu) ve +z (kuzey). Giriş (0,0) güney duvarında; çıkış kuzey sırasında, her tohumda farklı sütun (diğer kuzey açıklıkları duvarla kapanır).
     /// </summary>
     public class LabyrinthPuzzle : PuzzleNode
     {
         public const int N = 8, ExtraTraps = 6, ExtraOpenings = 6;
-        public const float Cell = 2.4f, OilSeconds = 200f, DyingSeconds = 2.2f;
+        public const float Cell = 2.4f, OilSeconds = 170f, DyingSeconds = 2.2f;
         public enum Phase { Waiting = 0, Running = 1, Dying = 2 }
 
         [SerializeField] int phaseNode = 45, attemptNode = 47;
@@ -44,7 +44,7 @@ namespace CoopGame
             public bool[,] wallE = new bool[N, N]; // hücrenin doğu kenarı (x < N-1)
             public bool[,] trap = new bool[N, N];
             public int[,] glyph = new int[N, N], numeral = new int[N, N]; // glyph = rün 0..5, numeral = zar 1..6
-            public Vector2Int entry = new Vector2Int(0, 0), exit = new Vector2Int(N - 1, N - 1);
+            public Vector2Int entry = new Vector2Int(0, 0), exit = new Vector2Int(N - 1, N - 1); // exit.x tohumdan
 
             public bool Open(Vector2Int a, Vector2Int b)
             {
@@ -63,6 +63,7 @@ namespace CoopGame
         {
             var r = new System.Random(seed);
             var m = new Maze();
+            m.exit = new Vector2Int(2 + r.Next(N - 2), N - 1); // girişin hemen üstü değil
             for (int x = 0; x < N; x++) for (int z = 0; z < N; z++) { m.wallN[x, z] = z < N - 1; m.wallE[x, z] = x < N - 1; }
             void Carve(Vector2Int a, Vector2Int b)
             {
@@ -98,13 +99,13 @@ namespace CoopGame
             }
             var path = new HashSet<Vector2Int>(); var pathList = new List<Vector2Int>(); // liste: sıra her makinede aynı
             for (var c = m.exit; ; c = prev[c]) { path.Add(c); pathList.Add(c); if (c == m.entry) break; }
-            // Sapak tuzakları: yoldaki her hücrenin yol dışı açık komşusu %85 tuzak; sonra rastgele ek tuzaklar
+            // Sapak tuzakları: yoldaki her hücrenin yol dışı açık komşusu tuzak (yönlendirmesiz ilerlemek ölümcül); sonra rastgele ek tuzaklar
             var free = new List<Vector2Int>();
             foreach (var c in pathList)
                 foreach (var d in Dirs)
                 {
                     var n = c + d;
-                    if (In(n) && !path.Contains(n) && m.Open(c, n) && !m.trap[n.x, n.y] && r.Next(100) < 85) m.trap[n.x, n.y] = true;
+                    if (In(n) && !path.Contains(n) && m.Open(c, n) && !m.trap[n.x, n.y]) m.trap[n.x, n.y] = true;
                 }
             for (int x = 0; x < N; x++) for (int z = 0; z < N; z++) { var c = new Vector2Int(x, z); if (!path.Contains(c) && !m.trap[x, z]) free.Add(c); }
             for (int k = 0; k < ExtraTraps && free.Count > 0; k++) { int i = r.Next(free.Count); m.trap[free[i].x, free[i].y] = true; free.RemoveAt(i); }

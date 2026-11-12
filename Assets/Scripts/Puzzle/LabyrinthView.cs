@@ -48,6 +48,9 @@ namespace CoopGame
         void BuildMaze(LabyrinthPuzzle.Maze m)
         {
             const float c = LabyrinthPuzzle.Cell;
+            // Kuzey duvarında her hücreye açıklık var (sahne): çıkış dışındakiler duvarla kapanır
+            for (int x = 0; x < LabyrinthPuzzle.N; x++)
+                if (x != m.exit.x) Box(mazeRoot, new Vector3((x + 0.5f) * c, 1.5f, LabyrinthPuzzle.N * c + 0.25f), new Vector3(c - 0.5f, 3.0f, 0.5f), wallMat, true);
             for (int x = 0; x < LabyrinthPuzzle.N; x++)
                 for (int z = 0; z < LabyrinthPuzzle.N; z++)
                 {
