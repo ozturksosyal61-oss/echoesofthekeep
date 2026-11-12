@@ -686,13 +686,28 @@ namespace CoopGame.EditorTools
             return go;
         }
 
+        static readonly string[] NoMeshLod =
+        {
+            "old_bed_frame", "street_rat", "mousetrap", "GothicBed_01", "WoodenChair_01", "Rockingchair_01", "spinning_wheel_01", "wooden_broom", "hatchet",
+            "rusted_spade_01", "wooden_bucket_02", "folding_wooden_stool", "wooden_ladder", "barrel_03", "Barrel_02", "wicker_basket_01", "ceramic_vase_01",
+            "ceramic_vase_03", "brass_vase_02", "brass_pan_01", "metal_jug", "wooden_cutting_board", "wooden_spoon", "wooden_bowl_01", "round_spectacles",
+            "pocket_watch", "bull_head", "handsaw_wood", "large_iron_gate", "WoodenTable_02", "small_wooden_table_01", "dining_table", "ClassicNightstand_01",
+            "Shelf_01", "Chandelier_02",
+        };
+
         static void PrepModel(string path)
         {
             var mi = AssetImporter.GetAtPath(path) as ModelImporter;
+            if (mi == null && File.Exists(path)) // sonradan indirilen dosya içe aktarılmamış olabilir
+            {
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive);
+                mi = AssetImporter.GetAtPath(path) as ModelImporter;
+            }
             if (mi == null) return;
             bool dirty = false;
             var lod = typeof(ModelImporter).GetProperty("generateMeshLods");
-            if (lod != null && lod.CanWrite && !(bool)lod.GetValue(mi)) { lod.SetValue(mi, true); dirty = true; }
+            bool wantLod = !NoMeshLod.Any(m => path.Contains("/" + m + "/")); // Faz 7 modellerinde mesh LOD bake'i çökertti
+            if (lod != null && lod.CanWrite && (bool)lod.GetValue(mi) != wantLod) { lod.SetValue(mi, wantLod); dirty = true; }
             if (mi.importCameras) { mi.importCameras = false; dirty = true; }
             if (mi.importLights) { mi.importLights = false; dirty = true; }
             if (mi.meshCompression != ModelImporterMeshCompression.Medium) { mi.meshCompression = ModelImporterMeshCompression.Medium; dirty = true; }
@@ -760,6 +775,11 @@ namespace CoopGame.EditorTools
         {
             PrepModel(modelPath);
             var asset = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+            if (asset == null && File.Exists(modelPath)) // eski bozuk import önbelleği: yeniden içe aktar
+            {
+                AssetDatabase.ImportAsset(modelPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+                asset = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+            }
             var wrap = new GameObject(prefabName);
             if (asset == null) { Debug.LogError("[CoopSetup] Model yok: " + modelPath); return save ? SaveKit(wrap) : wrap; }
             string model = Path.GetFileNameWithoutExtension(modelPath);
@@ -902,6 +922,42 @@ namespace CoopGame.EditorTools
             PhProp("MantelClock", "mantel_clock_01", 0.46f, solid: false, byMax: true);
             PhProp("GothicTable", "gothic_coffee_table", 0.56f);
             PhProp("BarrelRack", "wooden_barrels_01", 0.95f);
+            // --- Faz 7 (oda yenileme) ekleri ---
+            PhProp("PrisonCot", "old_bed_frame", 1.2f);
+            PhProp("Rat", "street_rat", 0.2f, solid: false, byMax: true);
+            PhProp("Mousetrap", "mousetrap", 0.1f, solid: false, byMax: true);
+            PhProp("BedGothic", "GothicBed_01", 1.53f);
+            PhProp("ChairWood", "WoodenChair_01", 1.0f);
+            PhProp("RockingChair", "Rockingchair_01", 1.0f);
+            PhProp("SpinningWheel", "spinning_wheel_01", 0.97f);
+            PhProp("Broom", "wooden_broom", 1.45f, solid: false);
+            PhProp("Hatchet", "hatchet", 0.29f, solid: false, byMax: true);
+            PhProp("Spade", "rusted_spade_01", 1.1f, solid: false);
+            PhProp("Bucket2", "wooden_bucket_02", 0.35f);
+            PhProp("FoldStool", "folding_wooden_stool", 0.44f);
+            PhProp("LadderWood", "wooden_ladder", 1.33f, solid: false);
+            PhProp("Barrel3", "barrel_03", 0.93f);
+            PhProp("Barrel4", "Barrel_02", 0.88f);
+            PhProp("Tray", "wicker_basket_01", 0.38f, solid: false, byMax: true);
+            PhProp("CeramicVase1", "ceramic_vase_01", 0.4f, solid: false);
+            PhProp("CeramicVase3", "ceramic_vase_03", 0.41f, solid: false);
+            PhProp("BrassVase2", "brass_vase_02", 0.53f, solid: false);
+            PhProp("Pan", "brass_pan_01", 0.45f, solid: false, byMax: true);
+            PhProp("MetalJug", "metal_jug", 0.29f, solid: false);
+            PhProp("CuttingBoard", "wooden_cutting_board", 0.45f, solid: false, byMax: true);
+            PhProp("Spoon", "wooden_spoon", 0.28f, solid: false, byMax: true);
+            PhProp("Bowl2", "wooden_bowl_01", 0.31f, solid: false, byMax: true);
+            PhProp("Spectacles", "round_spectacles", 0.16f, solid: false, byMax: true);
+            PhProp("PocketWatch", "pocket_watch", 0.076f, solid: false, byMax: true);
+            PhProp("BullHead", "bull_head", 0.43f, solid: false, wall: true);
+            PhProp("HandSaw", "handsaw_wood", 0.63f, solid: false, byMax: true);
+            PhProp("IronGate", "large_iron_gate", 2.93f, solid: false);
+            PhProp("SideTable", "WoodenTable_02", 0.42f);
+            PhProp("SmallTable", "small_wooden_table_01", 0.53f);
+            PhProp("DiningTable", "dining_table", 0.88f);
+            PhProp("Nightstand", "ClassicNightstand_01", 0.7f);
+            PhProp("ShelfTall", "Shelf_01", 2.08f);
+            PhProp("ChandelierWood", "Chandelier_02", 0.85f, solid: false);
 
             // --- Manuel (CC-BY) modeller ---
             ManualProp("StatueAngel", "statue", 1.9f, 0.3f, 0f);
@@ -1260,21 +1316,102 @@ namespace CoopGame.EditorTools
             ls.directSampleCount = 24; ls.indirectSampleCount = 128; ls.environmentSampleCount = 32;
             ls.maxBounces = 2;
             ls.ao = true; ls.aoMaxDistance = 0.8f;
+            if (BakeDraft) // ara denemeler: ~3-4x hızlı, düşük kalite (build'den önce tam Setup All)
+            {
+                ls.lightmapResolution = 4f; ls.directSampleCount = 8; ls.indirectSampleCount = 32; ls.environmentSampleCount = 16;
+                ls.maxBounces = 1;
+            }
             ls.lightmapCompression = LightmapCompression.NormalQuality;
             EditorUtility.SetDirty(ls);
             return ls;
         }
 
         /// <summary>Açık (kaydedilmiş) sahnenin ışığını pişirir: lightmap + light probe + reflection probe.</summary>
+        static bool BakeDraft => System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-draft") >= 0;
+
+        /// <summary>-bakeOnly Kök1,Kök2: yalnız bu köklerin altı pişer (diğer odalar lightmap/probe almaz; sadece deneme için).</summary>
+        static void ApplyBakeOnly()
+        {
+            string only = Arg("-bakeOnly");
+            if (string.IsNullOrEmpty(only)) return;
+            var names = only.Split(',');
+            var roots = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(t => names.Contains(t.name)).ToArray();
+            System.Func<Transform, bool> inside = t => roots.Any(r => t == r || t.IsChildOf(r));
+            int off = 0;
+            foreach (var mr in Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (inside(mr.transform)) continue;
+                var f = GameObjectUtility.GetStaticEditorFlags(mr.gameObject);
+                if ((f & StaticEditorFlags.ContributeGI) == 0) continue;
+                GameObjectUtility.SetStaticEditorFlags(mr.gameObject, f & ~StaticEditorFlags.ContributeGI); off++;
+            }
+            foreach (var g in Object.FindObjectsByType<LightProbeGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (!inside(g.transform)) Object.DestroyImmediate(g.gameObject);
+            foreach (var p in Object.FindObjectsByType<ReflectionProbe>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (!inside(p.transform)) Object.DestroyImmediate(p.gameObject);
+            Debug.LogWarning("[CoopSetup] bakeOnly " + only + " (" + roots.Length + " kök), dışarıda kalan nesne: " + off + ". Build'den önce tam Setup All!");
+        }
+
         static void KitBake()
         {
+            ApplyBakeOnly();
             Lightmapping.lightingSettings = KitLightingSettings();
+            // Unity 6.6 hatası: mesh LOD'lu nesneler reflection probe bake'inde çöküyor (ReplaceIndicesForSingleLod). Yansımadan çıkar.
+            int lodStripped = 0;
+            foreach (var mf in Object.FindObjectsByType<MeshFilter>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var m = mf.sharedMesh;
+                if (m == null || m.lodCount <= 1) continue;
+                var f = GameObjectUtility.GetStaticEditorFlags(mf.gameObject);
+                if ((f & StaticEditorFlags.ReflectionProbeStatic) == 0) continue;
+                GameObjectUtility.SetStaticEditorFlags(mf.gameObject, f & ~StaticEditorFlags.ReflectionProbeStatic);
+                lodStripped++;
+            }
+            Debug.Log("[CoopSetup] Yansıma bake'inden çıkarılan LOD'lu nesne: " + lodStripped);
+            // Strip yetmedi: çökme ExtractGIInstances'ta (tüm GI nesneleri). Probe'ları Custom yap → Bake onlara dokunmaz; sonra kendimiz çekeriz.
+            var probes = Object.FindObjectsByType<ReflectionProbe>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(p => p.mode == ReflectionProbeMode.Baked || p.mode == ReflectionProbeMode.Custom).ToArray();
+            foreach (var p in probes) { p.mode = ReflectionProbeMode.Custom; p.customBakedTexture = null; }
             var sw = System.Diagnostics.Stopwatch.StartNew();
             bool ok = Lightmapping.Bake();
+            RenderProbesManually(probes);
             var lp = LightmapSettings.lightProbes;
             LightProbes.GetInterpolatedProbe(new Vector3(0, 1.5f, 0), null, out var sh);
             Debug.Log("[CoopSetup] Probes: " + (lp != null ? lp.count : -1) + " sh0=" + sh[0, 0].ToString("0.000") + "," + sh[1, 0].ToString("0.000") + "," + sh[2, 0].ToString("0.000"));
             Debug.Log("[CoopSetup] Bake " + (ok ? "tamam" : "BAŞARISIZ") + " " + sw.Elapsed.TotalSeconds.ToString("0") + " sn, lightmap: " + LightmapSettings.lightmaps.Length);
+        }
+
+        /// <summary>Reflection probe'ları kamerayla cubemap'e çeker (Unity bake yolu mesh LOD'da çöküyor).</summary>
+        static void RenderProbesManually(ReflectionProbe[] probes)
+        {
+            if (probes.Length == 0) return;
+            string scenePath = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path;
+            string dir = string.IsNullOrEmpty(scenePath) ? "Assets/Generated/Probes"
+                : Path.GetDirectoryName(scenePath).Replace('\\', '/') + "/" + Path.GetFileNameWithoutExtension(scenePath) + "_Probes";
+            Directory.CreateDirectory(dir);
+            var camGo = new GameObject("ProbeCam") { hideFlags = HideFlags.HideAndDontSave };
+            var cam = camGo.AddComponent<Camera>();
+            cam.enabled = false; cam.nearClipPlane = 0.05f; cam.farClipPlane = 200f;
+            cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = Color.black;
+            int n = 0;
+            for (int i = 0; i < probes.Length; i++)
+            {
+                var p = probes[i];
+                int res = Mathf.Max(16, p.resolution);
+                var cube = new Cubemap(res, p.hdr ? TextureFormat.RGBAHalf : TextureFormat.RGBA32, true);
+                camGo.transform.position = p.transform.position;
+                if (cam.RenderToCubemap(cube)) n++;
+                cube.Apply(true);
+                string path = dir + "/Probe" + i + ".cubemap";
+                AssetDatabase.DeleteAsset(path);
+                AssetDatabase.CreateAsset(cube, path);
+                p.customBakedTexture = cube;
+                EditorUtility.SetDirty(p);
+            }
+            Object.DestroyImmediate(camGo);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[CoopSetup] Elle çekilen reflection probe: " + n + "/" + probes.Length);
         }
 
         // ---------- Sergi odası (kit doğrulama) ----------

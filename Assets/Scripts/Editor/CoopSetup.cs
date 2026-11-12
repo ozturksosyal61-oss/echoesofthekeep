@@ -41,6 +41,7 @@ namespace CoopGame.EditorTools
             Directory.CreateDirectory("Assets/Prefabs");
             Directory.CreateDirectory("Assets/Resources");
             Directory.CreateDirectory("Assets/Scenes");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport); // dışarıdan indirilen model/dokular içe aktarılsın
 
             SetupUrp(); // önce pipeline: materyaller URP/Lit ile üretilsin
             PrepareArt(); // dokulu malzemeler, gökyüzü, post-fx (CoopSetup.Art.cs)
