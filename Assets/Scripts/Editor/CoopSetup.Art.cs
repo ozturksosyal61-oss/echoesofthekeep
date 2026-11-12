@@ -973,36 +973,36 @@ namespace CoopGame.EditorTools
             var r = new GameObject("RoomA3_Hazne").transform;
             r.SetParent(clock, false);
             r.localPosition = new Vector3(-0.5f, -3f, -17f);
-            const float ha = 5f;
+            const float ha = 7f;
             BuildHazneShell(r, ha); // CoopSetup.Clock.cs
 
             // Gösterge (güney duvarı): seviye sütunu, çentikler, boğulma bandı, hedef işareti
             const float unit = 0.38f, baseY = 0.4f;
-            Slab("GaugeBase", r, new Vector3(0, 0.2f, -4.4f), new Vector3(1.3f, 0.4f, 1.1f), K.castleStone, 1.2f);
-            Slab("GaugeBoard", r, new Vector3(0, 2.55f, -4.9f), new Vector3(1.6f, 4.4f, 0.1f), K.furniture, 1.5f, false);
+            Slab("GaugeBase", r, new Vector3(0, 0.2f, HzZS + 0.6f), new Vector3(1.3f, 0.4f, 1.1f), K.castleStone, 1.2f);
+            Slab("GaugeBoard", r, new Vector3(0, 2.55f, HzZS + 0.1f), new Vector3(1.6f, 4.4f, 0.1f), K.furniture, 1.5f, false);
             foreach (float x in new[] { -0.42f, 0.42f })
-                foreach (float z in new[] { -4.72f, -3.88f })
+                foreach (float z in new[] { HzZS + 0.28f, HzZS + 1.12f })
                     Slab("GaugePost", r, new Vector3(x, baseY + 2.0f, z), new Vector3(0.06f, 4.0f, 0.06f), K.brass, 1f, false);
-            Slab("GaugeCap", r, new Vector3(0, baseY + 4.05f, -4.3f), new Vector3(1.0f, 0.1f, 1.0f), K.brass, 1f, false);
+            Slab("GaugeCap", r, new Vector3(0, baseY + 4.05f, HzZS + 0.7f), new Vector3(1.0f, 0.1f, 1.0f), K.brass, 1f, false);
             for (int i = 0; i <= 10; i++)
-                Slab("Notch" + i, r, new Vector3(0, baseY + i * unit, -4.84f), new Vector3(i % 2 == 0 ? 1.3f : 0.9f, 0.035f, 0.03f), K.brass, 1f, false);
-            Slab("DrownBand", r, new Vector3(0, baseY + 9f * unit, -4.83f), new Vector3(1.45f, 2f * unit, 0.02f),
+                Slab("Notch" + i, r, new Vector3(0, baseY + i * unit, HzZS + 0.16f), new Vector3(i % 2 == 0 ? 1.3f : 0.9f, 0.035f, 0.03f), K.brass, 1f, false);
+            Slab("DrownBand", r, new Vector3(0, baseY + 9f * unit, HzZS + 0.17f), new Vector3(1.45f, 2f * unit, 0.02f),
                  GlowMat("DrownBand", new Color(0.6f, 0.08f, 0.06f), new Color(0.7f, 0.06f, 0.04f) * 0.9f), 1f, false);
             var column = new GameObject("GaugeColumn").transform;
             column.SetParent(r, false);
-            column.localPosition = new Vector3(0, baseY, -4.3f);
+            column.localPosition = new Vector3(0, baseY, HzZS + 0.7f);
             Prim("Water", column, PrimitiveType.Cylinder, new Vector3(0, 0.5f, 0), new Vector3(0.6f, 0.5f, 0.6f),
                  GlowMat("GaugeWater", new Color(0.1f, 0.35f, 0.5f), new Color(0.05f, 0.3f, 0.45f) * 0.9f));
             column.localScale = new Vector3(1f, 0.001f, 1f);
             var target = new GameObject("GaugeTarget").transform;
             target.SetParent(r, false);
-            target.localPosition = new Vector3(0, baseY, -4.3f);
+            target.localPosition = new Vector3(0, baseY, HzZS + 0.7f);
             foreach (float x in new[] { -0.62f, 0.62f })
                 Slab("Mark", target, new Vector3(x, 0, 0), new Vector3(0.36f, 0.07f, 0.36f), A.gold, 1f, false).isStatic = false;
 
             // Tablo (batı duvarı): 4 satır sembol → miktar, altta ters akan boru rengi
-            Slab("ChartBoard", r, new Vector3(-4.93f, 2.3f, 0), new Vector3(0.1f, 3.6f, 3.2f), A.plaque, 1.5f, false);
-            Slab("ChartFrame", r, new Vector3(-4.97f, 2.3f, 0), new Vector3(0.06f, 3.76f, 3.36f), K.brass, 1f, false);
+            Slab("ChartBoard", r, new Vector3(-11.93f, 2.3f, 0), new Vector3(0.1f, 3.6f, 3.2f), A.plaque, 1.5f, false);
+            Slab("ChartFrame", r, new Vector3(-11.97f, 2.3f, 0), new Vector3(0.06f, 3.76f, 3.36f), K.brass, 1f, false);
             var face = Quaternion.Euler(0, -90, 0);
             var syms = new Transform[4];
             var amts = new Transform[4];
@@ -1011,19 +1011,19 @@ namespace CoopGame.EditorTools
                 float y = 3.65f - row * 0.72f;
                 syms[row] = new GameObject("ChartSymbol" + row).transform;
                 syms[row].SetParent(r, false);
-                syms[row].localPosition = new Vector3(-4.87f, y, -0.8f);
+                syms[row].localPosition = new Vector3(-11.87f, y, -0.8f);
                 syms[row].localRotation = face;
                 amts[row] = new GameObject("ChartAmount" + row).transform;
                 amts[row].SetParent(r, false);
-                amts[row].localPosition = new Vector3(-4.87f, y, 0.55f);
+                amts[row].localPosition = new Vector3(-11.87f, y, 0.55f);
                 amts[row].localRotation = face;
             }
-            Slab("ChartRule", r, new Vector3(-4.87f, 1.06f, 0), new Vector3(0.02f, 0.03f, 2.6f), A.iron, 1f, false);
-            var swatch = Slab("ReversedSwatch", r, new Vector3(-4.86f, 0.75f, -0.9f), new Vector3(0.04f, 0.32f, 0.7f),
+            Slab("ChartRule", r, new Vector3(-11.87f, 1.06f, 0), new Vector3(0.02f, 0.03f, 2.6f), A.iron, 1f, false);
+            var swatch = Slab("ReversedSwatch", r, new Vector3(-11.86f, 0.75f, -0.9f), new Vector3(0.04f, 0.32f, 0.7f),
                               MakeMat("ReversedSwatch", Color.gray), 1f, false);
             swatch.isStatic = false;
-            WorldText(r, "TERS AKAR", new Vector3(-4.86f, 0.75f, 0.45f), face, 0.022f, GoldBright);
-            var seal = MakeConfirmLever(r, new Vector3(-2.8f, 0, -3.0f), 180f, 3, 31, "Sarnıcı mühürle");
+            WorldText(r, "TERS AKAR", new Vector3(-11.86f, 0.75f, 0.45f), face, 0.022f, GoldBright);
+            var seal = MakeConfirmLever(r, new Vector3(-2.8f, 0, HzZS + 2.4f), 180f, 3, 31, "Sarnıcı mühürle");
             seal.transform.Find("Base").GetComponent<Renderer>().sharedMaterial = K.castleStone;
             Slab("SealPlinth", seal.transform, new Vector3(0, 0.06f, 0), new Vector3(0.95f, 0.12f, 0.7f), K.castleStone, 1f, false).isStatic = false;
 

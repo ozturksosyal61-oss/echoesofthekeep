@@ -649,6 +649,13 @@ namespace CoopGame.EditorTools
             }
             Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
             Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
+            {   // Hazne v2 (kök kule yerel -18.5,-7,-17)
+                var hz = a + new Vector3(-18.5f, -7f, -17f);
+                Shot(dir + "/x_hz_entry.png", hz + new Vector3(0, 1.72f, 4.2f), hz + new Vector3(-2f, 2f, -8f), false);
+                Shot(dir + "/x_hz_west.png", hz + new Vector3(-1f, 1.72f, 3.5f), hz + new Vector3(-12f, 2f, 0f), false);
+                Shot(dir + "/x_hz_chart.png", hz + new Vector3(-8.5f, 1.72f, -0.5f), hz + new Vector3(-12f, 2.2f, 0f), false);
+                Shot(dir + "/x_hz_up.png", hz + new Vector3(1.5f, 1.6f, 2f), hz + new Vector3(-4f, 6f, -6f), false);
+            }
             Shot(dir + "/x_hazne_w.png", a + new Vector3(-15f, -5.28f, -16f), a + new Vector3(-23.5f, -5f, -18f), false);
             Shot(dir + "/x_hazne_e.png", a + new Vector3(-22f, -5.28f, -14.5f), a + new Vector3(-14f, -5.6f, -18.5f), false);
             foreach (var cv in Object.FindObjectsByType<CisternValve>(FindObjectsInactive.Exclude))
