@@ -19,7 +19,7 @@ namespace CoopGame
         public static string RoomName(int room) => room == AreaHall ? "Lobi Holü" : room == AreaFinal ? "Büyük Salon" : room == AreaX ? "X · Çan Kulesi" : "O · Mahzen";
 
         /// <summary>Rol X → kule, rol O → zindan.</summary>
-        public static Vector3 Spawn(int role) => role == Roles.X ? RoomX + new Vector3(0f, 0.05f, 0f) : RoomO + new Vector3(1.8f, 0.05f, -11f); // O: zindanın güney kapısı önü
+        public static Vector3 Spawn(int role) => role == Roles.X ? RoomX + new Vector3(1f, 0.05f, -8.4f) : RoomO + new Vector3(1.8f, 0.05f, -11f); // X: kulenin güney kapısı önü, O: zindanın güney kapısı önü
 
         /// <summary>Holde giriş kapısının önünde yan yana iki doğma noktası.</summary>
         public static Vector3 HallSpawn(int slot) => Hall + new Vector3(slot == 0 ? -1.2f : 1.2f, 0.05f, -8.5f);

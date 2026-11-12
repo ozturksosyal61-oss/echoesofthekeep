@@ -682,6 +682,11 @@ namespace CoopGame.EditorTools
                 Shot(dir + "/o_cellar_up.png", b + new Vector3(-31.2f, 1.6f, -5.5f), b + new Vector3(-35.5f, 3.6f, 2f), false);
             }
             Shot(dir + "/x_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
+            Shot(dir + "/x_tw_entry.png", a + new Vector3(1f, 1.72f, -8.4f), a + new Vector3(1f, 4f, 8f), false);
+            Shot(dir + "/x_tw_east.png", a + new Vector3(-3f, 1.72f, -2f), a + new Vector3(9.5f, 1.2f, -5f), false);
+            Shot(dir + "/x_tw_cat.png", a + new Vector3(-1f, TwCat + 1.72f, 8.8f), a + new Vector3(6f, 2f, -4f), false);
+            Shot(dir + "/x_tw_stair.png", a + new Vector3(2f, 1.72f, -4f), a + new Vector3(6f, 2.6f, 3f), false);
+            Shot(dir + "/x_tw_back.png", a + new Vector3(2f, 1.72f, 6f), a + new Vector3(1f, 1.2f, -10f), false);
             Debug.Log("[CoopSetup] Shots -> " + Path.GetFullPath(dir));
         }
 

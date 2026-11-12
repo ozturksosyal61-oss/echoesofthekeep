@@ -663,8 +663,14 @@ namespace CoopGame.EditorTools
             var shapes = new[] { PrimitiveType.Cube, PrimitiveType.Sphere, PrimitiveType.Cylinder, PrimitiveType.Capsule };
             var colors = Pal.Puzzle; // StyleGuide bulmaca renkleri
             var levers = new SyncedLever[4];
+            // Kollar yan yana değil, odaya dağınık (girişte görünmez): iskele, SD köşe, GB köşe, merdiven sahanlığı altı
+            var lp = new[] { new Vector3(-5.6f, TwCat, TwZ - 0.8f), new Vector3(TwXE - 1.0f, 0, -TwZ + 1.4f), new Vector3(TwXW + 1.0f, 0, -TwZ + 1.4f), new Vector3(7.4f, 0, 2.8f) };
+            var ly = new[] { 0f, 135f, 225f, 90f };
             for (int i = 0; i < 4; i++)
-                levers[i] = MakeLever(roomX, i, new Vector3(-4.5f + i * 3f, 0, 7f), shapes[i], colors[i]);
+            {
+                levers[i] = MakeLever(roomX, i, lp[i], shapes[i], colors[i]);
+                levers[i].transform.localRotation = Quaternion.Euler(0, ly[i], 0);
+            }
             KeepBaked(roomX); // mekanizma odası + kollar bake'e dahil (ExcludeFromBake atlar)
 
             var seq = new GameObject("Puzzle1_Sequence").AddComponent<SequenceInput>();
