@@ -170,8 +170,7 @@ namespace CoopGame.EditorTools
             Kit("Ladder", root, new Vector3(7.55f, 0, -0.4f), 90f);
             KitR("PaintingKeep", root, new Vector3(hs - 0.04f, 3.5f, -2.9f), Quaternion.Euler(0, -90, 0), 1.4f);
             Kit("Cabinet", root, new Vector3(hs - 0.45f, 0, -2.9f), -90f);
-            Kit("Bookshelf", root, new Vector3(hs - 0.4f, 0, -4.6f), -90f);
-            Kit("BookRow", root, new Vector3(hs - 0.4f, 0.98f, -4.6f), -90f);
+            Books(root, new Vector3(hs - 0.4f, 0, -4.6f), -90f);
             Kit("Barrel", root, new Vector3(7.2f, 0, -6.2f), 25f);
             {
                 // Yedek dişliler: duvara dayalı + yerde

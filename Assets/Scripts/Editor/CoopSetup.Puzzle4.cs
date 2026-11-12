@@ -205,11 +205,9 @@ namespace CoopGame.EditorTools
             // Galeri altı ve üstü kitaplıklar, galeri kapısı (sonraki bulmaca)
             foreach (float x in new[] { -7.6f, -6.0f, -4.4f, 3.4f, 5.0f })
             {
-                Kit("Bookshelf", root, new Vector3(x, 0, hz - 0.4f), 180f);
-                Kit("BookRow", root, new Vector3(x, 0.98f, hz - 0.4f), 180f);
+                Books(root, new Vector3(x, 0, hz - 0.4f), 180f);
                 if (x < -7f) continue; // galeride çarkın yeri
-                Kit("Bookshelf", root, new Vector3(x, GY, hz - 0.4f), 180f);
-                Kit("BookRow", root, new Vector3(x, GY + 0.98f, hz - 0.4f), 180f);
+                Books(root, new Vector3(x, GY, hz - 0.4f), 180f);
             }
             Kit("Door", root, new Vector3(0, GY, hz - 0.12f), 180f);
             ArchTrim(root, "GalleryDoorArch", new Vector3(0, GY, hz), Vector3.back, 2.5f, 3.6f, true);
@@ -547,8 +545,7 @@ namespace CoopGame.EditorTools
                 }
                 foreach (float z in new[] { -8.6f, 0.2f, 9.0f, 11.6f })
                 {
-                    Kit("Bookshelf", root, new Vector3(s * (hx - 0.4f), 0, z), s < 0 ? 90f : -90f);
-                    Kit("BookRow", root, new Vector3(s * (hx - 0.4f), 0.98f, z), s < 0 ? 90f : -90f);
+                    Books(root, new Vector3(s * (hx - 0.4f), 0, z), s < 0 ? 90f : -90f);
                 }
                 KitR("WindowLancet", root, new Vector3(s * hx, 3.0f, -4.5f), Quaternion.Euler(0, s < 0 ? 90 : -90, 0), 1.1f);
             }

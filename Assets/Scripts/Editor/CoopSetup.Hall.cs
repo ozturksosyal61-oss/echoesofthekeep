@@ -290,8 +290,7 @@ namespace CoopGame.EditorTools
             Kit("Amphora", root, new Vector3(-hx + 0.7f, 0, 2.6f), 70f);
             Kit("BrassCandleholder0", root, new Vector3(-hx + 0.8f, 0, 3.6f), 20f, 1.6f);
             Kit("Cabinet", root, new Vector3(-hx + 0.45f, 0, 8.6f), 90f);
-            Kit("Bookshelf", root, new Vector3(-hx + 0.4f, 0, 10.0f), 90f);
-            Kit("BookRow", root, new Vector3(-hx + 0.4f, 0.98f, 10.0f), 90f);
+            Books(root, new Vector3(-hx + 0.4f, 0, 10.0f), 90f);
             Kit("Stool", root, new Vector3(-5.6f, 0, -8.9f), 30f);
 
             // --- Doğu duvarı: şömine köşesi ---

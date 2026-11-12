@@ -1018,6 +1018,7 @@ namespace CoopGame.EditorTools
                             papers[i % 3], Quaternion.Euler(90, Hash01(i, 3) * 360f, 0));
                 SaveKit(go, false, 0.012f);
             }
+            BuildFullShelves();
 
             // --- Kumaş / duvar / zemin dekoru ---
             {
@@ -1323,7 +1324,7 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", root, new Vector3(SX * 0.5f - 0.03f, H - 0.35f, SZ * 0.5f - 0.03f), Quaternion.Euler(0, 0, 180), 1.1f);
             // arka sıra
             Kit("Cabinet", root, new Vector3(-6.2f, 0, zb - 0.1f), 180f);
-            Kit("Bookshelf", root, new Vector3(-5.0f, 0, zb), 180f);
+            Books(root, new Vector3(-5.0f, 0, zb), 180f);
             Kit("GrandfatherClock", root, new Vector3(-1.9f, 0, zb), 180f);
             Kit("Commode", root, new Vector3(-0.1f, 0, zb), 180f);
             Kit("Console", root, new Vector3(1.8f, 0, zb), 180f);
