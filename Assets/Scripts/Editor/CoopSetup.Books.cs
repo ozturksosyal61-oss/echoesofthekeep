@@ -6,7 +6,7 @@ namespace CoopGame.EditorTools
 {
     /// <summary>
     /// Dolu kitaplıklar: BookshelfFull0..2 = Bookshelf modeli + her rafa oturan kitaplar (tek ağ, malzeme başına alt ağ).
-    /// Raf yükseklikleri modelin yukarı bakan yüzeylerinden okunur (kitaplar yüzmez/kaymaz). Odalarda Books(...) ile yerleştirilir.
+    /// Raf yükseklikleri modelden ölçülmüş sabitler (kitaplar yüzmez/kaymaz). Odalarda Books(...) ile yerleştirilir.
     /// </summary>
     public static partial class CoopSetup
     {
@@ -19,74 +19,20 @@ namespace CoopGame.EditorTools
             return Kit("BookshelfFull" + v, parent, pos, yaw, scale);
         }
 
-        static List<float> ShelfSurfaces(GameObject shelf, out Bounds box)
-        {
-            var ys = new List<float>();
-            box = new Bounds();
-            bool first = true;
-            var mfs = shelf.GetComponentsInChildren<MeshFilter>();
-            foreach (var mf in mfs)
-            {
-                var mesh = mf.sharedMesh; if (mesh == null) continue;
-                var m = shelf.transform.worldToLocalMatrix * mf.transform.localToWorldMatrix;
-                var vs = mesh.vertices; var ns = mesh.normals;
-                for (int i = 0; i < vs.Length; i++)
-                {
-                    var p = m.MultiplyPoint3x4(vs[i]);
-                    if (first) { box = new Bounds(p, Vector3.zero); first = false; } else box.Encapsulate(p);
-                }
-                for (int i = 0; i < vs.Length && i < ns.Length; i++)
-                {
-                    var p = m.MultiplyPoint3x4(vs[i]);
-                    if (m.MultiplyVector(ns[i]).normalized.y > 0.85f) ys.Add(p.y);
-                }
-            }
-            // iç bölgedeki yüzeyler: x ortası (yan panel üstleri hariç)
-            var inner = new List<float>();
-            foreach (var mf in mfs)
-            {
-                var mesh = mf.sharedMesh; if (mesh == null) continue;
-                var m = shelf.transform.worldToLocalMatrix * mf.transform.localToWorldMatrix;
-                var vs = mesh.vertices; var ns = mesh.normals;
-                for (int i = 0; i < vs.Length && i < ns.Length; i++)
-                {
-                    var p = m.MultiplyPoint3x4(vs[i]);
-                    if (Mathf.Abs(p.x - box.center.x) < box.size.x * 0.3f && m.MultiplyVector(ns[i]).normalized.y > 0.85f) inner.Add(p.y);
-                }
-            }
-            inner.Sort();
-            var res = new List<float>();
-            foreach (float y in inner)
-                if (res.Count == 0 || y - res[res.Count - 1] > 0.05f) res.Add(y); else res[res.Count - 1] = Mathf.Max(res[res.Count - 1], y);
-            return res;
-        }
-
         static void BuildFullShelves()
         {
             var shelf = KitPrefab("Bookshelf");
             if (shelf == null) return;
-            var tmp = (GameObject)PrefabUtility.InstantiatePrefab(shelf);
-            tmp.transform.position = Vector3.zero; tmp.transform.rotation = Quaternion.identity;
-            var surf = ShelfSurfaces(tmp, out var box);
-            Object.DestroyImmediate(tmp);
-            // Raf: üstünde en az 18 cm boşluk olan yüzey; en üst (dolap tepesi) hariç
+            // Raf yüzeyleri (wooden_bookshelf_worn glTF'inden ölçüldü, 1.9 m boya ölçekli): (üst yüzey y, üstündeki boşluk).
+            // Ağ çalışma anında okunamıyor (isReadable kapalı), bu yüzden sabit.
+            const float ks = 1.9f / 2.0634f;
             var shelves = new List<(float y, float clear)>();
-            for (int i = 0; i + 1 < surf.Count; i++)
-            {
-                float clear = surf[i + 1] - surf[i] - 0.04f;
-                if (clear > 0.18f) shelves.Add((surf[i], Mathf.Min(clear, 0.4f)));
-            }
-            if (shelves.Count < 3) // okunamadıysa eşit aralık
-            {
-                Debug.LogWarning("[CoopSetup] Kitaplık rafları okunamadı (" + surf.Count + " yüzey), eşit aralık kullanılıyor");
-                shelves.Clear();
-                for (int i = 0; i < 6; i++) shelves.Add((0.06f + i * 0.31f, 0.27f));
-            }
-            kitDump.AppendLine("BookshelfFull rafları: " + string.Join(", ", shelves.ConvertAll(s => s.y.ToString("0.00") + "/" + s.clear.ToString("0.00"))) +
-                               " kutu=" + box.size.ToString("0.00"));
+            foreach (var (top, under) in new[] { (0.108f, 0.348f), (0.379f, 0.628f), (0.655f, 0.916f), (0.949f, 1.233f), (1.256f, 1.619f), (1.648f, 2.016f) })
+                shelves.Add((top * ks + 0.002f, (under - top) * ks - 0.015f));
+            var box = new Bounds(Vector3.zero, new Vector3(0.613f * 2f + 0.04f, 1.9f, 0.535f));
 
             var mats = new[] { K.leather, K.leatherRed, K.leatherGreen, K.paperC, K.books };
-            float inW = box.size.x - 0.13f, x0 = box.center.x - inW * 0.5f, zc = box.center.z + box.size.z * 0.08f;
+            float inW = 1.13f, x0 = box.center.x - inW * 0.5f, zc = box.center.z + box.size.z * 0.08f;
             for (int v = 0; v < ShelfVariants; v++)
             {
                 var r = new System.Random(4100 + v * 31);
