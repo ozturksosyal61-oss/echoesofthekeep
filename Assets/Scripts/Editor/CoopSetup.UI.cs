@@ -642,7 +642,7 @@ namespace CoopGame.EditorTools
                 var cz = b + new Vector3(-50f, 0, 0);
                 Shot(dir + "/o_cistern.png", cz + new Vector3(4.8f, 1.72f, 0.4f), cz + new Vector3(-13f, 1.6f, -1.2f), false);
                 Shot(dir + "/o_cistern_back.png", cz + new Vector3(-12.2f, 1.72f, 2.5f), cz + new Vector3(3f, 1.2f, -5f), false);
-                Shot(dir + "/o_cistern_valves.png", cz + new Vector3(-8.5f, 1.72f, -1.5f), cz + new Vector3(-13.7f, 1.8f, 2f), false);
+                Shot(dir + "/o_cistern_valves.png", cz + new Vector3(-12.4f, 1.72f, -0.6f), cz + new Vector3(-10.3f, 1.4f, -1.8f), false);
                 Shot(dir + "/o_cistern_up.png", cz + new Vector3(-1f, 1.4f, -5f), cz + new Vector3(-6f, 5.5f, 3f), false);
                 Shot(dir + "/o_cistern_dais.png", cz + new Vector3(-1.5f, 1.72f, 3.5f), cz + new Vector3(4.5f, 1f, 8f), false);
                 Shot(dir + "/o_cistern_statue.png", cz + new Vector3(-1.5f, 1.72f, 0.3f), cz + new Vector3(-10.5f, 0.6f, 5.5f), false);

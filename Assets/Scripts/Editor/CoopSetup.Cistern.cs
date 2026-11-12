@@ -33,12 +33,12 @@ namespace CoopGame.EditorTools
             return d;
         }
 
-        static CisternValve MakeValve(Transform parent, int index, Vector3 pos, CisternPuzzle cistern)
+        static CisternValve MakeValve(Transform parent, int index, Vector3 pos, CisternPuzzle cistern, float yaw = -90f)
         {
             var root = new GameObject("Valve" + index).transform;
             root.SetParent(parent, false);
             root.localPosition = pos;
-            root.localRotation = Quaternion.Euler(0, -90, 0); // yüz (-Z) doğuya; duvar yüzü yerel z = +0.1
+            root.localRotation = Quaternion.Euler(0, yaw, 0); // varsayılan: yüz (-Z) doğuya; duvar yüzü yerel z = +0.1
             const float wy = 1.25f, py = 1.9f;
             var horiz = Quaternion.Euler(90, 0, 0);
             var face = Quaternion.Euler(-90, 0, 0);
@@ -376,12 +376,25 @@ namespace CoopGame.EditorTools
             cistern = new GameObject("Puzzle3_Cistern").AddComponent<CisternPuzzle>();
             cistern.transform.SetParent(cis, false);
             valves = new CisternValve[4];
-            float[] vz = { -4f, -1.3f, 1.3f, 4f };
-            for (int i = 0; i < 4; i++) valves[i] = MakeValve(cis, i, new Vector3(XW + 0.1f, 0, vz[i]), cistern);
+            // Vanalar girişte görünmesin: 4 farklı sütunun batı yüzünde (doğu kapısından sütun gövdesi saklar), sütun ormanında aranır
+            var vSpots = new[] { (3, 3), (1, 0), (2, 2), (0, 1) };
+            for (int i = 0; i < 4; i++)
+            {
+                var (ci, cj) = vSpots[i];
+                var vp = new Vector3(ColX(ci) - 0.43f, 0, ColZ(cj));
+                valves[i] = MakeValve(cis, i, vp, cistern, 90f); // yüz batıya, sırt sütuna
+            }
 
             // --- Küçük ayrıntılar (probe ışıklı) ---
             var det = new GameObject("Details").transform;
             det.SetParent(cis, false);
+            foreach (float z in new[] { -4f, 4f }) // batı duvarında sahte (sökülmüş) vana kalıntıları: asıl vanalar sütunlarda
+            {
+                Prim("DeadPipe", det, PrimitiveType.Cylinder, new Vector3(XW + 0.25f, 1.6f, z), new Vector3(0.2f, 1.6f, 0.2f), K.iron);
+                MeshObj("DeadFlange", det, new Vector3(XW + 0.25f, 1.25f, z), RingMesh(0.17f, 0.08f, 0.07f), K.iron);
+                Prim("DeadStem", det, PrimitiveType.Cylinder, new Vector3(XW + 0.42f, 1.25f, z), new Vector3(0.07f, 0.1f, 0.07f), K.iron).transform.localRotation = Quaternion.Euler(0, 0, 90);
+                MeshObj("BrokenWheel", det, new Vector3(XW + 1.0f, 0.13f, z + 0.4f), RingMesh(0.42f, 0.06f, 0.05f), K.bronze).transform.localRotation = Quaternion.Euler(4, 30, 0);
+            }
             void Chain(float x, float z, float top, float bottom)
             {
                 Rod("Chain", det, new Vector3(x, top, z), new Vector3(x, bottom, z), 0.022f, K.iron);
@@ -455,6 +468,12 @@ namespace CoopGame.EditorTools
                 {
                     var p = new Vector3(ColX(i) + 0.62f, 0, ColZ(j));
                     Rod("ColArm", det, new Vector3(ColX(i) + 0.33f, 2.9f, ColZ(j)), new Vector3(p.x, 2.9f, p.z), 0.03f, K.iron);
+                    BakedLantern(new Vector3(p.x, 2.3f, p.z), 0f);
+                }
+                foreach (var (i, j) in new[] { (3, 3), (1, 0), (2, 2), (0, 1) }) // vana sütunlarının arka yüzünde loş fener (girişten görünmez)
+                {
+                    var p = new Vector3(ColX(i) - 0.62f, 0, ColZ(j) + 0.55f);
+                    Rod("ColArm", det, new Vector3(ColX(i) - 0.33f, 2.9f, ColZ(j) + 0.3f), new Vector3(p.x, 2.9f, p.z), 0.03f, K.iron);
                     BakedLantern(new Vector3(p.x, 2.3f, p.z), 0f);
                 }
                 BakedLantern(Bracket(new Vector3(XE, 2.4f, 3.4f), Vector3.left), 40f);
