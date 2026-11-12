@@ -159,7 +159,7 @@ namespace CoopGame.EditorTools
             var vig = profile.Add<Vignette>(true);
             vig.intensity.Override(0.28f); vig.smoothness.Override(0.45f);
             var col = profile.Add<ColorAdjustments>(true);
-            col.postExposure.Override(0f); col.contrast.Override(10f); col.saturation.Override(-8f);
+            col.postExposure.Override(0.3f); // genel hafif aydınlatma col.contrast.Override(10f); col.saturation.Override(-8f);
             col.colorFilter.Override(new Color(1f, 0.97f, 0.93f));
             var tone = profile.Add<Tonemapping>(true);
             tone.mode.Override(TonemappingMode.ACES);

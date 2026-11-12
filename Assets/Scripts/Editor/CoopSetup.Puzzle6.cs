@@ -147,7 +147,7 @@ namespace CoopGame.EditorTools
 
                 var sm = MakeMat("K_MoonSky" + i, Color.white, "Universal Render Pipeline/Unlit");
                 Cutout(sm, t);
-                sm.SetColor("_BaseColor", new Color(1.6f, 1.6f, 1.7f)); // parlak (bloom)
+                sm.SetColor("_BaseColor", new Color(1.08f, 1.08f, 1.12f)); // kraterler seçilsin, hafif bloom
                 sky[i] = sm;
                 var tm = MakeMat("K_MoonTile" + i, Color.white);
                 Cutout(tm, t);
@@ -247,7 +247,7 @@ namespace CoopGame.EditorTools
                 Spire(root, new Vector3(s * 16f, -10f, 34f), 5f, 24f, 12f, stone, slate);           // uzak kuleler (sis içinde)
                 Spire(root, new Vector3(s * 28f, -14f, 18f), 6f, 22f, 10f, stone, slate);
             }
-            Spire(root, new Vector3(-3f, -12f, 46f), 7f, 30f, 16f, stone, slate);
+            Spire(root, new Vector3(-17f, -12f, 46f), 7f, 30f, 16f, stone, slate); // ayın arkasında kalmasın
             Slab("CurtainWallFar", root, new Vector3(0, -6f, 40f), new Vector3(50f, 16f, 2f), stone, 4f, false);
 
             // --- Güney: merdiven kulesi duvarı (geliş kapısı), sancaklar, aslan başları ---
@@ -383,7 +383,7 @@ namespace CoopGame.EditorTools
                 for (int k = 0; k < 6; k++)
                     Slab("LensShard", dd, new Vector3(5.0f + (k % 3) * 0.12f, 0.12f, 6.2f + (k / 3) * 0.1f), new Vector3(0.05f, 0.005f, 0.04f), K.clearGlass, 1f, false).transform.localRotation = Quaternion.Euler(0, k * 50f, 0);
                 // 4: mazgala bırakılmış söndürülmüş mum halkası (ay için adak)
-                for (int k = 0; k < 7; k++) Kit("Candle", root, new Vector3(0.6f, 1.05f, 13.2f) + Quaternion.Euler(0, k * 51f, 0) * Vector3.forward * 0.24f, 0f, 0.6f);
+                for (int k = 0; k < 7; k++) Kit("Candle", root, new Vector3(1.6f, 1.2f, hz + 0.3f) + Quaternion.Euler(0, k * 51f, 0) * Vector3.forward * 0.24f, 0f, 0.6f);
                 // 5: köşeye takılmış pelerin
                 Slab("Cloak", dd, new Vector3(hx - 0.5f, 0.1f, -9.5f), new Vector3(0.9f, 0.08f, 0.7f), K.velvet, 1f, false).transform.localRotation = Quaternion.Euler(0, 40, 12);
                 ProbeLit(dd.gameObject);

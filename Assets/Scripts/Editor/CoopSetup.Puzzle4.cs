@@ -333,8 +333,8 @@ namespace CoopGame.EditorTools
             Kit("Door", root, new Vector3(0, GY, hz - 0.12f), 180f);
             ArchTrim(root, "GalleryDoorArch", new Vector3(0, GY, hz), Vector3.back, 2.5f, 3.6f, true);
             Kit("WindowRose", root, new Vector3(0, 7.6f, hz), 180f, 0.8f);
-            Kit("StudyTable", root, new Vector3(-3.0f, GY, 9.6f), 180f);
-            Kit("Stool", root, new Vector3(-3.2f, GY, 8.7f), 20f);
+            Kit("StudyTable", root, new Vector3(-2.5f, GY, 9.6f), 180f); // kopya masasıyla çakışmasın (masa ~2.7 m)
+            Kit("Stool", root, new Vector3(-2.7f, GY, 8.7f), 20f);
             Kit("L_Lantern", root, new Vector3(-6.4f, GY, 7.7f), 30f); // çarkı aydınlatır
             Kit("Armillary", root, new Vector3(3.0f, GY, 8.4f), 30f);
             Kit("WallSconce", root, new Vector3(-2.1f, GY + 2.1f, hz - 0.03f), 180f);

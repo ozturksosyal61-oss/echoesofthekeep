@@ -42,6 +42,13 @@ namespace CoopGame.EditorTools
             GameObjectUtility.SetStaticEditorFlags(ramp, 0);
             ramp.transform.localPosition = new Vector3(0, rise * 0.5f - 0.15f * Mathf.Cos(ang), run * 0.5f + 0.15f * Mathf.Sin(ang));
             ramp.transform.localRotation = Quaternion.Euler(-ang * Mathf.Rad2Deg, 0, 0);
+            foreach (int s in new[] { -1, 1 }) // korkuluk engeli (yandan düşmesin)
+            {
+                var rb = new GameObject("RailBlock").AddComponent<BoxCollider>(); rb.transform.SetParent(t, false);
+                rb.transform.localPosition = new Vector3(s * (w * 0.5f + 0.04f), rise * 0.5f + 0.55f, run * 0.5f);
+                rb.transform.localRotation = Quaternion.Euler(-ang * Mathf.Rad2Deg, 0, 0);
+                rb.size = new Vector3(0.12f, 1.1f, Mathf.Sqrt(run * run + rise * rise));
+            }
             ProbeLit(t.gameObject);
         }
 

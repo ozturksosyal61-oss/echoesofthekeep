@@ -170,10 +170,17 @@ namespace CoopGame.EditorTools
                 const float sw = 1.3f, mid = 2.2f;
                 WoodStair(root, "StairA", new Vector3(7.4f, 0, -1.6f), mid, 3.6f, 1f, sw);           // x 7.4, z -1.6 → 2.0
                 Deck(root, "Landing", new Vector3(7.4f, mid - 0.08f, 2.7f), 1.6f, 1.4f, 0.16f, K.beam, 1, 1);
+                void Block(Vector3 c, Vector3 sz) { var b = new GameObject("RailBlock").AddComponent<BoxCollider>(); b.transform.SetParent(root, false); b.transform.localPosition = c; b.size = sz; }
+                Rod("LandingRailE", root, new Vector3(8.2f, mid + 0.95f, 2.0f), new Vector3(8.2f, mid + 0.95f, 3.4f), 0.05f, K.beam);
+                Rod("LandingRailN", root, new Vector3(6.6f, mid + 0.95f, 3.4f), new Vector3(8.2f, mid + 0.95f, 3.4f), 0.05f, K.beam);
+                foreach (var p in new[] { new Vector3(8.2f, 0, 2.7f), new Vector3(7.4f, 0, 3.4f), new Vector3(8.2f, 0, 3.4f) })
+                    Rod("LandingBaluster", root, p + Vector3.up * mid, p + Vector3.up * (mid + 0.95f), 0.05f, K.beam);
+                Block(new Vector3(8.25f, mid + 0.6f, 2.7f), new Vector3(0.15f, 1.2f, 1.5f));
+                Block(new Vector3(7.4f, mid + 0.6f, 3.45f), new Vector3(1.7f, 1.2f, 0.15f));
                 foreach (float x in new[] { 6.7f, 8.1f }) Slab("LandingPost", root, new Vector3(x, (mid - 0.16f) * 0.5f, 3.3f), new Vector3(0.14f, mid - 0.16f, 0.14f), K.beam, 1f);
                 var pivot = new GameObject("StairBPivot").transform; pivot.SetParent(root, false);
                 pivot.localPosition = new Vector3(6.6f, mid, 2.75f); pivot.localRotation = Quaternion.Euler(0, -90, 0); // yerel +z = dünya -x
-                WoodStair(pivot, "StairB", Vector3.zero, cat - mid, 3.4f, 1f, sw);                  // x 6.6 → 3.2
+                WoodStair(pivot, "StairB", Vector3.zero, cat - mid, 2.95f, 1f, sw);                 // x 6.6 → 3.65 (köprü kenarı)
                 Deck(root, "Bridge", new Vector3(3.0f, cat - 0.08f, (2.75f + rzBridge()) * 0.5f), 1.3f, rzBridge() - 2.05f, 0.16f, K.beam, 1, 1);
                 foreach (float x in new[] { 2.36f, 3.64f })
                 {
@@ -185,7 +192,8 @@ namespace CoopGame.EditorTools
                 }
                 float BridgeBack() => 2.05f;
                 var back = new GameObject("RailBlock").AddComponent<BoxCollider>(); back.transform.SetParent(root, false); // köprünün güney ucu (merdiven ağzı dışı)
-                back.transform.localPosition = new Vector3(2.55f, cat + 0.65f, BridgeBack()); back.size = new Vector3(0.4f, 1.3f, 0.2f);
+                back.transform.localPosition = new Vector3(3.0f, cat + 0.65f, BridgeBack()); back.size = new Vector3(1.4f, 1.3f, 0.2f);
+                Rod("BridgeRailS", root, new Vector3(2.36f, cat + 1f, BridgeBack()), new Vector3(3.64f, cat + 1f, BridgeBack()), 0.05f, K.iron);
             }
 
             // --- Batı: merdiven kapısı, sivri vitraylar (yüksek), aplikler, harita panosu ---
@@ -315,9 +323,9 @@ namespace CoopGame.EditorTools
                 Kit("Rug", root, tp + new Vector3(0, 0, -0.2f), 0f, 0.95f);
                 Kit("CrateLong", root, new Vector3(-0.6f, 0, -2.0f), 35f);
                 Kit("Basket", root, new Vector3(-1.4f, 0, 3.0f), 20f);
-                foreach (var p in new[] { new Vector3(CX - 4f, 4.2f, -2f), new Vector3(CX + 3.5f, 4.2f, -1f), new Vector3(CX, 4.6f, 5.5f) })
+                foreach (var p in new[] { new Vector3(CX - 4f, 4.2f, -2f), new Vector3(CX + 3.5f, 4.2f, -1f), new Vector3(CX, 4.6f, 5.5f), new Vector3(5.0f, 7.0f, 3.5f), new Vector3(CX, 4.6f, -7.5f) })
                 {
-                    var f = LightGo("TowerFill", LightType.Point, Pal.Candle, 2.8f, 9f, true);
+                    var f = LightGo("TowerFill", LightType.Point, Pal.Candle, 3.6f, 10f, true);
                     f.transform.SetParent(root, false); f.transform.localPosition = p;
                 }
             }

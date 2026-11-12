@@ -20,7 +20,7 @@ namespace CoopGame
         [SerializeField] Transform wellTop;              // kuyu odasında ışığın girdiği nokta (şaft tepesi)
         [SerializeField] Transform spot;                 // zemin lekesi (disk)
         [SerializeField] Light spotLight;
-        [SerializeField] float moonDistance = 40f, moonHeight = 21f, moonSize = 5.5f; // kamera uzak düzlemi 140 m + sis: yakın ve büyük
+        [SerializeField] float moonDistance = 40f, moonHeight = 23f, moonSize = 7f; // kamera uzak düzlemi 140 m + sis: yakın ve büyük
 
         Transform[] beams, flares;
         int shownSeed = -1;
