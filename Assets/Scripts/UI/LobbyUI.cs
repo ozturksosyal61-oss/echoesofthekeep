@@ -16,18 +16,45 @@ namespace CoopGame
         [SerializeField] GameObject mainPanel;
         [SerializeField] GameObject joinPanel;
         [SerializeField] Text status;
+        [SerializeField] Button startButton;     // başlangıç seçimi (yalnızca Oda Kur için)
+
+        // Seçenekler: 0 = kaldığın yer (kayıt varsa), sonra 1..LastPuzzle (1 = baştan)
+        int startChoice;
 
         bool busy;
 
         void Awake()
         {
             codeInput.contentType = InputField.ContentType.IntegerNumber;
+            if (startButton != null)
+            {
+                startChoice = Progress.Saved > 0 ? 0 : 1;
+                ApplyStart();
+                startButton.onClick.AddListener(() =>
+                {
+                    if (busy) return;
+                    startChoice = (startChoice + 1) % (Progress.LastPuzzle + 1);
+                    if (startChoice == 0 && Progress.Saved == 0) startChoice = 1;
+                    ApplyStart();
+                });
+            }
             codeInput.characterLimit = 4;
             createButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(true)); });
             joinButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(false)); });
             openJoinButton.onClick.AddListener(() => { if (!busy) ShowJoin(true); });
             backButton.onClick.AddListener(() => { if (!busy) ShowJoin(false); });
             ShowJoin(false);
+        }
+
+        void ApplyStart()
+        {
+            int saved = Progress.Saved;
+            Progress.StartPuzzle = startChoice == 0 ? Mathf.Min(saved + 1, Progress.LastPuzzle) : startChoice;
+            var label = startButton.GetComponentInChildren<Text>();
+            if (label != null)
+                label.text = startChoice == 0 ? "BAŞLANGIÇ: KALDIĞIN YER (BULMACA " + Progress.StartPuzzle + ")"
+                           : startChoice == 1 ? "BAŞLANGIÇ: BAŞTAN"
+                           : "BAŞLANGIÇ: BULMACA " + startChoice;
         }
 
         void ShowJoin(bool join)

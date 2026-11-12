@@ -367,8 +367,9 @@ namespace CoopGame.EditorTools
             // Ana panel: iki büyük seçenek
             var main = new GameObject("MainPanel", typeof(RectTransform)).GetComponent<RectTransform>();
             main.SetParent(p, false); main.sizeDelta = new Vector2(600, 330); main.anchoredPosition = new Vector2(0, 80);
-            var create = MakeButton(main, "CreateButton", "ODA KUR", new Vector2(0, 88), new Vector2(500, 124), true, 48);
-            var openJoin = MakeButton(main, "OpenJoinButton", "ODAYA KATIL", new Vector2(0, -62), new Vector2(500, 124), false, 44);
+            var create = MakeButton(main, "CreateButton", "ODA KUR", new Vector2(0, 112), new Vector2(500, 112), true, 48);
+            var openJoin = MakeButton(main, "OpenJoinButton", "ODAYA KATIL", new Vector2(0, -16), new Vector2(500, 112), false, 44);
+            var startSel = MakeButton(main, "StartButton", "BAŞLANGIÇ: BAŞTAN", new Vector2(0, -122), new Vector2(500, 70), false, 24); // ilerleme / test başlangıcı
             // Katıl paneli: kod gir
             var joinP = new GameObject("JoinPanel", typeof(RectTransform)).GetComponent<RectTransform>();
             joinP.SetParent(p, false); joinP.sizeDelta = new Vector2(600, 330); joinP.anchoredPosition = new Vector2(0, 80);
@@ -393,6 +394,7 @@ namespace CoopGame.EditorTools
             SetRef(so, "mainPanel", main.gameObject);
             SetRef(so, "joinPanel", joinP.gameObject);
             SetRef(so, "status", status);
+            SetRef(so, "startButton", startSel);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, LobbyPath);

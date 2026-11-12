@@ -92,6 +92,27 @@ namespace CoopGame.EditorTools
             }
             KeepBaked(archive);
             KeepBaked(library);
+
+            // Kontrol noktaları (menüden "Bulmaca N" ile başlayınca rol alan oyuncu buraya ışınlanır; 1 için rolün ilk odası)
+            var clock = roomX.Find("RoomA2_SaatOdasi");
+            if (clock != null) MakeCheckpoint(roomX, 2, Roles.X, clock.TransformPoint(new Vector3(-1.5f, 0.05f, -1.5f)));
+            MakeCheckpoint(roomO, 2, Roles.O, roomO.TransformPoint(new Vector3(-10.6f, 0.05f, 0)));
+            if (hazne != null) MakeCheckpoint(roomX, 3, Roles.X, hazne.TransformPoint(new Vector3(0, 0.05f, 2.5f)));
+            MakeCheckpoint(roomO, 3, Roles.O, roomO.TransformPoint(new Vector3(-21f, 0.05f, 0)));
+            MakeCheckpoint(roomX, 4, Roles.X, archiveArrive.position);
+            MakeCheckpoint(roomO, 4, Roles.O, libraryArrive.position);
+        }
+
+        static void MakeCheckpoint(Transform parent, int puzzle, int role, Vector3 worldPos)
+        {
+            var go = new GameObject("Checkpoint_" + Roles.Name(role) + puzzle);
+            go.transform.SetParent(parent, false);
+            go.transform.position = worldPos;
+            var c = go.AddComponent<Checkpoint>();
+            var so = new SerializedObject(c);
+            so.FindProperty("puzzle").intValue = puzzle;
+            so.FindProperty("role").intValue = role;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         static void MakePassage(string name, Transform parent, int node, Vector3 worldCenter, Vector3 size, Transform target)

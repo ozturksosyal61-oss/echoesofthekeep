@@ -59,7 +59,11 @@ namespace CoopGame
         {
             if (!Object.HasStateAuthority) return;
             RoleCode = role + 1;
-            if (teleport) { cc.Teleport(Layout.Spawn(role), Quaternion.identity); hasSafe = false; }
+            if (teleport)
+            {   // Başlangıç bulmacası için kontrol noktası varsa oraya (yoksa rolün ilk odası)
+                var pos = Checkpoint.TryFind(role, Progress.Current(PuzzleManager.Instance), out var cp) ? cp : Layout.Spawn(role);
+                cc.Teleport(pos, Quaternion.identity); hasSafe = false;
+            }
             Dbg.Puzzle(name + " rol=" + Roles.Name(role));
         }
 

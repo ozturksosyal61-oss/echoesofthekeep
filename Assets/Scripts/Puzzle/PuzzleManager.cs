@@ -37,6 +37,12 @@ namespace CoopGame
             if (HasStateAuthority)
                 foreach (var d in PuzzleDef.All)
                     if (d.StartsActive && GetState(d.Id) == PuzzleState.Locked) ServerSetState(d.Id, PuzzleState.Active);
+            if (HasStateAuthority)
+            {   // Menüde seçilen başlangıç: öncekiler sırayla çözülmüş sayılır (kilit açma zinciri sonrakini aktif eder)
+                int start = Mathf.Clamp(Progress.StartPuzzle, 1, Progress.LastPuzzle);
+                for (int id = 1; id < start; id++) ServerSetState(id, PuzzleState.Solved);
+                Progress.Save(start - 1);
+            }
             Dbg.Puzzle("PuzzleManager Spawned HasStateAuthority=" + HasStateAuthority + " defs=" + PuzzleDef.All.Count + " nodes=" + PuzzleNode.All.Count);
         }
 
@@ -61,6 +67,7 @@ namespace CoopGame
             States.Set(puzzleId, (byte)s);
             Dbg.Puzzle("Bulmaca " + puzzleId + ": " + old + " → " + s);
             if (s != PuzzleState.Solved) return;
+            Progress.Save(puzzleId);
             var def = PuzzleDef.Find(puzzleId);
             if (def == null || def.Unlocks == null) return;
             foreach (var u in def.Unlocks)
