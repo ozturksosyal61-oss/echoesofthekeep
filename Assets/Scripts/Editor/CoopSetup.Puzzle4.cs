@@ -425,8 +425,8 @@ namespace CoopGame.EditorTools
                     Kit("BookStack", root, new Vector3(s * 5.4f, 0, z), z * 17f);
                     Kit("CandleCluster", root, new Vector3(s * 5.25f, 0, z + 0.6f));
                 }
-                Kit("BookStack", root, new Vector3(s * 7.9f, 0, -7.9f), 200f, 0.9f);
-                Kit("BookStack", root, new Vector3(s * 7.95f, 0.38f, -7.85f), 160f, 0.8f);
+                Kit("BookStack", root, new Vector3(s * 7.9f, 0, s < 0 ? -7.9f : 1.2f), 200f, 0.9f);
+                Kit("BookStack", root, new Vector3(s * 7.95f, 0.38f, s < 0 ? -7.85f : 1.25f), 160f, 0.8f);
                 // Sütunlardan nefe sarkan sancaklar
                 foreach (float z in new[] { -9f, 0f, 9f })
                     Kit("Banner", root, new Vector3(s * (NW - 0.46f), SP - 0.5f, z), s < 0 ? 90f : -90f, 1.1f);
@@ -541,17 +541,19 @@ namespace CoopGame.EditorTools
                 Kit("L_Candle", root, new Vector3(s * 2.6f, 3.6f, -hz + 0.7f));
             }
             {
+                // Kilit kapının önünde değil: doğu yan nefte, güney lahdinin arkasında duvara dayalı (girişten ve nefin ortasından görünmez)
                 lockRoot = new GameObject("LockPanel").transform;
                 lockRoot.SetParent(root, false);
-                lockRoot.localPosition = new Vector3(0, 0, -hz + 2.6f);
-                Slab("Pedestal", lockRoot, new Vector3(0, 0.7f, 0), new Vector3(3.6f, 1.4f, 0.5f), stone, 1.2f);
-                Slab("PedestalCap", lockRoot, new Vector3(0, 1.45f, 0), new Vector3(3.8f, 0.1f, 0.6f), stone, 1.2f, false);
+                lockRoot.localPosition = new Vector3(hx - 0.3f, 0, -6.6f);
+                lockRoot.localRotation = Quaternion.Euler(0, -90, 0); // ön yüz (+z) batıya, yan nefe
+                Slab("Pedestal", lockRoot, new Vector3(0, 0.7f, 0), new Vector3(2.6f, 1.4f, 0.5f), stone, 1.2f);
+                Slab("PedestalCap", lockRoot, new Vector3(0, 1.45f, 0), new Vector3(2.75f, 0.1f, 0.6f), stone, 1.2f, false);
                 var ink = MakeMat("K_LockLetter", new Color(0.92f, 0.82f, 0.55f));
                 for (int i = 0; i < LetterPuzzle.Len; i++)
                 {
                     var d = new GameObject("LockDial" + i).transform;
                     d.SetParent(lockRoot, false);
-                    d.localPosition = new Vector3(-1.32f + i * 0.66f, 0.85f, 0.27f);
+                    d.localPosition = new Vector3(-1.0f + i * 0.5f, 0.85f, 0.27f);
                     d.localRotation = Quaternion.Euler(0, 180, 0); // -Z kuzeye (odaya)
                     var bc = d.gameObject.AddComponent<BoxCollider>(); bc.size = new Vector3(0.58f, 0.58f, 0.12f);
                     d.gameObject.AddComponent<Interactable>().Label = "Harfi çevir";
@@ -581,7 +583,14 @@ namespace CoopGame.EditorTools
                         var c = tt.GetComponent<Collider>(); if (c != null && tt != d) Object.DestroyImmediate(c);
                     }
                 }
-                Kit("L_Lantern", root, new Vector3(1.7f, 1.5f, -hz + 2.6f), 20f);
+                Kit("Candlestick", lockRoot, new Vector3(1.15f, 1.5f, 0.05f), 0f);
+                Kit("L_Candle", lockRoot, new Vector3(1.15f, 2.05f, 0.3f));
+                Kit("L_Lantern", root, new Vector3(1.9f, 1.5f, -hz + 1.6f), 20f);
+                // Kapı önünde boş sunak (kilit burada değil): mumlar + kapalı kitap
+                Slab("Altar", root, new Vector3(0, 0.45f, -hz + 2.6f), new Vector3(1.6f, 0.9f, 0.7f), stone, 1.2f);
+                Slab("AltarCap", root, new Vector3(0, 0.93f, -hz + 2.6f), new Vector3(1.75f, 0.08f, 0.8f), stone, 1.2f, false);
+                Kit("CandleCluster", root, new Vector3(-0.5f, 0.97f, -hz + 2.6f));
+                Kit("BookStack", root, new Vector3(0.35f, 0.97f, -hz + 2.6f), 15f, 0.8f);
             }
 
             // --- Kürsü + mektup (orta nefin batısı, kuzeye bakar) ---
@@ -668,7 +677,7 @@ namespace CoopGame.EditorTools
             foreach (int s in new[] { -1, 1 })
                 foreach (float z in new[] { -6.8f, 2.2f })
                 {
-                    KitR("Shield", root, new Vector3(s * (hx - 0.06f), 1.6f, z), Quaternion.Euler(0, s < 0 ? 90 : -90, 0));
+                    KitR("Shield", root, new Vector3(s * (hx - 0.06f), s > 0 && z < 0 ? 3.1f : 1.6f, z), Quaternion.Euler(0, s < 0 ? 90 : -90, 0));
                     KitR("Sword", root, new Vector3(s * 6.05f, 0.02f, z - 0.4f), Quaternion.Euler(0, s < 0 ? 90 : -90, 0) * Quaternion.Euler(0, 0, s * 8f));
                 }
             Kit("VaseCeramic", root, new Vector3(-8.4f, 0, 4.0f));
