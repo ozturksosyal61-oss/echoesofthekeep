@@ -56,19 +56,19 @@ namespace CoopGame
                     // Levha: hücrenin güneybatı köşe sütununda, hücre merkezine dönük (yalnız bu hücreden okunur)
                     var p = new GameObject("Plaque").transform;
                     p.SetParent(mazeRoot, false);
-                    p.localPosition = new Vector3(x * c + 0.44f, 1.75f, z * c + 0.44f);
+                    p.localPosition = new Vector3(x * c + 0.42f, 1.75f, z * c + 0.42f);
                     p.localRotation = Quaternion.LookRotation(new Vector3(-1f, 0, -1f));
                     Box(p, new Vector3(0, 0, 0.03f), new Vector3(0.56f, 0.34f, 0.05f), plaqueMat, false);
                     var g = new GameObject("G").transform; g.SetParent(p, false); g.localPosition = new Vector3(-0.13f, 0, -0.005f);
-                    Glyphs.Symbol(g, m.glyph[x, z], glyphMat, 0.22f, 0.02f);
+                    Runes.Rune(g, m.glyph[x, z], glyphMat, 0.24f, 0.02f);
                     var n = new GameObject("N").transform; n.SetParent(p, false); n.localPosition = new Vector3(0.14f, 0, -0.005f);
-                    Glyphs.Numeral(n, m.numeral[x, z], glyphMat, 0.2f, 0.02f);
+                    Runes.Pips(n, m.numeral[x, z], glyphMat, 0.2f, 0.02f);
                 }
         }
 
         void BuildModel(LabyrinthPuzzle.Maze m)
         {
-            float c = LabyrinthPuzzle.Cell * modelScale, h = 0.09f, t = 0.025f;
+            float c = LabyrinthPuzzle.Cell * modelScale, h = 0.07f, t = 0.02f;
             int nn = LabyrinthPuzzle.N;
             // Dış duvar (giriş güneyde x=0, çıkış kuzeyde x=N-1 açık)
             for (int i = 0; i < nn; i++)
@@ -88,17 +88,17 @@ namespace CoopGame
                     a.SetParent(modelRoot, false);
                     a.localPosition = new Vector3((x + 0.5f) * c, 0.004f, (z + 0.5f) * c);
                     a.localRotation = flat;
-                    var g = new GameObject("G").transform; g.SetParent(a, false); g.localPosition = new Vector3(-0.045f, 0.03f, 0);
-                    Glyphs.Symbol(g, m.glyph[x, z], modelGlyphMat, 0.075f, 0.004f);
-                    var n = new GameObject("N").transform; n.SetParent(a, false); n.localPosition = new Vector3(0.05f, 0.03f, 0);
-                    Glyphs.Numeral(n, m.numeral[x, z], modelGlyphMat, 0.07f, 0.004f);
+                    var g = new GameObject("G").transform; g.SetParent(a, false); g.localPosition = new Vector3(-c * 0.22f, c * 0.12f, 0);
+                    Runes.Rune(g, m.glyph[x, z], modelGlyphMat, c * 0.36f, 0.004f);
+                    var n = new GameObject("N").transform; n.SetParent(a, false); n.localPosition = new Vector3(c * 0.22f, c * 0.12f, 0);
+                    Runes.Pips(n, m.numeral[x, z], modelGlyphMat, c * 0.3f, 0.004f);
                     if (m.trap[x, z])
                     {
                         var pin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                         Destroy(pin.GetComponent<Collider>());
                         pin.transform.SetParent(modelRoot, false);
-                        pin.transform.localPosition = new Vector3((x + 0.5f) * c, 0.03f, (z + 0.25f) * c);
-                        pin.transform.localScale = Vector3.one * 0.05f;
+                        pin.transform.localPosition = new Vector3((x + 0.5f) * c, 0.02f, (z + 0.25f) * c);
+                        pin.transform.localScale = Vector3.one * c * 0.22f;
                         pin.GetComponent<Renderer>().sharedMaterial = trapMat;
                     }
                 }

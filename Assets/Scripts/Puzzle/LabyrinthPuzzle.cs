@@ -5,16 +5,17 @@ using UnityEngine;
 namespace CoopGame
 {
     /// <summary>
-    /// Bulmaca 5 "Katakomb labirenti" (host mantığı). O karanlık 6x6 labirentte fenerle ilerler; her hücrenin köşesinde
-    /// sembol + Roma rakamı (36 benzersiz çift). X harita odasındaki makette duvarları, hücre işaretlerini, tuzakları ve çıkışı görür.
+    /// Bulmaca 5 "Katakomb labirenti" (host mantığı). O karanlık 8x8 labirentte fenerle ilerler; her hücrenin köşesinde
+    /// rün + zar noktası (Runes; 36 çift, hücreler arasında tekrar edebilir — yerini komşularla birlikte tarif etmek gerekir).
+    /// Tuzaklar çözüm yolundan sapan neredeyse her kolun ilk hücresinde: X'in yönlendirmesi olmadan ilerlemek ölümcül. X harita odasındaki makette duvarları, hücre işaretlerini, tuzakları ve çıkışı görür.
     /// O girişten içeri adım atınca yağ sayacı başlar. Tuzak hücre ya da yağın bitmesi → kısa karanlık, girişe dönüş, yeni tohum
     /// (duvarlar, işaretler, tuzaklar karışır). Çıkış hücresine varınca çözülür. Bu düğümün değeri = tohum.
     /// Hücre (x,z): origin'den +x (doğu) ve +z (kuzey). Giriş (0,0) güney duvarında, çıkış (N-1,N-1) kuzey duvarında.
     /// </summary>
     public class LabyrinthPuzzle : PuzzleNode
     {
-        public const int N = 6, Traps = 7, ExtraOpenings = 5;
-        public const float Cell = 3.2f, OilSeconds = 210f, DyingSeconds = 2.2f;
+        public const int N = 8, ExtraTraps = 6, ExtraOpenings = 6;
+        public const float Cell = 2.4f, OilSeconds = 200f, DyingSeconds = 2.2f;
         public enum Phase { Waiting = 0, Running = 1, Dying = 2 }
 
         [SerializeField] int phaseNode = 45, attemptNode = 47;
@@ -42,7 +43,7 @@ namespace CoopGame
             public bool[,] wallN = new bool[N, N]; // hücrenin kuzey kenarı (z < N-1)
             public bool[,] wallE = new bool[N, N]; // hücrenin doğu kenarı (x < N-1)
             public bool[,] trap = new bool[N, N];
-            public int[,] glyph = new int[N, N], numeral = new int[N, N]; // numeral 1..6
+            public int[,] glyph = new int[N, N], numeral = new int[N, N]; // glyph = rün 0..5, numeral = zar 1..6
             public Vector2Int entry = new Vector2Int(0, 0), exit = new Vector2Int(N - 1, N - 1);
 
             public bool Open(Vector2Int a, Vector2Int b)
@@ -95,20 +96,27 @@ namespace CoopGame
                 var c = q.Dequeue();
                 foreach (var d in Dirs) { var n = c + d; if (In(n) && !prev.ContainsKey(n) && m.Open(c, n)) { prev[n] = c; q.Enqueue(n); } }
             }
-            var path = new HashSet<Vector2Int>();
-            for (var c = m.exit; ; c = prev[c]) { path.Add(c); if (c == m.entry) break; }
+            var path = new HashSet<Vector2Int>(); var pathList = new List<Vector2Int>(); // liste: sıra her makinede aynı
+            for (var c = m.exit; ; c = prev[c]) { path.Add(c); pathList.Add(c); if (c == m.entry) break; }
+            // Sapak tuzakları: yoldaki her hücrenin yol dışı açık komşusu %85 tuzak; sonra rastgele ek tuzaklar
             var free = new List<Vector2Int>();
-            for (int x = 0; x < N; x++) for (int z = 0; z < N; z++) { var c = new Vector2Int(x, z); if (!path.Contains(c)) free.Add(c); }
-            for (int k = 0; k < Traps && free.Count > 0; k++) { int i = r.Next(free.Count); m.trap[free[i].x, free[i].y] = true; free.RemoveAt(i); }
-            // 36 benzersiz (sembol, rakam) çifti
+            foreach (var c in pathList)
+                foreach (var d in Dirs)
+                {
+                    var n = c + d;
+                    if (In(n) && !path.Contains(n) && m.Open(c, n) && !m.trap[n.x, n.y] && r.Next(100) < 85) m.trap[n.x, n.y] = true;
+                }
+            for (int x = 0; x < N; x++) for (int z = 0; z < N; z++) { var c = new Vector2Int(x, z); if (!path.Contains(c) && !m.trap[x, z]) free.Add(c); }
+            for (int k = 0; k < ExtraTraps && free.Count > 0; k++) { int i = r.Next(free.Count); m.trap[free[i].x, free[i].y] = true; free.RemoveAt(i); }
+            // Rün + zar: 36 çift karıştırılıp sırayla dağıtılır (64 hücre: bazı çiftler iki kez görülür)
             var pairs = new List<int>();
-            for (int i = 0; i < N * N; i++) pairs.Add(i);
+            for (int i = 0; i < Runes.Count * 6; i++) pairs.Add(i);
             for (int i = pairs.Count - 1; i > 0; i--) { int j = r.Next(i + 1); (pairs[i], pairs[j]) = (pairs[j], pairs[i]); }
             for (int x = 0; x < N; x++) for (int z = 0; z < N; z++)
             {
-                int p = pairs[x * N + z];
-                m.glyph[x, z] = p % Glyphs.Count;
-                m.numeral[x, z] = p / Glyphs.Count % 6 + 1;
+                int p = pairs[(x * N + z) % pairs.Count];
+                m.glyph[x, z] = p % Runes.Count;
+                m.numeral[x, z] = p / Runes.Count + 1;
             }
             return m;
         }
