@@ -11,7 +11,7 @@ namespace CoopGame.EditorTools
     /// </summary>
     public static partial class CoopSetup
     {
-        const int HallPuzzleId = 0, PlateXNode = 40, PlateONode = 41, HallGateNode = 42;
+        const int HallPuzzleId = 0, PlateXNode = 90, PlateONode = 91, HallGateNode = 92; // 35-58 bulmacalarda dolu
 
         static Material voidMat, inlayMat;
 
