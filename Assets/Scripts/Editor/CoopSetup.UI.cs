@@ -599,6 +599,10 @@ namespace CoopGame.EditorTools
             Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
             Shot(dir + "/x_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
             Shot(dir + "/x_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
+            Shot(dir + "/x_archive.png", a + new Vector3(40f, 1.72f, -9.5f), a + new Vector3(40f, 3.5f, 6f), false);
+            Shot(dir + "/x_archive_back.png", a + new Vector3(37f, 5.72f, 9f), a + new Vector3(42f, 1.5f, -8f), false);
+            Shot(dir + "/o_library.png", b + new Vector3(40f, 1.72f, 12f), b + new Vector3(40f, 2.5f, -12f), false);
+            Shot(dir + "/o_library_back.png", b + new Vector3(42f, 1.72f, -9f), b + new Vector3(37f, 2.5f, 10f), false);
             Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
             Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
             Shot(dir + "/x_hazne_w.png", a + new Vector3(-15f, -5.28f, -16f), a + new Vector3(-23.5f, -5f, -18f), false);

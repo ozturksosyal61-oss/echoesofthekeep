@@ -181,7 +181,7 @@ namespace CoopGame.EditorTools
             Wall(r, "WallN", new Vector3(0, 0, hs + 0.25f), true, 10.5f, h, stone, 2f, new Opening(0f, 3f, 0f, 3f));
             Slab("StairHeader", r, new Vector3(0, 5.75f, hs + 0.25f), new Vector3(4f, 1.5f, 0.5f), stone, 2f, false);
             Wall(r, "WallS", new Vector3(0, 0, -hs - 0.25f), true, 10.5f, h, stone, 2f);
-            Wall(r, "WallE", new Vector3(hs + 0.25f, 0, 0), false, 10.5f, h, stone, 2f);
+            Wall(r, "WallE", new Vector3(hs + 0.25f, 0, 0), false, 10.5f, h, stone, 2f, new Opening(2.7f, 2.2f, 0f, 3f)); // arşiv geçidi (bulmaca 4)
             Wall(r, "WallW", new Vector3(-hs - 0.25f, 0, 0), false, 10.5f, h, stone, 2f);
             BeamCeiling(r, "Ceil", new Vector3(0, h, 0), 10f, 10f, 1.3f);
 
@@ -303,7 +303,7 @@ namespace CoopGame.EditorTools
             Kit("Barrel", r, new Vector3(3.2f, 0, -4.4f), 140f, 0.9f);
             Kit("Bucket", r, new Vector3(2.5f, 0, -3.9f));
             Kit("Crate", r, new Vector3(4.3f, 0, 4.2f), -15f);
-            Kit("Chest", r, new Vector3(4.3f, 0, 2.6f), -90f);
+            Kit("Chest", r, new Vector3(3.0f, 0, 4.3f), 180f);
 
             // Tedirginlik: kuyunun önünde saçılmış kağıtlar, devrik kova, ağlar
             Kit("PaperScatter", r, new Vector3(-0.6f, 0, -0.6f), 110f);
