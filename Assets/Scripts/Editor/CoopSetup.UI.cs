@@ -605,6 +605,9 @@ namespace CoopGame.EditorTools
             Shot(dir + "/x_archive_back.png", a + new Vector3(37f, 5.72f, 9f), a + new Vector3(42f, 1.5f, -8f), false);
             Shot(dir + "/o_library.png", b + new Vector3(40f, 1.72f, 12f), b + new Vector3(40f, 2.5f, -12f), false);
             Shot(dir + "/o_library_back.png", b + new Vector3(42f, 1.72f, -9f), b + new Vector3(37f, 2.5f, 10f), false);
+            Shot(dir + "/x_maproom.png", a + new Vector3(40f, 1.72f, 33.5f), a + new Vector3(40f, 4f, 50f), false);
+            Shot(dir + "/x_maproom_model.png", a + new Vector3(46.2f, 2.3f, 45.8f), a + new Vector3(48.4f, 0.9f, 45.8f), false);
+            Shot(dir + "/o_catacomb_ante.png", b + new Vector3(34f, 1.72f, -64f), b + new Vector3(32f, 1.5f, -57f), false);
             Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
             Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
             Shot(dir + "/x_hazne_w.png", a + new Vector3(-15f, -5.28f, -16f), a + new Vector3(-23.5f, -5f, -18f), false);

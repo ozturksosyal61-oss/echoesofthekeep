@@ -115,13 +115,13 @@ namespace CoopGame.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        static void MakePassage(string name, Transform parent, int node, Vector3 worldCenter, Vector3 size, Transform target)
+        static void MakePassage(string name, Transform parent, int node, Vector3 worldCenter, Vector3 size, Transform target, int puzzleId = 3)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             var p = go.AddComponent<Passage>();
             var so = new SerializedObject(p);
-            so.FindProperty("puzzleId").intValue = 3;
+            so.FindProperty("puzzleId").intValue = puzzleId;
             so.FindProperty("nodeId").intValue = node;
             so.FindProperty("zoneCenter").vector3Value = worldCenter;
             so.FindProperty("zoneSize").vector3Value = size;
