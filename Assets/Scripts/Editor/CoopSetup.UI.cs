@@ -16,7 +16,6 @@ namespace CoopGame.EditorTools
         /// <summary>Menüde görünen oyun adı (çalışma adı; buradan değiştir).</summary>
         const string GameTitle = "ECHOES";
         const string GameTitleSub = "OF THE KEEP";
-        const string GameSubtitle = "İki ses. Tek şato.";
 
         const string UiDir = "Assets/Generated/UI";
         const string FontDir = "Assets/ThirdParty/Fonts/";
@@ -333,8 +332,6 @@ namespace CoopGame.EditorTools
             title2.horizontalOverflow = HorizontalWrapMode.Overflow;
             var line = MakeImage(canvas, "TitleLine", Vector2.zero, new Vector2(520, 3), null, Gold);
             Corner(line, L, L, new Vector2(116, 56)); line.raycastTarget = false;
-            var sub = MakeText(canvas, "Subtitle", GameSubtitle, 46, Vector2.zero, new Vector2(1000, 70), TextAnchor.MiddleLeft, U.body, Cream);
-            Corner(sub, L, L, new Vector2(116, 6));
 
             // Alt sol: ana menü sekmeleri (Oyna aktif; diğerleri ileride)
             string[] tabs = { "OYNA", "MAĞAZA", "ARKADAŞLAR", "AYARLAR" };
@@ -445,14 +442,17 @@ namespace CoopGame.EditorTools
 
             var canvas = MakeSafeArea(root);
 
-            // Üst orta: rol, oda kodu, durum
-            var role = MakeText(canvas, "RoleText", "Rol: -", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleCenter, U.head, GoldBright);
-            Corner(role, TC, TC, new Vector2(0, -26));
-            var info = MakeText(canvas, "InfoText", "", 30, Vector2.zero, new Vector2(1200, 80), TextAnchor.UpperCenter, U.body, Cream);
-            Corner(info, TC, TC, new Vector2(0, -100));
-            var roomLabel = MakeText(canvas, "RoomText", "", 30, Vector2.zero, new Vector2(1000, 120), TextAnchor.UpperCenter, U.body,
-                                     new Color(Cream.r, Cream.g, Cream.b, 0.85f));
-            Corner(roomLabel, TC, TC, new Vector2(0, -142));
+            // Üst orta: bölge başlık kartı (birkaç saniye görünür, söner). Alt orta: lobide küçük oda kodu + yönerge.
+            var role = MakeText(canvas, "RoleText", "", 60, Vector2.zero, new Vector2(1200, 80), TextAnchor.MiddleCenter, U.head, GoldBright);
+            Corner(role, TC, TC, new Vector2(0, -70));
+            var cardSub = MakeText(canvas, "CardSub", "", 32, Vector2.zero, new Vector2(1400, 56), TextAnchor.MiddleCenter, U.body, Cream);
+            Corner(cardSub, TC, TC, new Vector2(0, -138));
+            cardSub.fontStyle = FontStyle.Italic;
+            var info = MakeText(canvas, "InfoText", "", 26, Vector2.zero, new Vector2(1100, 44), TextAnchor.MiddleCenter, U.body,
+                                new Color(Cream.r, Cream.g, Cream.b, 0.7f));
+            Corner(info, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 40));
+            var roomLabel = MakeText(canvas, "RoomText", "", 30, Vector2.zero, new Vector2(1100, 50), TextAnchor.MiddleCenter, U.body, Cream);
+            Corner(roomLabel, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 92));
 
             // Sol üst: FPS (uzun bas: gizli debug paneli) + konuşma göstergeleri
             var perfText = MakeText(canvas, "PerfText", "FPS -", 26, Vector2.zero, new Vector2(460, 56), TextAnchor.MiddleLeft, U.body,
@@ -514,6 +514,7 @@ namespace CoopGame.EditorTools
             SetRef(so, "roleText", role);
             SetRef(so, "infoText", info);
             SetRef(so, "roomText", roomLabel);
+            SetRef(so, "cardSub", cardSub);
             SetRef(so, "leaveButton", leave);
             var dp = so.FindProperty("speakDots"); dp.arraySize = 2;
             var lp = so.FindProperty("speakLabels"); lp.arraySize = 2;

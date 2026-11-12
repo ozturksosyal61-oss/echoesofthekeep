@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 namespace CoopGame
 {
-    /// <summary>Game HUD: rol, oda kodu, oyuncu sayısı, mikrofon durumu ve konuşan oyuncu göstergesi (giriş sırasına göre iki satır, rol X/O).</summary>
+    /// <summary>Game HUD (sade): bölgeye girince birkaç saniyelik başlık kartı, lobide altta küçük oda kodu + yönerge,
+    /// sol üstte konuşma göstergeleri (rol X/O). Bulmaca durum listesi yok; bazı çözümler kısa bir kartla duyurulur.</summary>
     public class GameHud : MonoBehaviour
     {
         [SerializeField] Text roleText;
@@ -15,11 +16,31 @@ namespace CoopGame
         [SerializeField] Image[] speakDots;   // giriş sırası (slot)
         [SerializeField] Text[] speakLabels;
         [SerializeField] Button leaveButton;
+        [SerializeField] Text cardSub;        // başlık kartının alt satırı (roleText = kart başlığı)
 
         static readonly Color Idle = new Color(1f, 1f, 1f, 0.2f);
         static readonly Color Speaking = new Color(0.2f, 1f, 0.3f, 1f);
 
         bool micGranted;
+        int shownRoom = -1;
+        float cardUntil;
+        readonly System.Collections.Generic.Dictionary<int, PuzzleState> seen = new System.Collections.Generic.Dictionary<int, PuzzleState>();
+        const float CardTime = 5f, CardFade = 1.2f;
+
+        static string AreaTitle(int a) => a == Layout.AreaHall ? "LOBİ HOLÜ" : a == Layout.AreaFinal ? "BÜYÜK SALON" : a == Layout.AreaX ? "ÇAN KULESİ" : "MAHZENLER";
+        static string AreaLine(int a) => a == Layout.AreaHall ? "Yollar burada ayrılıyor: biri yukarı, biri aşağı."
+                                       : a == Layout.AreaFinal ? "Ayrılan yollar burada birleşiyor."
+                                       : a == Layout.AreaX ? "Dişlilerin ve çanların arasında, rüzgârın içinde."
+                                       : "Taşın ve suyun altında, ışığın ulaşmadığı yerde.";
+        // Kendi HUD'u olmayan bulmacalar için çözüm kartı
+        static string SolvedLine(int id) => id == 1 ? "Kollar yerine oturdu. Aşağıda ağır bir kapı açıldı."
+                                          : id == 4 ? "Mektubun sırrı çözüldü. Mühürlü geçit aralandı." : null;
+
+        void Card(string title, string line)
+        {
+            roleText.text = title; if (cardSub != null) cardSub.text = line;
+            cardUntil = Time.unscaledTime + CardTime;
+        }
 
         void Awake()
         {
@@ -49,21 +70,24 @@ namespace CoopGame
 
             var me = PlayerAvatar.Local;
             bool inHall = me != null && me.Room == Layout.AreaHall;
-            roleText.text = me == null ? "" : me.RoleIndex == Roles.None ? "Oda kodu: " + Session.Code : "Rol: " + Roles.Name(me.RoleIndex);
-
-            infoText.text = "Kod: " + Session.Code + "   Oyuncu: " + count + "/" + Session.MaxPlayers +
-                            (micGranted ? "" : "\nMikrofon kapalı (izin yok)");
-
-            // Bulunduğun alan + paylaşılan durum (diğer odadaki etkileşimin sonucunu da görebil).
-            roomText.text = me != null ? Layout.RoomName(me.Room) : "-";
-            if (inHall)
+            if (me != null && me.Room != shownRoom) { shownRoom = me.Room; Card(AreaTitle(me.Room), AreaLine(me.Room)); }
+            foreach (var d in PuzzleDef.All)
             {
-                var gate = HallGate.Instance;
-                roomText.text += count < Session.MaxPlayers ? "\nArkadaşını bekliyorsun; kodu ona söyle."
-                               : gate != null && gate.Value == HallGate.Counting ? "\nYerinizde durun..."
-                               : "\nBiriniz X, diğeriniz O plakasına geçsin.\nX: yukarı, çan kulesi  ·  O: aşağı, mahzen";
+                var st = d.State;
+                if (seen.TryGetValue(d.Id, out var prev) && prev == PuzzleState.Active && st == PuzzleState.Solved && SolvedLine(d.Id) != null) Card("", SolvedLine(d.Id));
+                seen[d.Id] = st;
             }
-            else foreach (var d in PuzzleDef.All) roomText.text += "\n" + d.Title + ": " + PuzzleDef.StateName(d.State);
+            float a = Mathf.Clamp01((cardUntil - Time.unscaledTime) / CardFade);
+            roleText.color = WithA(roleText.color, a);
+            if (cardSub != null) cardSub.color = WithA(cardSub.color, a);
+
+            // Lobi: altta küçük oda kodu + yönerge; diğer alanlarda yalnız mikrofon uyarısı
+            infoText.text = (inHall ? "Oda kodu " + Session.Code + "  ·  " + count + "/" + Session.MaxPlayers + " oyuncu" : "") +
+                            (micGranted ? "" : (inHall ? "  ·  " : "") + "Mikrofon kapalı");
+            roomText.text = !inHall ? ""
+                          : count < Session.MaxPlayers ? "Arkadaşını bekle; oda kodunu ona söyle."
+                          : HallGate.Instance != null && HallGate.Instance.Value == HallGate.Counting ? "Yerinizde durun..."
+                          : "Biriniz X plakasına (merdiven sahanlığı), diğeriniz O plakasına (doğu nişi) geçsin.";
 
             for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = "-"; }
             foreach (var avatar in FindObjectsByType<PlayerAvatar>(FindObjectsSortMode.None))
@@ -75,5 +99,7 @@ namespace CoopGame
                 speakDots[r].color = avatar.Speaking ? Speaking : Idle;
             }
         }
+
+        static Color WithA(Color c, float a) { c.a = a; return c; }
     }
 }
