@@ -627,11 +627,18 @@ namespace CoopGame.EditorTools
             Shot(dir + "/o_library_east.png", b + new Vector3(41.5f, 1.72f, 2f), b + new Vector3(48.5f, 1.3f, -9f), false);
             Shot(dir + "/x_maproom.png", a + new Vector3(40f, 1.72f, 33.5f), a + new Vector3(40f, 4f, 50f), false);
             Shot(dir + "/x_maproom_model.png", a + new Vector3(46.2f, 2.3f, 45.8f), a + new Vector3(48.4f, 0.9f, 45.8f), false);
-            Shot(dir + "/o_catacomb_ante.png", b + new Vector3(34f, 1.72f, -64f), b + new Vector3(32f, 1.5f, -57f), false);
+            Shot(dir + "/o_catacomb_ante.png", b + new Vector3(34.4f, 1.72f, -65.2f), b + new Vector3(31f, 1.4f, -58f), false);
+            Shot(dir + "/o_catacomb_camp.png", b + new Vector3(37f, 1.72f, -61f), b + new Vector3(30.2f, 0.6f, -60.8f), false);
             {   // Kemik org kriptası (zindan yerel 90,0,60; iç x ±8, z ±15)
                 var oc = b + new Vector3(90f, 0, 60f);
                 Shot(dir + "/o_organ_entry.png", oc + new Vector3(0, 1.72f, -13.4f), oc + new Vector3(0, 2.4f, 10f), false);
                 Shot(dir + "/o_organ_niche.png", oc + new Vector3(4.2f, 1.72f, -0.5f), oc + new Vector3(7.9f, 1.7f, 1.6f), false);
+                var wl = b + new Vector3(90f, 0, 0); // kuyu odası (R 8)
+                Shot(dir + "/o_well.png", wl + new Vector3(0, 1.72f, -6.6f), wl + new Vector3(0, 1.0f, 6f), false);
+                Shot(dir + "/o_well_up.png", wl + new Vector3(3f, 1.6f, -4f), wl + new Vector3(-2f, 5.5f, 3f), false);
+                var ct = b + new Vector3(40f, 0, -48f); // katakomb (labirent 19.2)
+                Shot(dir + "/o_catacomb_in.png", ct + new Vector3(-1.2f, 1.72f, -8.4f), ct + new Vector3(-1.2f, 1.5f, 0f), false);
+                Shot(dir + "/o_catacomb_wall.png", ct + new Vector3(-6f, 1.72f, -4f), ct + new Vector3(-9.6f, 1.5f, -2f), false);
             }
             Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
             Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
