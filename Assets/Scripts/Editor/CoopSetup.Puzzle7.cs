@@ -639,8 +639,10 @@ namespace CoopGame.EditorTools
             }
             // kitabe (sağda, nota kâğıdı gibi: 5 çizgi + 4 nota)
             {
+                // Gerçek kitabe orgda değil: doğu yan nefin z 1.5 kemik nişinde, heykel kaidelerinin ardında (girişten görünmez, aranır)
                 var sp = new GameObject("Inscription").transform;
-                sp.SetParent(organ, false); sp.localPosition = new Vector3(2.85f, 1.75f, 0.12f);
+                sp.SetParent(root, false); sp.localPosition = new Vector3(HX - 0.12f, 1.8f, 1.5f);
+                sp.localRotation = Quaternion.Euler(0, 90, 0); // ön yüz (-Z) batıya, nefe
                 Slab("Frame", sp, new Vector3(0, 0, 0.04f), new Vector3(1.85f, 0.95f, 0.08f), oldBone, 1f, false);
                 Slab("Sheet", sp, new Vector3(0, 0, -0.005f), new Vector3(1.7f, 0.8f, 0.01f), K.paperB, 1f, false);
                 for (int l = 0; l < 5; l++) Slab("StaffLine", sp, new Vector3(0, -0.2f + l * 0.1f, -0.012f), new Vector3(1.6f, 0.008f, 0.004f), MakeMat("K_NoteDark", new Color(0.05f, 0.04f, 0.035f)), 1f, false);
@@ -650,8 +652,14 @@ namespace CoopGame.EditorTools
                     var g = new GameObject("ScriptGlyph" + i).transform; g.SetParent(sp, false); g.localPosition = new Vector3(-0.55f + i * 0.37f, 0, -0.016f);
                     script[i] = g;
                 }
+                Kit("CandleCluster", root, new Vector3(HX - 0.9f, 0.05f, 2.3f), 0f);
+                Kit("L_Candle", root, new Vector3(HX - 1.0f, 1.2f, 1.5f));
+                // Orgdaki nota sehpası: sahte (boş, yırtık kâğıt) — asıl notalar başka yerde
                 Slab("Stand", organ, new Vector3(2.85f, 0.65f, 0.2f), new Vector3(0.2f, 1.3f, 0.2f), oldBone, 1f, false);
                 Skull(organ, new Vector3(2.85f, 2.22f, 0.15f), 180f, 1.3f, bone, voidM);
+                var ds = new GameObject("DecoySheet").transform; ds.SetParent(organ, false); ds.localPosition = new Vector3(2.85f, 1.75f, 0.12f);
+                Slab("Frame", ds, new Vector3(0, 0, 0.04f), new Vector3(1.85f, 0.95f, 0.08f), oldBone, 1f, false);
+                Slab("TornSheet", ds, new Vector3(-0.45f, 0.05f, -0.005f), new Vector3(0.75f, 0.6f, 0.01f), K.paperB, 1f, false).transform.localRotation = Quaternion.Euler(0, 0, 7);
                 Kit("Candlestick", organ, new Vector3(2.0f, 1.17f, 0.6f), 0f);
                 Kit("Candlestick", organ, new Vector3(-2.0f, 1.17f, 0.6f), 0f);
             }

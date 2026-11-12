@@ -628,6 +628,11 @@ namespace CoopGame.EditorTools
             Shot(dir + "/x_maproom.png", a + new Vector3(40f, 1.72f, 33.5f), a + new Vector3(40f, 4f, 50f), false);
             Shot(dir + "/x_maproom_model.png", a + new Vector3(46.2f, 2.3f, 45.8f), a + new Vector3(48.4f, 0.9f, 45.8f), false);
             Shot(dir + "/o_catacomb_ante.png", b + new Vector3(34f, 1.72f, -64f), b + new Vector3(32f, 1.5f, -57f), false);
+            {   // Kemik org kriptası (zindan yerel 90,0,60; iç x ±8, z ±15)
+                var oc = b + new Vector3(90f, 0, 60f);
+                Shot(dir + "/o_organ_entry.png", oc + new Vector3(0, 1.72f, -13.4f), oc + new Vector3(0, 2.4f, 10f), false);
+                Shot(dir + "/o_organ_niche.png", oc + new Vector3(4.2f, 1.72f, -0.5f), oc + new Vector3(7.9f, 1.7f, 1.6f), false);
+            }
             Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
             Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
             Shot(dir + "/x_hazne_w.png", a + new Vector3(-15f, -5.28f, -16f), a + new Vector3(-23.5f, -5f, -18f), false);

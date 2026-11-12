@@ -29,6 +29,7 @@ Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kul
 - Mahzen v2 YAZILDI (CoopSetup.Cellar.cs): 10x14, 2x3 çapraz tonoz (GroinMesh) + kaburgalar, orta sütun çifti, kemerli şişe rafı nişleri, şarap presi, musluklu fıçılar; panel batı duvarı kuzey hücresinde (z 4.67). CryptPuzzle zoneSize z 13.6. Kit Barrel2/3/4 artık ahşap fıçı (eski modeller metal varildi). Kullanıcı testi bekliyor.
 - Sarnıç v3 YAZILDI (CoopSetup.Cistern.cs, ref sarnic2.png): 19.5x18 bazilika, 4x4 sütun, 25 yelken kubbe (SailMesh) + kemerler, 3 oculus, batı vana rıhtımı, kuzey savağı, KD kuru sekide bakımcı köşesi, yıkık sütun, yarı batık kayık. Güney nişi x=-4 (Puzzle4 geçidi CsNicheX). Zon Art.cs Cs* sabitlerinden. Kullanıcı testi bekliyor.
 - Kütüphane v2 (Puzzle4.cs LibraryDressing): ~120 dekor (yan neflerde kitaplık+okuma masaları, nefte halı/şamdan/sancak, kâtip köşesi, devrik tabure + mürekkep), zemin rectangular_paving, yan nef baked dolgu. O tarafı turu TAMAM; sırada X (kule → saat → hazne → arşiv). Kullanıcı testi bekliyor.
+- Bulmaca saklama turu (O): sarnıç vanaları 4 sütunun arka yüzünde (+ batı duvarında sahte kalıntı), kütüphane kilidi doğu lahdi arkasında + mektup 3 parçada, org kitabesi doğu kemik nişinde (orgda boş sahte sayfa). X odaları (kule kolları girişin karşısında, saat yazıtı, hazne tablosu, çan kadran kürsüsü) X yenilemesinde saklanacak.
 - Shots: -shotFilter önek listesi eklendi (o_dg*, o_fresco, o_vault).
 - Batch bake ~8-9 GB RAM kullanıyor; makinede bellek dar.
 
