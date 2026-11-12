@@ -60,3 +60,4 @@ Unity kapalıyken (kullanıcıya sor):
 - Bash heredoc içinde uzun Python yaması bozulabiliyor: yamayı dosyaya yazıp çalıştır.
 - Kit şişe modeli 6-8 bin üçgen: toplu kullanımda (raf) torna ağ kullan (Cellar "kit_rackbottle"). Küçük kit dekoru LODGroup ile ~3 m ötede kırpılır.
 - Işıksız (unlit) malzemeler (K.cobweb, K.flame, K.lanternGlass) karanlık odada parlar: karanlık bulmaca odasında çözülünce açılan gruba koy.
+- Büyük Salon v2 (2026-11-13, ref final2.png, CoopSetup.Final.cs): sıvalı duvar + çekiç kirişli ahşap çatı (7 makas, uçlarda melek), ahşap galeri (z=-1'de X/O kafesi), X yarısında çift kollu taş merdiven (StoneFlight/Parapet, çarpışmalı korkuluk) → galeri, O yarısında 14 m ziyafet masası + iki boş taht, iki şömine, duvar halıları, 4 avize + ~14 baked dolgu. Detaylar: kapı altından akan şarap, taç/mühürlü mektup tahtlarda, örtülü portre, yarım satranç, merdiven altı hizmetkâr köşesi, galeride çalgıcı sehpası. Oynanarak DENENMEDİ.
