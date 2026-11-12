@@ -30,6 +30,9 @@ Görsel yenileme fazları ve devam notu: Docs/ArtPhases.md (Faz 5: mahzen onayl�
 - Yeni oda ASLA boş taş kutu + bulmaca değil; komple yaşanmış mekan: masa, üstünde kağıt/mektup/mum, raf, şişe, sandık, tablo, alet, örümcek ağı. Lobi ölçeğinde oda DOLU görünmeli: 30+ dekor (heykel, büst, silah, ayna, portre, kitaplık, avize, sancak, halı, mum, kağıt, kemik vb.), environmental storytelling. Gotik/gizemli/hafif korku dokunuşları serbest (kullanıcı izinli).
 - Ölçek: yeni odalar lobi gibi geniş ve yüksek (lobi 18x22, tavan 9 m; ref CoopSetup.Hall.cs + lobi_hol.png): galeri/sahanlık, niş, heykel, büst, sancak, tablo. Basık 10x10 oda yok (bilinçli dar: mahzen). Eski odalar sonra büyütülecek.
 - Bulmaca girişte göze batmaz: oyuncu odayı keşfedip aramalı (galeri, yan nef, niş; gerekirse sahte ipucu). Odalar arası tekrar yok: her odaya yeni dekor (Assets/ThirdParty, gerekirse yeni CC0 indir).
+- Odalar birbirini TEKRAR ETMEZ (kalıcı kural): her yeni oda önceki odalardan farklı plan, tavan tipi, galeri/merdiven biçimi, duvar malzemesi ve ana dekor (hero prop) kullanır; yazmadan önce mevcut odalarla karşılaştır. Merdivenler duvara yapışık olmaz (en az ~1 m boşluk ya da ortada serbest merdiven).
+- Simgeler TEKRAR ETMEZ (kalıcı kural): her bulmaca kendi simge/rakam setini kullanır. Kullanılan: B1-B4 Glyphs (kare/elmas/artı/çarpı/üçgen/ters üçgen + Roma rakamı), B5 Runes (rün işaretleri + zar noktaları). Yeni bulmacada yeni set (ör. ay evreleri, hayvan, gezegen, renk, nota).
+- Kitaplıklar daima dolu (BookshelfFull*; boş raf/yüzen kitap yok). Mekan boş görünmemeli: zemin, duvar, raf ve masa yüzeylerinin hepsinde dekor.
 - Şato iç: ahşap lambri, sıva, kiriş, parke, kumaş. Yer altı (mahzen/sarnıç): taş.
 - Sadece Docs/StyleGuide.md paleti ve Art kit (Assets/Art/Kit) kullanılır. Pembe/neon/parlak renk yasak.
 - Referans görseli olmayan yeni oda için önce kullanıcıya Gemini prompt'u yaz (sonuna "no text"), görsel gelince tasarla.
