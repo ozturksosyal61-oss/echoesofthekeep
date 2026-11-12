@@ -8,7 +8,7 @@ namespace CoopGame
     /// </summary>
     public static class Progress
     {
-        public const int LastPuzzle = 5; // yeni bulmaca eklenince artır
+        public const int LastPuzzle = 6; // yeni bulmaca eklenince artır
         const string Key = "coop_progress";
 
         /// <summary>Menüden: 1 = baştan.</summary>

@@ -15,7 +15,7 @@ namespace CoopGame
     public class PuzzleManager : NetworkBehaviour
     {
         public const int MaxPuzzles = 16;
-        public const int MaxNodes = 64;
+        public const int MaxNodes = 96;
 
         public static PuzzleManager Instance { get; private set; }
 
