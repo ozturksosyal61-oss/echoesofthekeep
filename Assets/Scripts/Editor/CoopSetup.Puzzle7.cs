@@ -378,11 +378,14 @@ namespace CoopGame.EditorTools
 
             // --- Pirinç kadran kürsüsü (güneye bakar): 4 pencere, ibre, kapak ---
             {
-                var dp = new Vector3(2.2f, 0, -5.4f);
-                Slab("DialPedestal", root, dp + Vector3.up * 0.6f, new Vector3(0.7f, 1.2f, 0.5f), stone, 1f);
-                Slab("DialPedestalCap", root, dp + Vector3.up * 1.24f, new Vector3(0.85f, 0.08f, 0.62f), K.bronze, 1f, false);
+                // Girişin karşısında değil: kuzeydoğu köşesinde, büyük doğu çanının arkasında, batıya bakar (aranır)
+                var ds = new GameObject("DialStand").transform; ds.SetParent(root, false);
+                ds.localPosition = new Vector3(6.9f, 0, 6.0f); ds.localRotation = Quaternion.Euler(0, 90, 0);
+                var dp = Vector3.zero;
+                Slab("DialPedestal", ds, dp + Vector3.up * 0.6f, new Vector3(0.7f, 1.2f, 0.5f), stone, 1f);
+                Slab("DialPedestalCap", ds, dp + Vector3.up * 1.24f, new Vector3(0.85f, 0.08f, 0.62f), K.bronze, 1f, false);
                 var dial = new GameObject("Dial").transform;
-                dial.SetParent(root, false); dial.localPosition = dp + new Vector3(0, 1.85f, 0);
+                dial.SetParent(ds, false); dial.localPosition = dp + new Vector3(0, 1.85f, 0);
                 Prim("Face", dial, PrimitiveType.Cylinder, Vector3.zero, new Vector3(1.15f, 0.03f, 1.15f), K.brass).transform.localRotation = Quaternion.Euler(90, 0, 0);
                 MeshObj("Bezel", dial, new Vector3(0, 0, -0.03f), RingMesh(0.6f, 0.06f, 0.06f), K.bronze).transform.localRotation = Quaternion.Euler(-90, 0, 0);
                 foreach (var g in new[] { new Vector3(-0.6f, -0.45f, 0.05f), new Vector3(0.55f, 0.5f, 0.05f) })
@@ -404,8 +407,9 @@ namespace CoopGame.EditorTools
                 Kit("Bell", cov, new Vector3(0, -0.12f, -0.03f), 0f, 0.22f);
                 dialCover = cov.gameObject;
                 foreach (var t in dial.GetComponentsInChildren<Transform>(true)) GameObjectUtility.SetStaticEditorFlags(t.gameObject, 0);
-                Kit("Candle", root, dp + new Vector3(0.32f, 1.28f, -0.18f));
-                KCandle(root, dp + new Vector3(-0.3f, 1.28f, -0.2f), 0.18f, 0.02f);
+                Kit("Candle", ds, dp + new Vector3(0.32f, 1.28f, -0.18f));
+                KCandle(ds, dp + new Vector3(-0.3f, 1.28f, -0.2f), 0.18f, 0.02f);
+                Kit("L_Candle", root, new Vector3(6.3f, 2.2f, 6.0f));
             }
 
             // --- Kafes asansör (güneybatı; bulmaca 7 çözülünce finale iner) ---
@@ -464,7 +468,7 @@ namespace CoopGame.EditorTools
             }
             foreach (var (x, z, r) in new[] { (-3.6f, -7.6f, 30f), (4.6f, -1.2f, 200f), (-6.0f, 4.2f, 90f), (1.0f, -3.0f, 140f) }) Kit("PaperScatter", root, new Vector3(x, 0.01f, z), r);
             foreach (var (x, z) in new[] { (-3.8f, -1.0f), (3.9f, -0.6f), (-4.6f, 6.4f), (6.2f, 2.0f), (-1.6f, -7.8f) }) Kit("Lantern", root, new Vector3(x, 0.02f, z), x * 30f);
-            foreach (var (x, z) in new[] { (-5.6f, 1.1f), (5.6f, 0.9f), (-6.4f, -5.6f), (4.2f, -6.2f), (-1.2f, 4.4f), (6.2f, 6.4f) }) Kit("Candle", root, new Vector3(x, 0.02f, z), 0f);
+            foreach (var (x, z) in new[] { (-5.6f, 1.1f), (5.6f, 0.9f), (-6.4f, -5.6f), (4.2f, -6.2f), (-1.2f, 4.4f), (6.0f, -4.6f) }) Kit("Candle", root, new Vector3(x, 0.02f, z), 0f);
             Kit("Basket", root, new Vector3(1.4f, 0, -7.6f), 0f);
             Kit("Jug", root, new Vector3(HX - 2.7f, 0, -1.4f), 0f);
             Kit("Bottle2", root, new Vector3(-HX + 2.0f, 0, -4.4f), 0f);
@@ -485,6 +489,41 @@ namespace CoopGame.EditorTools
                                                  (-HX + 0.3f, 3.0f, 8.6f, 135f), (HX - 0.3f, 2.6f, -8.6f, -45f), (0, WH + 3.5f, -6.25f, 0f), (0, WH + 3.5f, 3.75f, 180f) })
                 KitR("Cobweb", root, new Vector3(x, y, z), Quaternion.Euler(0, yaw, 180f), 1.7f);
 
+            // --- v2: 5 özgün detay + dolgu ışığı (oda çok karanlıktı) ---
+            {
+                var dd = new GameObject("StoryDetails").transform; dd.SetParent(root, false);
+                var chalk = MakeMat("K_Chalk", new Color(0.78f, 0.76f, 0.7f));
+                var crackM = MakeMat("K_Dent", new Color(0.1f, 0.09f, 0.08f));
+                // 1: düşmüş çan dili (tokmak) + zeminde çatlak
+                Prim("Clapper", dd, PrimitiveType.Capsule, new Vector3(-2.6f, 0.18f, 1.8f), new Vector3(0.36f, 0.7f, 0.36f), K.iron).transform.localRotation = Quaternion.Euler(0, 30, 88);
+                Prim("ClapperBall", dd, PrimitiveType.Sphere, new Vector3(-2.0f, 0.22f, 2.15f), Vector3.one * 0.44f, K.iron);
+                Slab("Crack", dd, new Vector3(-1.6f, 0.004f, 2.4f), new Vector3(0.9f, 0.006f, 0.03f), crackM, 1f, false).transform.localRotation = Quaternion.Euler(0, 20, 0);
+                Slab("Crack", dd, new Vector3(-1.1f, 0.004f, 2.8f), new Vector3(0.9f, 0.006f, 0.03f), crackM, 1f, false).transform.localRotation = Quaternion.Euler(0, 65, 0);
+                // 2: batı duvarında dökümcünün çan profili çizimleri (tebeşir)
+                for (int k = 0; k < 3; k++)
+                {
+                    var c = new Vector3(-HX + 0.03f, 3.2f, -2.8f + k * 1.6f);
+                    float sc = 0.6f + k * 0.2f;
+                    Rod("ProfileL", dd, c + new Vector3(0, -sc, -sc * 0.6f), c + new Vector3(0, sc * 0.6f, -sc * 0.25f), 0.03f, chalk);
+                    Rod("ProfileR", dd, c + new Vector3(0, -sc, sc * 0.6f), c + new Vector3(0, sc * 0.6f, sc * 0.25f), 0.03f, chalk);
+                    Rod("ProfileT", dd, c + new Vector3(0, sc * 0.6f, -sc * 0.25f), c + new Vector3(0, sc * 0.6f, sc * 0.25f), 0.03f, chalk);
+                    Rod("ProfileB", dd, c + new Vector3(0, -sc, -sc * 0.6f), c + new Vector3(0, -sc, sc * 0.6f), 0.03f, chalk);
+                }
+                // 3: galeri korkuluğuna asılı unutulmuş zangoç cüppesi
+                Slab("Robe", dd, new Vector3(-HX + 1.6f, GAL - 0.6f, -1.4f), new Vector3(0.06f, 1.2f, 0.6f), K.velvetPurple, 1f, false).transform.localRotation = Quaternion.Euler(0, 0, 4);
+                // 4: kapı içinde çalma sayım çetelesi
+                for (int l = 0; l < 24; l++)
+                    Slab("Tally", dd, new Vector3(-2.9f + (l % 12) * 0.07f, 1.6f - (l / 12) * 0.3f, -HZ + 0.03f), new Vector3(0.012f, 0.2f, 0.005f), chalk, 1f, false).transform.localRotation = Quaternion.Euler(0, 0, l % 5 == 4 ? 60f : 0f);
+                // 5: yazı masasında kulak tıkacı pamukları (çan sesine karşı)
+                var cotton = MakeMat("K_Cotton", new Color(0.75f, 0.72f, 0.66f));
+                for (int k = 0; k < 4; k++) Prim("Cotton", dd, PrimitiveType.Sphere, new Vector3(HX - 0.95f + k * 0.07f, 0.85f, -0.1f), Vector3.one * 0.05f, cotton);
+                ProbeLit(dd.gameObject);
+                foreach (var p in new[] { new Vector3(-4f, 3f, -4f), new Vector3(4f, 3f, -4f), new Vector3(-4f, 3f, 5f), new Vector3(4f, 3f, 5f), new Vector3(0, 9f, 0) })
+                {
+                    var f = LightGo("BellFill", LightType.Point, Pal.Candle, 3.4f, 11f, true);
+                    f.transform.SetParent(root, false); f.transform.localPosition = p;
+                }
+            }
             KitProbes(root, new Vector3(0, WH * 0.5f, 0), new Vector3(HX * 2f - 0.6f, WH - 0.6f, HZ * 2f - 0.6f), 5, 4, 5, new Bounds(new Vector3(0, 3.5f, 0), new Vector3(1.6f, 7f, 1.6f)));
             KitReflection(root, new Vector3(0, WH * 0.5f, 0), new Vector3(HX * 2f, WH, HZ * 2f));
             return root;

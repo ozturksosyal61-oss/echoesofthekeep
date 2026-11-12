@@ -31,6 +31,7 @@ Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kul
 - Kütüphane v2 (Puzzle4.cs LibraryDressing): ~120 dekor (yan neflerde kitaplık+okuma masaları, nefte halı/şamdan/sancak, kâtip köşesi, devrik tabure + mürekkep), zemin rectangular_paving, yan nef baked dolgu. O tarafı turu TAMAM; sırada X (kule → saat → hazne → arşiv). Kullanıcı testi bekliyor.
 - Bulmaca saklama turu (O): sarnıç vanaları 4 sütunun arka yüzünde (+ batı duvarında sahte kalıntı), kütüphane kilidi doğu lahdi arkasında + mektup 3 parçada, org kitabesi doğu kemik nişinde (orgda boş sahte sayfa). X odaları (kule kolları girişin karşısında, saat yazıtı, hazne tablosu, çan kadran kürsüsü) X yenilemesinde saklanacak.
 - O kalan odalar turu: katakomb baked + tonozlu giriş odası (kâşif kampı, sahte tebeşir okları), kuyu odası ay ışığı/dolgu/dekor + çerçeveli ay taşları (taşlar bulmacanın kendisi, saklanmadı), kemik org zemin dağınıklığı. Büyük salon en sona.
+- X turu (2026-11-12, onaysız otomatik): kule v2 (18x20x9.4, çan şaftı, iskele + serbest L merdiven, kollar dağınık, X doğuşu güney kapısı), saat odası v2 (dev durmuş kadranlı bölme, bulmaca odacıkta), hazne v2 (17x14, boru ağı, tablo perdeli kitaplık arkasında), arşiv (merdiven duvardan ayrıldı + dekor), harita odası (5 detay + ışık), çatı (5 detay), çan dairesi (kadran KD köşeye saklandı + 5 detay + ışık). Hepsi oynanarak DENENMEDİ.
 - Shots: -shotFilter önek listesi eklendi (o_dg*, o_fresco, o_vault).
 - Batch bake ~8-9 GB RAM kullanıyor; makinede bellek dar.
 

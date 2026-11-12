@@ -626,6 +626,15 @@ namespace CoopGame.EditorTools
             Shot(dir + "/o_library_aisle.png", b + new Vector3(34.6f, 1.72f, -12.5f), b + new Vector3(33f, 1.4f, 4f), false);
             Shot(dir + "/o_library_east.png", b + new Vector3(41.5f, 1.72f, 2f), b + new Vector3(48.5f, 1.3f, -9f), false);
             Shot(dir + "/x_maproom.png", a + new Vector3(40f, 1.72f, 33.5f), a + new Vector3(40f, 4f, 50f), false);
+            {   // Çatı terası (kule yerel 110,35,-90; ±7 x ±14) ve çan dairesi (kule yerel 95,0,70; ±9)
+                var rf = a + new Vector3(110f, 35f, -90f);
+                Shot(dir + "/x_roof_entry.png", rf + new Vector3(0.6f, 1.82f, -12.6f), rf + new Vector3(0, 1.5f, 6f), false);
+                Shot(dir + "/x_roof_back.png", rf + new Vector3(0, 1.82f, 11f), rf + new Vector3(2f, 1.2f, -10f), false);
+                var bl = a + new Vector3(95f, 0, 70f);
+                Shot(dir + "/x_bell_entry.png", bl + new Vector3(0, 1.72f, -7.4f), bl + new Vector3(0, 4f, 6f), false);
+                Shot(dir + "/x_bell_up.png", bl + new Vector3(3f, 1.6f, -5f), bl + new Vector3(-2f, 10f, 3f), false);
+                Shot(dir + "/x_bell_dial.png", bl + new Vector3(3.4f, 1.72f, 6.2f), bl + new Vector3(6.9f, 1.8f, 6.0f), false);
+            }
             Shot(dir + "/x_maproom_entry.png", a + new Vector3(40f, 1.72f, 33.6f), a + new Vector3(40f, 2.5f, 46f), false);
             Shot(dir + "/x_maproom_se.png", a + new Vector3(44f, 1.72f, 36f), a + new Vector3(48.6f, 0.8f, 34f), false);
             Shot(dir + "/x_maproom_model.png", a + new Vector3(46.2f, 2.3f, 45.8f), a + new Vector3(48.4f, 0.9f, 45.8f), false);

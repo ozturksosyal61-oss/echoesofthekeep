@@ -362,6 +362,33 @@ namespace CoopGame.EditorTools
             Kit("CandleCluster", root, new Vector3(-6.3f, 0, 9.2f));
             Kit("CandleCluster", root, new Vector3(6.2f, 0, -8.6f));
 
+            // --- v2: 5 özgün detay (gökbilimcinin son gecesi) ---
+            {
+                var dd = new GameObject("StoryDetails").transform; dd.SetParent(root, false);
+                var crow = MakeMat("K_Crow", new Color(0.05f, 0.05f, 0.06f)); crow.SetFloat("_Smoothness", 0.4f);
+                // 1: mazgallarda tüneyen kargalar
+                foreach (var (x, z, yw) in new[] { (-5.8f, 13.3f, 160f), (2.6f, 13.3f, 200f), (6.6f, 9.0f, 250f) })
+                {
+                    var c = new Vector3(x, 1.25f, z);
+                    var q = Quaternion.Euler(0, yw, 0);
+                    Prim("CrowBody", dd, PrimitiveType.Sphere, c, new Vector3(0.16f, 0.14f, 0.26f), crow).transform.localRotation = Quaternion.Euler(-15, yw, 0);
+                    Prim("CrowHead", dd, PrimitiveType.Sphere, c + q * new Vector3(0, 0.08f, 0.13f), Vector3.one * 0.1f, crow);
+                    Prim("Beak", dd, PrimitiveType.Cube, c + q * new Vector3(0, 0.07f, 0.2f), new Vector3(0.02f, 0.02f, 0.07f), crow).transform.localRotation = q;
+                }
+                // 2: taşlarla sabitlenmiş yıldız haritası
+                Slab("StarChart", dd, new Vector3(-1.8f, 0.012f, 4.6f), new Vector3(0.8f, 0.006f, 0.6f), MakeMat("K_StarChart", new Color(0.1f, 0.12f, 0.2f)), 1f, false).transform.localRotation = Quaternion.Euler(0, 12, 0);
+                Prim("Weight", dd, PrimitiveType.Sphere, new Vector3(-2.15f, 0.05f, 4.35f), new Vector3(0.12f, 0.08f, 0.12f), stone);
+                Prim("Weight", dd, PrimitiveType.Sphere, new Vector3(-1.45f, 0.05f, 4.9f), new Vector3(0.12f, 0.08f, 0.12f), stone);
+                // 3: kırık teleskop merceği
+                for (int k = 0; k < 6; k++)
+                    Slab("LensShard", dd, new Vector3(5.0f + (k % 3) * 0.12f, 0.12f, 6.2f + (k / 3) * 0.1f), new Vector3(0.05f, 0.005f, 0.04f), K.clearGlass, 1f, false).transform.localRotation = Quaternion.Euler(0, k * 50f, 0);
+                // 4: mazgala bırakılmış söndürülmüş mum halkası (ay için adak)
+                for (int k = 0; k < 7; k++) Kit("Candle", root, new Vector3(0.6f, 1.05f, 13.2f) + Quaternion.Euler(0, k * 51f, 0) * Vector3.forward * 0.24f, 0f, 0.6f);
+                // 5: köşeye takılmış pelerin
+                Slab("Cloak", dd, new Vector3(hx - 0.5f, 0.1f, -9.5f), new Vector3(0.9f, 0.08f, 0.7f), K.velvet, 1f, false).transform.localRotation = Quaternion.Euler(0, 40, 12);
+                ProbeLit(dd.gameObject);
+            }
+
             // --- Gözlemevi genişletmesi (ref cati.png): teleskoplar, küreler, çalışma masaları, notlar, kitaplar ---
             var navy = MakeMat("K_CelestialGlobe", new Color(0.09f, 0.12f, 0.2f)); navy.SetFloat("_Smoothness", 0.45f);
             // doğu gözlem platformu: büyük teleskop aya doğru
