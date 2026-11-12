@@ -640,6 +640,13 @@ namespace CoopGame.EditorTools
                 Shot(dir + "/o_catacomb_in.png", ct + new Vector3(-1.2f, 1.72f, -8.4f), ct + new Vector3(-1.2f, 1.5f, 0f), false);
                 Shot(dir + "/o_catacomb_wall.png", ct + new Vector3(-6f, 1.72f, -4f), ct + new Vector3(-9.6f, 1.5f, -2f), false);
             }
+            {   // Saat odası v2 (kök kule yerel -18,-4,0)
+                var ck = a + new Vector3(-18f, -4f, 0);
+                Shot(dir + "/x_ck_entry.png", ck + new Vector3(0.6f, 1.72f, 0f), ck + new Vector3(-9.5f, 3.6f, 2.6f), false);
+                Shot(dir + "/x_ck_north.png", ck + new Vector3(-3f, 1.72f, 0f), ck + new Vector3(-5f, 1.5f, 10f), false);
+                Shot(dir + "/x_ck_alcove.png", ck + new Vector3(-11f, 1.72f, 5.5f), ck + new Vector3(-18f, 2.2f, -0.5f), false);
+                Shot(dir + "/x_ck_south.png", ck + new Vector3(-3f, 1.72f, 6f), ck + new Vector3(-7f, 1.8f, -5f), false);
+            }
             Shot(dir + "/x_clock_ne.png", a + new Vector3(-23.5f, -2.28f, -3.5f), a + new Vector3(-17.5f, -2.5f, 3.5f), false);
             Shot(dir + "/x_clock_s.png", a + new Vector3(-21f, -2.28f, 3.5f), a + new Vector3(-22f, -2.6f, -5f), false);
             Shot(dir + "/x_hazne_w.png", a + new Vector3(-15f, -5.28f, -16f), a + new Vector3(-23.5f, -5f, -18f), false);

@@ -827,7 +827,7 @@ namespace CoopGame.EditorTools
             var root = new GameObject("RoomA2_SaatOdasi").transform;
             root.SetParent(roomX, false);
             root.localPosition = new Vector3(-18f, -drop, 0);
-            BuildClockShell(root, 4.5f); // CoopSetup.Clock.cs
+            BuildClockShell(root, 7.5f); // CoopSetup.Clock.cs
             return root;
         }
 
@@ -855,8 +855,8 @@ namespace CoopGame.EditorTools
 
             // ---- Oda A2: Saat Odası (kulenin altında; bulmaca 1 çözülünce merdiven kapısı açılır) ----
             var clock = BuildClockRoom(roomX);
-            Slab("InscriptionBoard", clock, new Vector3(-7.92f, 3.55f, 0), new Vector3(0.1f, 0.9f, 5.6f), A.plaque, 1.5f, false);
-            Slab("InscriptionFrame", clock, new Vector3(-7.96f, 3.55f, 0), new Vector3(0.06f, 1.04f, 5.76f), K.brass, 1f, false);
+            Slab("InscriptionBoard", clock, new Vector3(ClkXW + 0.08f, 3.55f, 0), new Vector3(0.1f, 0.9f, 5.6f), A.plaque, 1.5f, false);
+            Slab("InscriptionFrame", clock, new Vector3(ClkXW + 0.04f, 3.55f, 0), new Vector3(0.06f, 1.04f, 5.76f), K.brass, 1f, false);
             var ins = new Transform[3];
             var dials = new SymbolDial[3];
             for (int k = 0; k < 3; k++)
@@ -864,15 +864,15 @@ namespace CoopGame.EditorTools
                 float z = -1.9f + k * 1.9f;
                 ins[k] = new GameObject("Inscription" + k).transform;
                 ins[k].SetParent(clock, false);
-                ins[k].localPosition = new Vector3(-7.86f, 3.55f, z);
+                ins[k].localPosition = new Vector3(ClkXW + 0.14f, 3.55f, z);
                 ins[k].localRotation = Quaternion.Euler(0, -90, 0);
-                dials[k] = MakeDial(clock, k, new Vector3(-7.88f, 2.0f, z), crypt);
+                dials[k] = MakeDial(clock, k, new Vector3(ClkXW + 0.12f, 2.0f, z), crypt);
             }
-            Slab("CandleShelf", clock, new Vector3(-7.75f, 0.95f, 0), new Vector3(0.5f, 0.08f, 1.6f), K.beam, 1f, false);
+            Slab("CandleShelf", clock, new Vector3(ClkXW + 0.25f, 0.95f, 0), new Vector3(0.5f, 0.08f, 1.6f), K.beam, 1f, false);
             var wax = MakeMat("CandleWax", new Color(0.86f, 0.8f, 0.66f));
             var flames = new GameObject[3];
-            for (int i = 0; i < 3; i++) Candle(clock, new Vector3(-7.72f, 0.99f, -0.5f + i * 0.5f), wax, out flames[i]);
-            var confirm = MakeConfirmLever(clock, new Vector3(-6.2f, 0, 0), -90f, 2, 18);
+            for (int i = 0; i < 3; i++) Candle(clock, new Vector3(ClkXW + 0.28f, 0.99f, -0.5f + i * 0.5f), wax, out flames[i]);
+            var confirm = MakeConfirmLever(clock, new Vector3(ClkXW + 1.8f, 0, 0), -90f, 2, 18);
 
             var cso = new SerializedObject(crypt);
             cso.FindProperty("puzzleId").intValue = 2;
