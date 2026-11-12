@@ -193,6 +193,10 @@ namespace CoopGame.EditorTools
                     Slab("Seat", boat, new Vector3(0, 0.14f, s * 0.45f), new Vector3(0.86f, 0.04f, 0.25f), K.furniture, 1f, false);
                 }
                 Rod("Oar", boat, new Vector3(-0.3f, 0.2f, -0.8f), new Vector3(0.25f, 0.18f, 0.9f), 0.04f, K.furniture);
+                // Su geçitlere de taşar: kapı ağzında kesik "kalıp" kenarı görünmesin (kenarlar duvar içinde kalır)
+                var wm = water.GetComponent<Renderer>().sharedMaterial;
+                Slab("WaterCorridor", flo, new Vector3(6.975f, 0, 0), new Vector3(2.5f, 0.04f, 3.5f), wm, 1f, false);
+                Slab("WaterNiche", flo, new Vector3(0, 0, -7.25f), new Vector3(3.5f, 0.04f, 2.5f), wm, 1f, false);
                 var deb = new GameObject("Debris").transform;
                 deb.SetParent(flo, false);
                 Slab("Plank", deb, new Vector3(-2.8f, 0.01f, 2.8f), new Vector3(1.2f, 0.04f, 0.24f), K.beam, 1f, false).transform.localRotation = Quaternion.Euler(0, 20, 0);
