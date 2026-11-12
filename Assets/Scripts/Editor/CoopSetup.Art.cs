@@ -1062,6 +1062,7 @@ namespace CoopGame.EditorTools
             BuildPuzzle3(roomX, roomO);
             BuildPuzzle4(roomX, roomO); // CoopSetup.Puzzle4.cs
             BuildPuzzle5(roomX, roomO); // CoopSetup.Puzzle5.cs
+            BuildPuzzle6(roomX, roomO); // CoopSetup.Puzzle6.cs
             ExcludeFromBake();        // eski (gerçek zamanlı ışıklı) odalar bake'e girmez
             BuildHall(Layout.Hall);   // Lobi Holü: Art kit + baked ışık (CoopSetup.Hall.cs)
         }
