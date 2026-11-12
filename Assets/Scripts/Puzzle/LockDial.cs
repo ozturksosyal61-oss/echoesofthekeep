@@ -9,7 +9,9 @@ namespace CoopGame
         [SerializeField] LetterPuzzle letter;
         [SerializeField] TextMesh label;
         [SerializeField] Transform ring;
+        [SerializeField] int index; // kilitteki sırası (çözülünce doğru kelimenin harfi gösterilir)
         int shownSeed = -1, shownValue = -1;
+        bool shownSolved;
         float ringAngle;
 
         public override void ServerInteract(PlayerAvatar who)
@@ -21,10 +23,16 @@ namespace CoopGame
         void Update()
         {
             int seed = letter != null ? letter.Seed : 0;
-            if ((seed != shownSeed || Value != shownValue) && label != null)
+            bool solved = PuzzleState == PuzzleState.Solved;
+            if ((seed != shownSeed || Value != shownValue || solved != shownSolved) && label != null)
             {
-                shownSeed = seed; shownValue = Value;
-                label.text = seed == 0 ? "" : LetterPuzzle.Make(seed).alphabet[Mathf.Clamp(Value, 0, LetterPuzzle.Ring - 1)].ToString();
+                shownSeed = seed; shownValue = Value; shownSolved = solved;
+                if (seed == 0) label.text = "";
+                else
+                {
+                    var s = LetterPuzzle.Make(seed);
+                    label.text = (solved ? s.word[Mathf.Clamp(index, 0, LetterPuzzle.Len - 1)] : s.alphabet[Mathf.Clamp(Value, 0, LetterPuzzle.Ring - 1)]).ToString();
+                }
             }
             if (ring != null)
             {

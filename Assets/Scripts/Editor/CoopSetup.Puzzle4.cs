@@ -57,6 +57,7 @@ namespace CoopGame.EditorTools
                 var so = new SerializedObject(dials[i]);
                 so.FindProperty("puzzleId").intValue = 4;
                 so.FindProperty("nodeId").intValue = 37 + i;
+                so.FindProperty("index").intValue = i;
                 SetRef(so, "letter", lp);
                 SetRef(so, "label", dr.GetComponentInChildren<TextMesh>());
                 SetRef(so, "ring", dr.Find("Ring"));

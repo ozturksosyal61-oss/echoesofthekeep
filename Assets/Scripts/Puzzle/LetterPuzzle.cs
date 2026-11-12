@@ -69,8 +69,9 @@ namespace CoopGame
 
         public override void ServerFixedUpdate()
         {
+            // Tohum çözülmüş durumda da üretilir (gezinti / "Bulmaca N" ile atlanınca mektup, çark ve kadranlar boş kalmasın)
+            if (Seed == 0 && PuzzleState != PuzzleState.Locked) { ServerSetValue(Random.Range(1, int.MaxValue)); return; }
             if (PuzzleState != PuzzleState.Active) return;
-            if (Seed == 0) { ServerSetValue(Random.Range(1, int.MaxValue)); return; }
             var s = Make(Seed);
             for (int k = 0; k < Len && k < dials.Length; k++)
                 if (dials[k] == null || s.alphabet[Mathf.Clamp(dials[k].Value, 0, Ring - 1)] != s.word[k]) return;
