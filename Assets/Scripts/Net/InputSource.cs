@@ -8,7 +8,7 @@ namespace CoopGame
         public static Vector2 VirtualMove;
         static Vector2 look;
 
-        public static void AddLook(Vector2 delta) => look += delta;
+        public static void AddLook(Vector2 delta) => look += delta * Settings.Look;
 
         public static Vector2 TakeLook()
         {

@@ -56,12 +56,42 @@ namespace CoopGame
         }
 
         /// <summary>Kamera merkezinden ileri ışın; ilk çarpan collider bir Interactable ise o. Duvar/kapı arkasındakini görmez.</summary>
+        /// Masa gibi bir yüzey küçük nesnenin (mektup) önüne geçerse: ilk çarpmadan sonraki 0.6 m içindeki etkileşim de kabul edilir;
+        /// yine bulunamazsa küçük nesneler için 8 derecelik bakış konisi (görüş hattı açıksa). Kendi avatarının collider'ı atlanır.
+        static readonly RaycastHit[] hits = new RaycastHit[16];
         static Interactable Raycast(Transform cam)
         {
-            if (!Physics.Raycast(cam.position, cam.forward, out var hit, Interactable.RayRange, ~0, QueryTriggerInteraction.Ignore))
-                return null;
-            return hit.collider.GetComponentInParent<Interactable>();
+            int n = Physics.RaycastNonAlloc(cam.position, cam.forward, hits, Interactable.RayRange, ~0, QueryTriggerInteraction.Ignore);
+            System.Array.Sort(hits, 0, n, HitCmp);
+            float first = -1f;
+            for (int i = 0; i < n; i++)
+            {
+                var col = hits[i].collider;
+                if (PlayerAvatar.Local != null && col.transform.IsChildOf(PlayerAvatar.Local.transform)) continue;
+                if (first < 0f) first = hits[i].distance;
+                if (hits[i].distance - first > 0.6f) break;
+                var it = col.GetComponentInParent<Interactable>();
+                if (it != null) return it;
+            }
+            Interactable best = null; float bestAng = 8f;
+            foreach (var i in Interactable.All)
+            {
+                if (!i.Small) continue;
+                var v = i.transform.position + Vector3.up * 0.05f - cam.position;
+                float d = v.magnitude;
+                if (d > Interactable.RayRange + 0.3f) continue;
+                float ang = Vector3.Angle(cam.forward, v);
+                if (ang >= bestAng) continue;
+                if (Physics.Raycast(cam.position, v / d, out var h, d - 0.2f, ~0, QueryTriggerInteraction.Ignore) &&
+                    h.collider.GetComponentInParent<Interactable>() != i &&
+                    !(PlayerAvatar.Local != null && h.collider.transform.IsChildOf(PlayerAvatar.Local.transform))) continue;
+                best = i; bestAng = ang;
+            }
+            return best;
         }
+
+        static readonly System.Comparison<RaycastHit> HitCmpFn = (a, b) => a.distance.CompareTo(b.distance);
+        static readonly System.Collections.Generic.IComparer<RaycastHit> HitCmp = System.Collections.Generic.Comparer<RaycastHit>.Create(HitCmpFn);
 
         static Interactable Nearest(Vector3 pos)
         {

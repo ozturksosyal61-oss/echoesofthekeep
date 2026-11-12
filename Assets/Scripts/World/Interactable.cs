@@ -21,6 +21,8 @@ namespace CoopGame
 
         public int Key;
         public string Label;
+        /// <summary>Küçük nesne (mektup): nişangâh tam üstünde olmasa da yakın bakışta seçilir.</summary>
+        public bool Small;
 
         /// <summary>Host tarafı işleyici (PuzzleNode atar). Null ise RoomState.Toggle((InteractId)Key).</summary>
         [NonSerialized] public Action<PlayerAvatar> ServerHandler;

@@ -9,12 +9,12 @@ namespace CoopGame
     /// </summary>
     public class MusicPlayer : MonoBehaviour
     {
-        public const string PrefKey = "MusicVolume";
-        const float Fade = 2.5f, BaseVolume = 0.32f;
+        const float Fade = 2.5f, BaseVolume = 0.26f, Duck = 0.4f; // konuşma varken müzik %40
         static MusicPlayer inst;
 
         AudioSource a, b;   // a: çalan, b: gelen
         string current;
+        float vol = 1f, duck = 1f, nextVol;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
@@ -23,12 +23,6 @@ namespace CoopGame
             var go = new GameObject("MusicPlayer");
             DontDestroyOnLoad(go);
             inst = go.AddComponent<MusicPlayer>();
-        }
-
-        public static float Volume
-        {
-            get => PlayerPrefs.GetFloat(PrefKey, 1f);
-            set { PlayerPrefs.SetFloat(PrefKey, Mathf.Clamp01(value)); }
         }
 
         void Awake()
@@ -65,7 +59,9 @@ namespace CoopGame
                     a.clip = clip; a.volume = 0f; a.Play();
                 }
             }
-            float target = BaseVolume * Volume, step = Time.unscaledDeltaTime / Fade * BaseVolume;
+            if (Time.unscaledTime >= nextVol) { nextVol = Time.unscaledTime + 0.5f; vol = Settings.Music; }
+            duck = Mathf.MoveTowards(duck, VoiceGuard.TalkActive ? Duck : 1f, Time.unscaledDeltaTime * (VoiceGuard.TalkActive ? 1.5f : 0.4f));
+            float target = BaseVolume * vol * duck, step = Time.unscaledDeltaTime / Fade * BaseVolume;
             a.volume = Mathf.MoveTowards(a.volume, a.clip != null ? target : 0f, step);
             b.volume = Mathf.MoveTowards(b.volume, 0f, step);
             if (b.isPlaying && b.volume <= 0f) { b.Stop(); b.clip = null; }

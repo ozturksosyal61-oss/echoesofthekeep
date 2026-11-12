@@ -57,7 +57,9 @@ namespace CoopGame
                 var rec = runner.GetComponentInChildren<Recorder>();
                 if (rec != null && !micGranted) rec.TransmitEnabled = false;
             }
+            VoiceGuard.MicGranted = micGranted;
             AudioRoute.Enter();
+            if (GetComponent<VoiceGuard>() == null) gameObject.AddComponent<VoiceGuard>();
         }
 
         void Update()
@@ -83,7 +85,7 @@ namespace CoopGame
 
             // Lobi: altta küçük oda kodu + yönerge; diğer alanlarda yalnız mikrofon uyarısı
             infoText.text = (inHall ? "Oda kodu " + Session.Code + "  ·  " + count + "/" + Session.MaxPlayers + " oyuncu" : "") +
-                            (micGranted ? "" : (inHall ? "  ·  " : "") + "Mikrofon kapalı");
+                            (micGranted && Settings.MicOn ? "" : (inHall ? "  ·  " : "") + "Mikrofon kapalı");
             roomText.text = !inHall ? ""
                           : count < Session.MaxPlayers ? "Arkadaşını bekle; oda kodunu ona söyle."
                           : HallGate.Instance != null && HallGate.Instance.Value == HallGate.Counting ? "Yerinizde durun..."

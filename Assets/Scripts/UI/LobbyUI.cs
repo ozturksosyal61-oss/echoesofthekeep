@@ -21,6 +21,8 @@ namespace CoopGame
         [SerializeField] Text continueHead, continueSub;
         [SerializeField] Text progressValue;
         [SerializeField] RectTransform progressFill;
+        [SerializeField] Button settingsButton, settingsBack;
+        [SerializeField] GameObject settingsPanel;
 
         // Seçenekler: 0 = kaldığın yer (kayıt varsa), sonra 1..LastPuzzle (1 = baştan)
         int startChoice;
@@ -58,7 +60,17 @@ namespace CoopGame
             joinButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(false)); });
             openJoinButton.onClick.AddListener(() => { if (!busy) ShowJoin(true); });
             backButton.onClick.AddListener(() => { if (!busy) ShowJoin(false); });
+            if (settingsButton != null) settingsButton.onClick.AddListener(() => { if (!busy) ShowSettings(true); });
+            if (settingsBack != null) settingsBack.onClick.AddListener(() => ShowSettings(false));
             ShowJoin(false);
+        }
+
+        void ShowSettings(bool on)
+        {
+            settingsPanel.SetActive(on);
+            mainPanel.SetActive(!on);
+            joinPanel.SetActive(false);
+            status.text = "";
         }
 
         void ApplyStart()
@@ -76,6 +88,7 @@ namespace CoopGame
         void ShowJoin(bool join)
         {
             mainPanel.SetActive(!join);
+            if (settingsPanel != null) settingsPanel.SetActive(false);
             joinPanel.SetActive(join);
             status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "";
             if (join) codeInput.text = "";

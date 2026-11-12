@@ -294,6 +294,28 @@ namespace CoopGame.EditorTools
             return field;
         }
 
+        /// <summary>Altın dolgulu ince kaydırıcı (kök: görünmez dokunma alanı).</summary>
+        static Slider MakeSlider(RectTransform parent, string name, float width)
+        {
+            var hit = MakeImage(parent, name, Vector2.zero, new Vector2(width, 56), null, new Color(0, 0, 0, 0));
+            var rt = hit.rectTransform;
+            var bg = MakeImage(rt, "Background", Vector2.zero, new Vector2(0, 8), null, new Color(0f, 0f, 0f, 0.6f));
+            bg.rectTransform.anchorMin = new Vector2(0, 0.5f); bg.rectTransform.anchorMax = new Vector2(1, 0.5f); bg.rectTransform.sizeDelta = new Vector2(0, 8);
+            var area = new GameObject("Fill Area", typeof(RectTransform)).GetComponent<RectTransform>();
+            area.SetParent(rt, false); area.anchorMin = new Vector2(0, 0.5f); area.anchorMax = new Vector2(1, 0.5f); area.sizeDelta = new Vector2(-24, 8);
+            var fill = MakeImage(area, "Fill", Vector2.zero, Vector2.zero, null, Gold);
+            fill.rectTransform.anchorMin = Vector2.zero; fill.rectTransform.anchorMax = new Vector2(0, 1); fill.rectTransform.sizeDelta = new Vector2(12, 0);
+            var harea = new GameObject("Handle Slide Area", typeof(RectTransform)).GetComponent<RectTransform>();
+            harea.SetParent(rt, false); harea.anchorMin = Vector2.zero; harea.anchorMax = Vector2.one; harea.sizeDelta = new Vector2(-24, 0);
+            var handle = MakeImage(harea, "Handle", Vector2.zero, new Vector2(36, 36), U.knob, GoldBright);
+            handle.rectTransform.anchorMin = new Vector2(0, 0.5f); handle.rectTransform.anchorMax = new Vector2(0, 0.5f);
+            bg.raycastTarget = false; fill.raycastTarget = false;
+            var s = hit.gameObject.AddComponent<Slider>();
+            s.fillRect = fill.rectTransform; s.handleRect = handle.rectTransform; s.targetGraphic = handle;
+            s.direction = Slider.Direction.LeftToRight;
+            return s;
+        }
+
         static void Divider(RectTransform parent, Vector2 pos, float width, float alpha = 0.6f)
         {
             var img = MakeImage(parent, "Divider", pos, new Vector2(width, 2f), null, new Color(Gold.r, Gold.g, Gold.b, alpha));
@@ -403,6 +425,44 @@ namespace CoopGame.EditorTools
             var join = MakeButton(joinP, "JoinButton", "KATIL", Vector2.zero, new Vector2(300, 104), true, 44);
             Corner((Graphic)join.targetGraphic, TL, TL, new Vector2(X0 + 220, -612));
 
+            // Ayarlar paneli (menü öğelerinin yerinde)
+            var setP = new GameObject("SettingsPanel", typeof(RectTransform)).GetComponent<RectTransform>();
+            setP.SetParent(canvas, false); setP.anchorMin = Vector2.zero; setP.anchorMax = Vector2.one; setP.offsetMin = setP.offsetMax = Vector2.zero;
+            var sTitle = MakeText(setP, "SettingsTitle", "AYARLAR", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
+            Corner(sTitle, TL, TL, new Vector2(X0, -296));
+            Slider Row(string label, float y, out Text val)
+            {
+                var l = MakeText(setP, "Label_" + label, label, 32, Vector2.zero, new Vector2(330, 56), TextAnchor.MiddleLeft, U.body, Cream);
+                Corner(l, TL, TL, new Vector2(X0, y));
+                var sl = MakeSlider(setP, "Slider_" + label, 380);
+                Corner(sl.GetComponent<Graphic>(), TL, TL, new Vector2(X0 + 330, y - 8));
+                val = MakeText(setP, "Value_" + label, "", 28, Vector2.zero, new Vector2(120, 56), TextAnchor.MiddleRight, U.head, Gold, false);
+                Corner(val, TL, TL, new Vector2(X0 + 720, y));
+                return sl;
+            }
+            Button RowButton(string label, float y)
+            {
+                var l = MakeText(setP, "Label_" + label, label, 32, Vector2.zero, new Vector2(330, 56), TextAnchor.MiddleLeft, U.body, Cream);
+                Corner(l, TL, TL, new Vector2(X0, y));
+                var b = MakeButton(setP, "Button_" + label, "-", Vector2.zero, new Vector2(240, 70), false, 28);
+                Corner((Graphic)b.targetGraphic, TL, TL, new Vector2(X0 + 330, y + 6));
+                return b;
+            }
+            var sMusic = Row("Müzik", -380, out var vMusic);
+            var sVoice = Row("Konuşma sesi", -460, out var vVoice);
+            var sLook = Row("Bakış hassasiyeti", -540, out var vLook);
+            var bMic = RowButton("Mikrofon", -620);
+            var bFps = RowButton("Kare hızı", -705);
+            var sBack = MakeButton(setP, "SettingsBack", "GERİ", Vector2.zero, new Vector2(200, 90), false, 36);
+            Corner((Graphic)sBack.targetGraphic, TL, TL, new Vector2(X0, -800));
+            var sp = setP.gameObject.AddComponent<SettingsPanel>();
+            var spo = new SerializedObject(sp);
+            SetRef(spo, "music", sMusic); SetRef(spo, "voice", sVoice); SetRef(spo, "look", sLook);
+            SetRef(spo, "musicVal", vMusic); SetRef(spo, "voiceVal", vVoice); SetRef(spo, "lookVal", vLook);
+            SetRef(spo, "micButton", bMic); SetRef(spo, "fpsButton", bFps);
+            spo.ApplyModifiedPropertiesWithoutUndo();
+            setP.gameObject.SetActive(false);
+
             var status = MakeText(canvas, "Status", "", 26, Vector2.zero, new Vector2(760, 44), TextAnchor.MiddleLeft, U.body, Cream);
             Corner(status, TL, TL, new Vector2(X0, -852));
 
@@ -411,14 +471,26 @@ namespace CoopGame.EditorTools
             Corner(bl, BL, BL, new Vector2(X0, 168)); bl.raycastTarget = false;
             string[] tabs = { "GÜNLÜK", "ARKADAŞLAR", "AYARLAR" };
             float tx = X0;
+            Button settingsTab = null;
             foreach (var tab in tabs)
             {
                 float w = 80 + tab.Length * 24;
-                var t = MakeText(canvas, "Tab_" + tab, tab, 32, Vector2.zero, new Vector2(w, 50), TextAnchor.MiddleLeft, U.head, new Color(Cream.r, Cream.g, Cream.b, 0.75f));
+                bool live = tab == "AYARLAR";
+                var t = MakeText(canvas, "Tab_" + tab, tab, 32, Vector2.zero, new Vector2(w, 50), TextAnchor.MiddleLeft, U.head,
+                                 live ? GoldBright : new Color(Cream.r, Cream.g, Cream.b, 0.6f));
                 Corner(t, BL, BL, new Vector2(tx, 100));
-                var soon = MakeText(canvas, "Soon", "Y A K I N D A", 17, Vector2.zero, new Vector2(w, 26), TextAnchor.MiddleLeft, U.body,
-                                    new Color(Gold.r, Gold.g, Gold.b, 0.5f), false);
-                Corner(soon, BL, BL, new Vector2(tx, 70));
+                if (live)
+                {
+                    t.raycastTarget = true;
+                    settingsTab = t.gameObject.AddComponent<Button>(); settingsTab.targetGraphic = t; settingsTab.transition = Selectable.Transition.None;
+                    t.gameObject.AddComponent<UiPress>();
+                }
+                else
+                {
+                    var soon = MakeText(canvas, "Soon", "Y A K I N D A", 17, Vector2.zero, new Vector2(w, 26), TextAnchor.MiddleLeft, U.body,
+                                        new Color(Gold.r, Gold.g, Gold.b, 0.5f), false);
+                    Corner(soon, BL, BL, new Vector2(tx, 70));
+                }
                 tx += w;
             }
 
@@ -447,6 +519,9 @@ namespace CoopGame.EditorTools
             SetRef(so, "status", status);
             SetRef(so, "startButton", startSel);
             SetRef(so, "continueButton", cont);
+            SetRef(so, "settingsButton", settingsTab);
+            SetRef(so, "settingsPanel", setP.gameObject);
+            SetRef(so, "settingsBack", sBack);
             SetRef(so, "continueHead", contHead);
             SetRef(so, "continueSub", contSub);
             SetRef(so, "progressValue", pv);

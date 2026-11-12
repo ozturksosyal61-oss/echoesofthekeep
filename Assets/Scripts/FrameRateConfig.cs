@@ -11,9 +11,8 @@ namespace CoopGame
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Apply()
         {
-            QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = Target;
-            Debug.Log("[Perf] FrameRateConfig: vSync=0 targetFrameRate=" + Target + " ekranHz=" + Screen.currentResolution.refreshRateRatio.value.ToString("F1"));
+            Settings.ApplyFps(); // oyuncu ayarı (varsayılan 60; Ayarlar: 30/60/120)
+            Debug.Log("[Perf] FrameRateConfig: vSync=0 targetFrameRate=" + Application.targetFrameRate + " ekranHz=" + Screen.currentResolution.refreshRateRatio.value.ToString("F1"));
         }
     }
 }
