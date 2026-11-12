@@ -394,6 +394,48 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", root, new Vector3(px1 - 0.3f, PY - 0.42f, pz1 - 0.3f), Quaternion.Euler(0, 0, 180), 0.9f);
             KitR("Cobweb", root, new Vector3(hx - 0.03f, TOP - 1.2f, -hz + 0.03f), Quaternion.Euler(0, -90, 180), 1.8f);
 
+            // --- v2: 5 özgün detay (kâşifin kayboluşu) ---
+            {
+                var dd = new GameObject("StoryDetails").transform; dd.SetParent(root, false);
+                var ink = MakeMat("K_Ink", new Color(0.12f, 0.08f, 0.06f));
+                var wax = MakeMat("K_SealWax", Color.Lerp(Pal.Bordo, Color.black, 0.2f));
+                // 1: duvar haritasına iğneyle tutturulmuş kırmızı ip rotası (son durak: katakomb)
+                for (int k = 0; k < 5; k++)
+                {
+                    var a0 = new Vector3(-3.2f + k * 1.4f, 3.2f + ((k * 37) % 5) * 0.25f, hz - 0.06f);
+                    var a1 = new Vector3(-3.2f + (k + 1) * 1.4f, 3.2f + (((k + 1) * 37) % 5) * 0.25f, hz - 0.06f);
+                    Prim("Pin", dd, PrimitiveType.Sphere, a0, Vector3.one * 0.06f, wax);
+                    if (k < 4) Rod("String", dd, a0, a1, 0.012f, wax);
+                }
+                // 2: yarım bırakılmış bavul (kapağı açık, giysi + pusula kutusu)
+                var bp = new Vector3(hx - 1.4f, 0, -hz + 1.8f);
+                Kit("Chest", root, bp, -60f, 0.8f);
+                Slab("Cloak", dd, bp + new Vector3(0.5f, 0.05f, 0.5f), new Vector3(0.9f, 0.06f, 0.6f), K.velvetPurple, 1f, false).transform.localRotation = Quaternion.Euler(0, 25, 4);
+                Kit("Compass", root, bp + new Vector3(0.75f, 0.09f, 0.4f), 40f);
+                // 3: şöminede yarı yanmış mektup (külde)
+                Slab("BurntLetter", dd, new Vector3(-hx + 0.9f, 0.06f, 0.2f), new Vector3(0.22f, 0.004f, 0.16f), K.paperC, 1f, false).transform.localRotation = Quaternion.Euler(0, 30, 0);
+                Slab("BurntEdge", dd, new Vector3(-hx + 0.98f, 0.064f, 0.24f), new Vector3(0.1f, 0.004f, 0.1f), ink, 1f, false).transform.localRotation = Quaternion.Euler(0, 45, 0);
+                // 4: kürsü merdiveninin altında saklanmış içki şişeleri (kâşifin korkusu)
+                for (int k = 0; k < 4; k++) Kit(k % 2 == 0 ? "Bottle1" : "Bottle3", root, new Vector3(-0.6f + k * 0.35f, 0, pz0 - 1.4f), k * 50f);
+                Kit("Goblet2", root, new Vector3(0.9f, 0, pz0 - 1.6f));
+                // 5: kapı yanında yere tebeşirle çizilmiş pusula gülü + "geri dönme" çentikleri
+                var chalk = MakeMat("K_Chalk", new Color(0.78f, 0.76f, 0.7f));
+                var cr = new Vector3(2.4f, 0.006f, -hz + 2.4f);
+                MeshObj("ChalkRing", dd, cr, RingMesh(0.6f, 0.025f, 0.004f), chalk);
+                for (int k = 0; k < 8; k++)
+                    Rod("ChalkRay", dd, cr + Quaternion.Euler(0, k * 45f, 0) * Vector3.forward * 0.2f, cr + Quaternion.Euler(0, k * 45f, 0) * Vector3.forward * (k % 2 == 0 ? 0.85f : 0.55f), 0.02f, chalk).transform.localScale = new Vector3(1f, 1f, 0.2f);
+                for (int l = 0; l < 5; l++) Slab("Tally", dd, new Vector3(1.0f + l * 0.08f, 1.2f, -hz + 0.03f), new Vector3(0.015f, 0.2f, 0.005f), chalk, 1f, false);
+                foreach (var p in new[] { new Vector3(-6f, 3.6f, -6f), new Vector3(6f, 3.6f, -6f), new Vector3(-6f, 3.6f, 6f), new Vector3(6f, 3.6f, 6f), new Vector3(0, 2.4f, -8f) })
+                {   // oda karanlık kalıyordu: köşelere sıcak baked dolgu
+                    var f = LightGo("MapFill", LightType.Point, Pal.Candle, 3.2f, 10f, true);
+                    f.transform.SetParent(root, false); f.transform.localPosition = p;
+                }
+                Kit("L_Lantern", root, bp + new Vector3(0.2f, 0, -0.9f), 0f);
+                ProbeLit(dd.gameObject);
+                var anc = new GameObject("DetailProbeAnchor").transform; anc.SetParent(dd, false); anc.localPosition = new Vector3(0, 1.2f, -6f);
+                foreach (var r in dd.GetComponentsInChildren<Renderer>()) if (r.transform.localPosition.y < 0.1f) r.probeAnchor = anc;
+            }
+
             arrive = new GameObject("MapArrive").transform;
             arrive.SetParent(root, false);
             arrive.localPosition = new Vector3(0, 0.05f, -hz + 1.6f);
