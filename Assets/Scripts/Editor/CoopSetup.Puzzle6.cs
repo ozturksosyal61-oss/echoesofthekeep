@@ -514,7 +514,7 @@ namespace CoopGame.EditorTools
             root.localPosition = new Vector3(90f, 0, 0);
             var brick = KTex("K_WellBrick", "castle_brick_07", new Color(0.62f, 0.64f, 0.6f), 0.25f);
             var stone = K.castleStone;
-            var floorM = K.hallFloor;
+            var floorM = KTex("K_WellFloor", "stone_tiles_02", new Color(0.5f, 0.5f, 0.52f), 0.4f, 1.1f); // lobi zemini tekrar etmesin
             var moss = MakeMat("K_Moss", new Color(0.16f, 0.21f, 0.12f));
             var voidM = MakeMat("K_WellVoid", new Color(0.01f, 0.012f, 0.02f));
             var bone = MakeMat("K_Bone", new Color(0.6f, 0.55f, 0.46f));
@@ -604,6 +604,9 @@ namespace CoopGame.EditorTools
                 var q = QuadObj("MoonTile" + k, root, p + Vector3.up * 0.045f, new Vector2(1.1f, 1.1f), null, Quaternion.Euler(90, a + 180f, 0));
                 GameObjectUtility.SetStaticEditorFlags(q, 0);
                 tiles[k] = q.GetComponent<Renderer>();
+                var rot = Quaternion.Euler(0, a, 0);
+                foreach (var (o, sz) in new[] { (new Vector3(0, 0, 0.66f), new Vector3(1.38f, 0.05f, 0.06f)), (new Vector3(0, 0, -0.66f), new Vector3(1.38f, 0.05f, 0.06f)), (new Vector3(0.66f, 0, 0), new Vector3(0.06f, 0.05f, 1.38f)), (new Vector3(-0.66f, 0, 0), new Vector3(0.06f, 0.05f, 1.38f)) })
+                    Slab("TileFrame", root, p + rot * o + Vector3.up * 0.04f, sz, K.bronze, 1f, false).transform.localRotation = rot;
                 var div = Quaternion.Euler(0, a + 22.5f, 0) * Vector3.forward;
                 Rod("Divider", root, div * 2.85f + Vector3.up * 0.008f, div * 4.8f + Vector3.up * 0.008f, 0.06f, K.bronze);
             }
@@ -666,6 +669,65 @@ namespace CoopGame.EditorTools
             Kit("Axe", root, new Vector3(-4.3f, 0, -6.2f), 30f);
             Kit("Lantern", root, new Vector3(1.2f, 0, -6.4f), 0f);
             Kit("Shell", root, new Vector3(-1.1f, 0.75f, 1.25f), 60f);
+            // --- v2 dekor: ay rahiplerinin gözlem köşesi, sunak, sıralar, urneler, sancaklar ---
+            {
+                var dir = Quaternion.Euler(0, 72f, 0) * Vector3.forward; // doğu-kuzeydoğu duvarı
+                var dp = dir * (R - 1.3f);
+                Kit("StudyTable", root, dp, 72f + 180f, 0.95f);
+                Kit("ChairWood", root, dp - dir * 0.8f, 72f, 0.95f);
+                Kit("Armillary", root, dp + Quaternion.Euler(0, 72f, 0) * new Vector3(1.4f, 0, 0.2f), 30f, 0.9f);
+                Telescope(root, dp + Quaternion.Euler(0, 72f, 0) * new Vector3(-1.5f, 0, 0.1f), 160f, 55f, 0.9f); // şafta dönük dürbün
+                Kit("Compass", root, dp + Vector3.up * 0.78f + Quaternion.Euler(0, 72f, 0) * new Vector3(0.3f, 0, 0), 20f);
+                Kit("L_Candle", root, dp + Vector3.up * 1.4f - dir * 0.3f);
+                foreach (int i in new[] { 2, 6, 10, 14, 18 })
+                {
+                    float a = i * 360f / segs; var d = Quaternion.Euler(0, a, 0) * Vector3.forward;
+                    Kit("Banner", root, d * (R - 0.05f) + Vector3.up * (H - 0.6f), a + 180f, 1.2f);
+                }
+                foreach (var (a, item) in new[] { (36f, "Amphora"), (108f, "VaseCeramic"), (180f, "CeramicVase1"), (252f, "Amphora"), (324f, "BrassVase2") })
+                {
+                    var d = Quaternion.Euler(0, a + 9f, 0) * Vector3.forward;
+                    Kit(item, root, d * (R - 0.6f), a, item == "Amphora" ? 0.9f : 1f);
+                }
+                // Kuyu başında sunak: kadehler, kâse, mum (ay suyu sunusu)
+                var ap = new Vector3(-2.6f, 0, -1.9f);
+                Slab("OfferingTable", root, ap + Vector3.up * 0.4f, new Vector3(1.1f, 0.8f, 0.6f), stone, 1f);
+                Kit("Goblet0", root, ap + new Vector3(-0.3f, 0.8f, 0), 0f);
+                Kit("Goblet2", root, ap + new Vector3(0.05f, 0.8f, 0.1f), 0f);
+                Kit("Bowl2", root, ap + new Vector3(0.35f, 0.8f, -0.05f), 0f);
+                Kit("CandleCluster", root, ap + new Vector3(0.1f, 0.8f, -0.2f));
+                // Dua sıraları (kuzeybatı yay)
+                foreach (float a in new[] { 300f, 330f })
+                {
+                    var d = Quaternion.Euler(0, a, 0) * Vector3.forward;
+                    var b = Slab("Bench", root, d * 6.3f + Vector3.up * 0.42f, new Vector3(1.8f, 0.08f, 0.42f), K.furniture, 1f);
+                    b.transform.localRotation = Quaternion.Euler(0, a, 0);
+                    foreach (int sg in new[] { -1, 1 }) Slab("BenchLeg", root, d * 6.3f + Quaternion.Euler(0, a, 0) * new Vector3(sg * 0.75f, 0.2f, 0), new Vector3(0.08f, 0.4f, 0.36f), K.furniture, 1f, false).transform.localRotation = Quaternion.Euler(0, a, 0);
+                }
+                Kit("Chest", root, Quaternion.Euler(0, 200f, 0) * Vector3.forward * (R - 0.8f), 20f, 0.85f);
+                Kit("BookStack", root, Quaternion.Euler(0, 228f, 0) * Vector3.forward * (R - 0.9f), 40f);
+                Kit("Bucket2", root, new Vector3(1.9f, 0, -1.1f), 0f);
+                for (int i = 0; i < 3; i++) MeshObj("RopeCoil", root, new Vector3(-1.95f, 0.03f + i * 0.04f, 0.9f), RingMesh(0.24f - i * 0.015f, 0.04f, 0.04f), K.beam);
+                Kit("Rat", root, new Vector3(5.8f, 0, -2.2f), 200f);
+                // Zincir kancalarında asılı fenerler + şaftan inen ay ışığı (baked)
+                for (int k = 0; k < 4; k++)
+                {
+                    var d = Quaternion.Euler(0, 45f + k * 90f, 0) * Vector3.forward * 5.2f;
+                    Kit("Lantern", root, d + Vector3.up * (H - 2.85f - k * 0.4f), k * 40f);
+                    Kit("L_Candle", root, d + Vector3.up * (H - 2.55f - k * 0.4f));
+                }
+                var moon = LightGo("ShaftMoon", LightType.Spot, Pal.Moon, 18f, 14f, true);
+                moon.transform.SetParent(root, false); moon.transform.localPosition = new Vector3(0, H + 2f, 0);
+                moon.transform.localRotation = Quaternion.LookRotation(Vector3.down);
+                moon.GetComponent<Light>().spotAngle = 70f; moon.GetComponent<Light>().innerSpotAngle = 40f;
+                QuadObj("ShaftBeam", root, new Vector3(0, H * 0.5f + 1f, 0), new Vector2(2.4f, H + 2f), K.shaft, Quaternion.LookRotation(Vector3.right, Vector3.up));
+                QuadObj("ShaftBeamB", root, new Vector3(0, H * 0.5f + 1f, 0), new Vector2(2.0f, H + 2f), K.shaft, Quaternion.LookRotation(Vector3.forward, Vector3.up));
+                foreach (float a in new[] { 0f, 120f, 240f })
+                {
+                    var f = LightGo("WellFill", LightType.Point, Pal.Candle, 2.6f, 9f, true);
+                    f.transform.SetParent(root, false); f.transform.localPosition = Quaternion.Euler(0, a + 60f, 0) * Vector3.forward * 5f + Vector3.up * 3.2f;
+                }
+            }
             for (int k = 0; k < 6; k++)
             {
                 var d = Quaternion.Euler(0, k * 60f + 15f, 0) * Vector3.forward;
