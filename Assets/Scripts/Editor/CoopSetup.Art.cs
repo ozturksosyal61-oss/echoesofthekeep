@@ -1063,8 +1063,10 @@ namespace CoopGame.EditorTools
             BuildPuzzle4(roomX, roomO); // CoopSetup.Puzzle4.cs
             BuildPuzzle5(roomX, roomO); // CoopSetup.Puzzle5.cs
             BuildPuzzle6(roomX, roomO); // CoopSetup.Puzzle6.cs
+            BuildPuzzle7(roomX, roomO); // CoopSetup.Puzzle7.cs
             ExcludeFromBake();        // eski (gerçek zamanlı ışıklı) odalar bake'e girmez
             BuildHall(Layout.Hall);   // Lobi Holü: Art kit + baked ışık (CoopSetup.Hall.cs)
+            BuildFinal(Layout.Final, roomX, roomO); // Büyük Salon (CoopSetup.Final.cs)
         }
 
         // ---------- Menü arka planı: şato kapısı, gece ----------
