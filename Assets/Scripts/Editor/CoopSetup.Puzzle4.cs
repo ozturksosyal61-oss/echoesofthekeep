@@ -96,9 +96,9 @@ namespace CoopGame.EditorTools
             // Kontrol noktaları (menüden "Bulmaca N" ile başlayınca rol alan oyuncu buraya ışınlanır; 1 için rolün ilk odası)
             var clock = roomX.Find("RoomA2_SaatOdasi");
             if (clock != null) MakeCheckpoint(roomX, 2, Roles.X, clock.TransformPoint(new Vector3(-1.5f, 0.05f, -1.5f)));
-            MakeCheckpoint(roomO, 2, Roles.O, roomO.TransformPoint(new Vector3(-10.6f, 0.05f, 0)));
+            MakeCheckpoint(roomO, 2, Roles.O, roomO.TransformPoint(new Vector3(VtCx + 6.5f, 0.05f, 0)));
             if (hazne != null) MakeCheckpoint(roomX, 3, Roles.X, hazne.TransformPoint(new Vector3(0, 0.05f, 2.5f)));
-            MakeCheckpoint(roomO, 3, Roles.O, roomO.TransformPoint(new Vector3(-21f, 0.05f, 0)));
+            MakeCheckpoint(roomO, 3, Roles.O, roomO.TransformPoint(new Vector3(-21f + OWestShift, 0.05f, 0)));
             MakeCheckpoint(roomX, 4, Roles.X, archiveArrive.position);
             MakeCheckpoint(roomO, 4, Roles.O, libraryArrive.position);
         }

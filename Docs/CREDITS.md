@@ -22,4 +22,4 @@ CC-BY 4.0 (http://creativecommons.org/licenses/by/4.0/) – oyun içi jenerikte 
 - chandelier: "Medieval Chandelier" – Kevin.Popescu – https://sketchfab.com/3d-models/medieval-chandelier-dd8b8bd637b5420badb323d5ec82a948
 
 - Poly Haven (CC0), Faz 6 ekleri: horse_statue_01, kite_shield, antique_estoc, ornate_war_hammer, ornate_medieval_mace, ornate_mirror_01, magnifying_glass_01, seadogs_compass, vintage_oil_lamp, wooden_candlestick, jug_01, antique_ceramic_vase_01, carved_wooden_plate, postcard_set_01, standing_picture_frame_01, wicker_basket_02, wooden_axe, round_wooden_table_01, wooden_display_shelves_01, stone_fire_pit, lantern_chandelier_01, Barrel_01, horse_head, hanging_picture_frame_03, vintage_pocket_watch (polyhaven.com)
-- Poly Haven (CC0), Faz 7 ekleri: dirt_floor (doku, zindan hücre zemini)
+- Poly Haven (CC0), Faz 7 ekleri: dirt_floor (doku, zindan hücre zemini), stone_block_wall + large_floor_tiles_02 (kasa rotundası)

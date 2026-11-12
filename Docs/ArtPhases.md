@@ -25,6 +25,7 @@ Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kul
 - Bake çökmesi ÇÖZÜLDÜ: reflection probe'lar bake sırasında Custom, sonra RenderProbesManually ile kamerayla çekilir (Unity 6.6 ReplaceIndicesForSingleLod hatası).
 - Hızlı deneme: batch `-draft -bakeOnly RoomB_Sarnic` (yalnız o kök pişer, düşük kalite; ~30 sn bake, ~3 dk toplam). Sahne taslak kalır → build/commit öncesi tam Setup All.
 - Zindan v3 doğrulandı (ekran görüntüsü): zemin cobblestone_floor_08, saman dirt_floor, gardiyan köşesi dolduruldu. ONAYLANDI (kullanıcı Unity'de test etti, 2026-11-12).
+- Kasa v2 YAZILDI (CoopSetup.Vault.cs, ref kasa.png): sekizgen rotunda 18 m, kaburgalı kubbe + oculus (tepe ~13.4), 4.2 m galeri halkası, serbest döner merdiven, kadife astarlı nişler, parmaklıklı hazine bölmesi. Mahzen + sarnıç OWestShift=-14 ile batıya kaydı (kök OWest). Taslak bake ile doğrulandı; kullanıcı testi bekliyor. Shots: o_vt_*.
 - Shots: -shotFilter önek listesi eklendi (o_dg*, o_fresco, o_vault).
 - Batch bake ~8-9 GB RAM kullanıyor; makinede bellek dar.
 

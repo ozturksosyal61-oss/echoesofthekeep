@@ -599,6 +599,16 @@ namespace CoopGame.EditorTools
             Shot(dir + "/x_hud.png", a + new Vector3(-2f, 1.72f, 2.5f), a + new Vector3(-1.5f, 1.5f, 7f), true);
             Shot(dir + "/o_fresco.png", b + new Vector3(4.5f, 1.72f, -0.5f), b + new Vector3(12.9f, 2f, 0.3f), false);
             Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
+            {   // Kasa rotundası (merkez zindan yerel x -17.5)
+                var v = b + new Vector3(VtCx, 0, 0);
+                Shot(dir + "/o_vt_entry.png", v + new Vector3(8.2f, 1.72f, -0.6f), v + new Vector3(-6f, 3.2f, 1.5f), false);
+                Shot(dir + "/o_vt_dome.png", v + new Vector3(4.5f, 1.6f, -4.5f), v + new Vector3(-1f, 10f, 1.5f), false);
+                Shot(dir + "/o_vt_table.png", v + new Vector3(5.6f, 1.72f, -4.6f), v + new Vector3(2.4f, 0.9f, -1.4f), false);
+                Shot(dir + "/o_vt_bay.png", v + new Vector3(-1.5f, 1.72f, -2.5f), v + new Vector3(0.5f, 1.3f, -10f), false);
+                Shot(dir + "/o_vt_west.png", v + new Vector3(3f, 1.72f, 2.5f), v + new Vector3(-9f, 1.6f, -1.5f), false);
+                Shot(dir + "/o_vt_gallery.png", v + new Vector3(-2.2f, VtGal + 1.72f, 7.2f), v + new Vector3(3f, 3.4f, -6f), false);
+                Shot(dir + "/o_vt_stair.png", v + new Vector3(3.5f, 1.72f, 0.5f), v + new Vector3(-1.6f, 2.2f, 4.6f), false);
+            }
             Shot(dir + "/o_dg_entry.png", b + new Vector3(1.8f, 1.72f, -11f), b + new Vector3(0.5f, 2.6f, 4f), false);
             Shot(dir + "/o_dg_cells.png", b + new Vector3(-1.5f, 1.72f, 3.5f), b + new Vector3(0.5f, 1.4f, 12f), false);
             Shot(dir + "/o_dg_back.png", b + new Vector3(1.5f, 1.72f, 8f), b + new Vector3(-2.5f, 1.8f, -12f), false);
@@ -624,11 +634,11 @@ namespace CoopGame.EditorTools
                 var an = so.FindProperty("symbolAnchor").objectReferenceValue as Transform;
                 if (an != null) Glyphs.Symbol(an, so.FindProperty("valveIndex").intValue, so.FindProperty("symbolMat").objectReferenceValue as Material, 0.5f);
             }
-            Shot(dir + "/o_cistern.png", b + new Vector3(-30.9f, 1.72f, 0.7f), b + new Vector3(-41.7f, 1.45f, -0.6f), false);
-            Shot(dir + "/o_cistern_back.png", b + new Vector3(-40.4f, 1.72f, 3.2f), b + new Vector3(-31.5f, 0.9f, -4.4f), false);
+            Shot(dir + "/o_cistern.png", b + new Vector3(-44.9f, 1.72f, 0.7f), b + new Vector3(-55.7f, 1.45f, -0.6f), false);
+            Shot(dir + "/o_cistern_back.png", b + new Vector3(-54.4f, 1.72f, 3.2f), b + new Vector3(-45.5f, 0.9f, -4.4f), false);
             {   // Mahzen: çözülmüş hali (ışıklar açık) + örnek semboller; sahne kaydedilmez
                 var ro = GameObject.Find("RoomB_Sarnic");
-                var cl = ro != null ? ro.transform.Find("CellarLit") : null;
+                var cl = ro != null ? ro.transform.Find("OWest/CellarLit") : null;
                 if (cl != null) cl.gameObject.SetActive(true);
                 var cv = Object.FindFirstObjectByType<CryptVisuals>();
                 if (cv != null)
@@ -642,8 +652,8 @@ namespace CoopGame.EditorTools
                         Glyphs.Numeral((Transform)so.FindProperty("coffinNumerals").GetArrayElementAtIndex(i).objectReferenceValue, st.coffinNumeral[i], mat, 0.32f);
                     }
                 }
-                Shot(dir + "/o_cellar.png", b + new Vector3(-15.9f, 1.72f, -0.9f), b + new Vector3(-24.75f, 1.55f, 1.6f), false);
-                Shot(dir + "/o_cellar_back.png", b + new Vector3(-23.6f, 1.72f, 2.2f), b + new Vector3(-16.5f, 0.9f, -3.2f), false);
+                Shot(dir + "/o_cellar.png", b + new Vector3(-29.9f, 1.72f, -0.9f), b + new Vector3(-38.75f, 1.55f, 1.6f), false);
+                Shot(dir + "/o_cellar_back.png", b + new Vector3(-37.6f, 1.72f, 2.2f), b + new Vector3(-30.5f, 0.9f, -3.2f), false);
             }
             Shot(dir + "/x_corner.png", a + new Vector3(-4f, 1.72f, 3.5f), a + new Vector3(-6.7f, 0.7f, 6.4f), false);
             Debug.Log("[CoopSetup] Shots -> " + Path.GetFullPath(dir));

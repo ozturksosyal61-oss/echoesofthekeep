@@ -9,7 +9,7 @@ namespace CoopGame.EditorTools
     /// ortada sütunlu kemer dizisi (x=0). Kuzeyde üç parmaklıklı hücre (ortadaki açık: kaçış tüneli hikâyesi),
     /// güneybatıda ahşap gözcü platformu + serbest merdiven, güneydoğuda gardiyan masası, ortada asılı gibbet kafesi.
     /// Fresk (bulmaca 1) doğudaki Kayıt Şapeli'nde (x 8.5..13, z ±5.5): girişten görünmez. Batıda yuvarlak kasa kapısı.
-    /// Baked; 2 realtime fener. Arkada kasa odası (x -8.5..-12.75, z ±3).
+    /// Baked; 2 realtime fener. Batıda kasa rotundası (CoopSetup.Vault.cs).
     /// </summary>
     public static partial class CoopSetup
     {
@@ -87,7 +87,7 @@ namespace CoopGame.EditorTools
             Wall(root, "WallW", new Vector3(-HX - 0.25f, 0, 0), false, HZ * 2 + 1, DgSpring + 0.6f, stone, 2f, new Opening(0f, 3f, 0f, 3f)); // kasa kapısı
             Wall(root, "WallN", new Vector3(0, 0, HZ + 0.25f), true, HX * 2 + 1, top + 0.3f, stone, 2f);
             Wall(root, "WallS", new Vector3(0, 0, -HZ - 0.25f), true, HX * 2 + 1, top + 0.3f, stone, 2f);
-            GameObjectUtility.SetStaticEditorFlags(Slab("Roof", root, new Vector3(0, top + 0.6f, 0), new Vector3(HX * 2 + 2, 0.5f, HZ * 2 + 2), stone, 2f, false), 0);
+            GameObjectUtility.SetStaticEditorFlags(Slab("Roof", root, new Vector3(0, top + 0.6f, 0), new Vector3(HX * 2 + 1, 0.5f, HZ * 2 + 2), stone, 2f, false), 0);
             float[] colZ = { -7.6f, -2.6f, 2.6f, 7.6f };
             foreach (int sx in new[] { -1, 1 })
             {
@@ -159,21 +159,6 @@ namespace CoopGame.EditorTools
                 KitR("Cobweb", root, new Vector3(ChX1 - 0.03f, 0, -ChZ + 0.03f), Quaternion.Euler(0, 180, 0), 0.9f);
                 KitProbes(root, new Vector3(cx, (ChSpring + ChRise) * 0.5f, 0), new Vector3(ChX1 - ChX0, ChSpring + ChRise, ChZ * 2), 3, 3, 4);
             }
-
-            // --- Kasa odası (kapının arkası; mahzen geçidine açılır) ---
-            Deck(root, "VaultFloor", new Vector3(-10.625f, -0.25f, 0), 4.25f, 7f, 0.5f, K.cellarFloor, 1, 1);
-            Deck(root, "VaultCeiling", new Vector3(-10.625f, 4.25f, 0), 4.25f, 7f, 0.5f, brick, 1, 1);
-            Wall(root, "VaultWallW", new Vector3(-12.75f, 0, 0), false, 7f, 4f, stone, 2f, new Opening(0f, 3f, 0f, 3f)); // mahzen geçidi (bulmaca 2)
-            Wall(root, "VaultWallS", new Vector3(-10.625f, 0, -3.25f), true, 4.25f, 4f, stone, 2f);
-            Wall(root, "VaultWallN", new Vector3(-10.625f, 0, 3.25f), true, 4.25f, 4f, stone, 2f);
-            Kit("Chest", root, new Vector3(-11.9f, 0, -2.3f), 90f);
-            Kit("CandleCluster", root, new Vector3(-12.3f, 0, 2.5f));
-            Kit("WallSconce", root, new Vector3(-10.6f, 2.2f, -2.95f), 0f);
-            Kit("L_Candle", root, new Vector3(-10.6f, 2.3f, -2.4f));
-            KitR("Cobweb", root, new Vector3(-12.47f, 3.95f, 2.97f), Quaternion.Euler(0, 0, -90), 1.2f);
-            Kit("Crate", root, new Vector3(-9.3f, 0, 2.6f), 20f, 0.8f);
-            Kit("Goblet1", root, new Vector3(-9.3f, 0.48f, 2.6f));
-            Kit("Bottle2", root, new Vector3(-9.1f, 0.48f, 2.5f));
 
             var det = new GameObject("Details").transform;
             det.SetParent(root, false);
@@ -468,7 +453,6 @@ namespace CoopGame.EditorTools
             var skips = new System.Collections.Generic.List<Bounds>();
             foreach (float z in colZ) skips.Add(new Bounds(new Vector3(0, DgSpring * 0.5f, z), new Vector3(1.2f, DgSpring, 1.2f)));
             KitProbes(root, new Vector3(0, top * 0.5f, 0), new Vector3(HX * 2, top, HZ * 2), 5, 4, 8, skips.ToArray());
-            KitProbes(root, new Vector3(-10.625f, 2f, 0), new Vector3(4.25f, 4f, 6f), 3, 3, 3);
             KitReflection(root, new Vector3(0, 2.4f, 0), new Vector3(HX * 2, top, HZ * 2));
             return root;
         }

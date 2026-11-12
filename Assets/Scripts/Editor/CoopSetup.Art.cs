@@ -711,6 +711,10 @@ namespace CoopGame.EditorTools
             SetRef(pso, "door", vaultDoor);
             pso.ApplyModifiedPropertiesWithoutUndo();
             DressPuzzle1O(roomO, board, vaultDoor); // CoopSetup.Dungeon.cs
+            BuildVault(roomO);                      // CoopSetup.Vault.cs (kasa rotundası)
+            var oWest = new GameObject("OWest").transform; // mahzen + sarnıç: kasa büyüdü, batıya kaydı
+            oWest.SetParent(roomO, false);
+            oWest.localPosition = new Vector3(OWestShift, 0, 0);
             KeepBaked(roomO); // zindan + kasa odası bake'e dahil (mahzen sonra eklenir, dışarıda kalır)
 
         }
@@ -832,14 +836,15 @@ namespace CoopGame.EditorTools
             dso.ApplyModifiedPropertiesWithoutUndo();
 
             // ---- Oda O: kasa odasının batısında geçit + karanlık şarap mahzeni (CoopSetup.Cellar.cs) ----
-            BuildCellar(roomO, out var gate, out var rewardGate, out var syms, out var nums, out var litGo);
+            var oWest = roomO.Find("OWest");
+            BuildCellar(oWest, out var gate, out var rewardGate, out var syms, out var nums, out var litGo);
 
             var respawn = new GameObject("CryptRespawn").transform;
             respawn.SetParent(roomO, false);
-            respawn.localPosition = new Vector3(-11.6f, 0.05f, -2f);
+            respawn.localPosition = new Vector3(VtCx - 6.5f, 0.05f, -2f); // kasanın batı kapısı önü
 
             var crypt = new GameObject("Puzzle2_Crypt").AddComponent<CryptPuzzle>();
-            crypt.transform.SetParent(roomO, false);
+            crypt.transform.SetParent(oWest, false);
             crypt.transform.localPosition = new Vector3(-20f, 0, 0);
 
             // ---- Oda A2: Saat Odası (kulenin altında; bulmaca 1 çözülünce merdiven kapısı açılır) ----
@@ -868,7 +873,7 @@ namespace CoopGame.EditorTools
             cso.FindProperty("nodeId").intValue = 10;
             SetRefArray(cso, "dials", dials);
             SetRef(cso, "confirm", confirm);
-            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-20f, 1.5f, 0); // oda x -25..-15; kapı önündeki aydınlık şerit kalmasın
+            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-20f + OWestShift, 1.5f, 0); // oda x -25..-15; kapı önündeki aydınlık şerit kalmasın
             cso.FindProperty("zoneSize").vector3Value = new Vector3(9.2f, 3f, 10f);
             SetRef(cso, "respawn", respawn);
             cso.ApplyModifiedPropertiesWithoutUndo();
@@ -942,9 +947,10 @@ namespace CoopGame.EditorTools
 
             var arch = new Opening(0f, 3f, 0f, 3f);
             // ---- Oda B: sarnıç (CoopSetup.Cistern.cs) ----
-            BuildCistern(roomO, out var cistern, out var valves, out var gate, out var nextGate, out var water);
+            var oWest = roomO.Find("OWest");
+            BuildCistern(oWest, out var cistern, out var valves, out var gate, out var nextGate, out var water);
             var respawn = new GameObject("CisternRespawn").transform;
-            respawn.SetParent(roomO, false);
+            respawn.SetParent(oWest, false);
             respawn.localPosition = new Vector3(-22f, 0.05f, 0);
 
             // ---- Oda A3: Hazne Odası (Saat Odası'nın güneyinden merdivenle; bulmaca 2 çözülünce kapı açılır) ----
@@ -1020,7 +1026,7 @@ namespace CoopGame.EditorTools
             cso.FindProperty("nodeId").intValue = 20;
             SetRefArray(cso, "valves", valves);
             SetRef(cso, "seal", seal);
-            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-36f, 1.5f, 0);
+            cso.FindProperty("zoneCenter").vector3Value = roomO.position + new Vector3(-36f + OWestShift, 1.5f, 0);
             cso.FindProperty("zoneSize").vector3Value = new Vector3(11f, 3f, 12f);
             SetRef(cso, "respawn", respawn);
             cso.ApplyModifiedPropertiesWithoutUndo();
