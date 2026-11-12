@@ -405,6 +405,34 @@ namespace CoopGame.EditorTools
             if (report.summary.result != BuildResult.Succeeded) EditorApplication.Exit(1);
         }
 
+        /// <summary>
+        /// iOS Xcode projesi (Mac, batch): Builds/iOS. Args: -bundleId com.x.y  -teamId ABCDE12345. Build numarası zaman damgası
+        /// (TestFlight her yüklemede artan numara ister). Arşiv + yükleme: Tools/ios_testflight.sh.
+        /// </summary>
+        [MenuItem("CoopGame/Build iOS (Xcode projesi)")]
+        public static void BuildIOS()
+        {
+            ConfigurePlayer();
+            var bundle = Arg("-bundleId"); var team = Arg("-teamId");
+            if (!string.IsNullOrEmpty(bundle)) PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, bundle);
+            if (!string.IsNullOrEmpty(team)) PlayerSettings.iOS.appleDeveloperTeamID = team;
+            PlayerSettings.iOS.appleEnableAutomaticSigning = true;
+            PlayerSettings.iOS.buildNumber = System.DateTime.UtcNow.ToString("yyMMddHHmm");
+            PlayerSettings.iOS.targetOSVersionString = "15.0";
+            const string outDir = "Builds/iOS";
+            var opts = new BuildPlayerOptions
+            {
+                scenes = new[] { LobbyPath, GamePath },
+                target = BuildTarget.iOS,
+                targetGroup = BuildTargetGroup.iOS,
+                locationPathName = outDir,
+                options = BuildOptions.None,
+            };
+            var report = BuildPipeline.BuildPlayer(opts);
+            Debug.Log("[CoopSetup] iOS build: " + report.summary.result + " -> " + Path.GetFullPath(outDir) + " build " + PlayerSettings.iOS.buildNumber);
+            if (Application.isBatchMode && report.summary.result != BuildResult.Succeeded) EditorApplication.Exit(1);
+        }
+
         [MenuItem("CoopGame/Build Android (Development)")]
         public static void BuildAndroid()
         {
