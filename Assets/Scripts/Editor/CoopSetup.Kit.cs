@@ -887,6 +887,21 @@ namespace CoopGame.EditorTools
             PhProp("Barrel2", "Barrel_01", 0.9f);
             PhProp("HorseHead", "horse_head", 0.45f, solid: false);
             PhProp("PaintingPortrait", "hanging_picture_frame_03", 1.0f, solid: false, wall: true);
+            // Harita odası (B5) seyahat/kâşif koleksiyonu
+            PhProp("ShipModel", "dutch_ship_medium", 0.95f);
+            PhProp("Cannon", "cannon_01", 0.75f);
+            PhProp("ChessSet", "chess_set", 0.11f, solid: false);
+            PhProp("LionHead", "lion_head", 0.42f, solid: false, wall: true);
+            PhProp("WhaleStatue", "bronze_whale_statue", 0.9f);
+            PhProp("Shell", "lambis_shell", 0.14f, solid: false, byMax: true);
+            PhProp("BookSet", "decorative_book_set_01", 0.27f, solid: false);
+            PhProp("TeaSet", "tea_set_01", 0.16f, solid: false);
+            PhProp("Elephant", "carved_wooden_elephant", 0.12f, solid: false, byMax: true);
+            PhProp("Saber", "wooden_handle_saber", 0.93f, solid: false);
+            PhProp("BrassVase", "brass_vase_01", 0.6f);
+            PhProp("MantelClock", "mantel_clock_01", 0.46f, solid: false, byMax: true);
+            PhProp("GothicTable", "gothic_coffee_table", 0.56f);
+            PhProp("BarrelRack", "wooden_barrels_01", 0.95f);
 
             // --- Manuel (CC-BY) modeller ---
             ManualProp("StatueAngel", "statue", 1.9f, 0.3f, 0f);
