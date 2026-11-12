@@ -6,7 +6,8 @@ namespace CoopGame.EditorTools
     /// <summary>
     /// Bulmaca 4 "Şifreli mektup" + lobi ölçeğinde iki oda.
     /// X: Arşiv (ref arsiv.png) kule yerel (40,0,0); 18x22, tavan 9, kuzeyde galeri + doğuda merdiven, ortada şifre çarkı.
-    /// O: Mezar kütüphanesi (ref kutuphane.png) roomO yerel (40,0,0); 18x28, tonozlu orta nef + yan nefler, kürsüde mektup, güneyde harf kilitli kapı.
+    /// O: Mezar kütüphanesi (ref kutuphane.png) roomO yerel (40,0,0); 18x28, tonozlu orta nef + yan nefler, kürsüde mühürlü kapak (anahtar),
+    /// 5 sembol 3 yırtık parçada (sıra = mürekkep noktası) kütüphaneye dağılmış, güneyde harf kilitli kapı.
     /// Girişler: Hazne doğu kapısı / sarnıç güney nişi → Passage (bulmaca 3 çözülünce ışınlar).
     /// Düğümler: 35 tohum, 36 çark, 37-41 kilit kadranları, 42-43 geçitler.
     /// </summary>
@@ -67,7 +68,8 @@ namespace CoopGame.EditorTools
             lso.FindProperty("nodeId").intValue = 35;
             SetRefArray(lso, "dials", dials);
             var glyphs = new Transform[LetterPuzzle.Len];
-            for (int i = 0; i < glyphs.Length; i++) glyphs[i] = lectern.Find("Glyph" + i);
+            var all = library.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < glyphs.Length; i++) glyphs[i] = System.Array.Find(all, t => t.name == "Glyph" + i); // yırtık parçalarda (LetterFragments)
             SetRefArray(lso, "letterGlyphs", glyphs);
             SetRef(lso, "sealGlyph", lectern.Find("SealGlyph"));
             SetRef(lso, "inkMat", MakeMat("K_Ink", new Color(0.12f, 0.08f, 0.06f)));
@@ -362,6 +364,41 @@ namespace CoopGame.EditorTools
 
         // ---------------- Mezar kütüphanesi (O) ----------------
 
+        /// <summary>
+        /// Yırtık mektup parçaları (bulmaca 4 zorlaştırma): semboller 3 parçada (sıra = köşedeki mürekkep noktası sayısı),
+        /// biri doğu mezar nişinin rafında, biri batı lahdinin kapağında, biri doğu okuma masasında; 2 boş sahte parça.
+        /// Sembol çapaları "Glyph0..4" adıyla kökte (BuildPuzzle4 adla bulur).
+        /// </summary>
+        static void LetterFragments(Transform root, float hx)
+        {
+            var ink = MakeMat("K_Ink", new Color(0.12f, 0.08f, 0.06f));
+            void Piece(string name, Vector3 pos, float yaw, Vector2 size, int[] glyphs, int order)
+            {
+                var t = new GameObject(name).transform;
+                t.SetParent(root, false);
+                t.localPosition = pos;
+                t.localRotation = Quaternion.Euler(0, yaw, 0);
+                Slab("Paper", t, new Vector3(0, 0.002f, 0), new Vector3(size.x, 0.004f, size.y), K.paperA, 1f, false);
+                // yırtık kenar: köşeye eğik ikinci yaprak parçası
+                Slab("Tear", t, new Vector3(size.x * 0.32f, 0.003f, -size.y * 0.42f), new Vector3(size.x * 0.4f, 0.004f, size.y * 0.25f), K.paperA, 1f, false).transform.localRotation = Quaternion.Euler(0, 18, 0);
+                for (int k = 0; k < order; k++) // sıra noktaları (okuyucuya göre sol üst köşe)
+                    Prim("OrderDot", t, PrimitiveType.Cylinder, new Vector3(size.x * 0.5f - 0.035f - k * 0.032f, 0.006f, -size.y * 0.5f + 0.03f), new Vector3(0.018f, 0.001f, 0.018f), ink);
+                for (int k = 0; k < glyphs.Length; k++)
+                {
+                    var g = new GameObject("Glyph" + glyphs[k]).transform;
+                    g.SetParent(t, false);
+                    g.localPosition = new Vector3(-(k - (glyphs.Length - 1) * 0.5f) * 0.18f, 0.007f, 0.01f); // okuyucu yerel +z tarafında: soldan sağa = -x
+                    g.localRotation = Quaternion.LookRotation(Vector3.down, Vector3.back); // düz yatan kâğıt (kürsü 0° eğim karşılığı)
+                }
+                foreach (var tt in t.GetComponentsInChildren<Transform>(true)) GameObjectUtility.SetStaticEditorFlags(tt.gameObject, 0);
+            }
+            Piece("LetterFragmentA", new Vector3(hx - 0.27f, 1.635f, 6.62f), -90f, new Vector2(0.44f, 0.26f), new[] { 0, 1 }, 1); // doğu mezar nişi rafı
+            Piece("LetterFragmentB", new Vector3(-6.85f, 1.026f, 1.62f), 90f, new Vector2(0.26f, 0.22f), new[] { 2 }, 2);       // batı lahdi kapağı
+            Piece("LetterFragmentC", new Vector3(6.72f, 0.826f, -11.72f), -90f, new Vector2(0.44f, 0.26f), new[] { 3, 4 }, 3);  // doğu okuma masası
+            Piece("LetterDecoyA", new Vector3(-2.7f, 0.005f, 5.7f), 30f, new Vector2(0.3f, 0.22f), new int[0], 0);           // sahte kürsü dibinde boş parça
+            Piece("LetterDecoyB", new Vector3(-hx + 0.27f, 1.635f, -2.2f), 90f, new Vector2(0.3f, 0.2f), new int[0], 2);      // batı nişinde, noktalı ama boş
+        }
+
         /// <summary>Mezar kütüphanesi v2 dekor turu: yan neflerde kitaplıklar + okuma masaları, nefte halı ve şamdanlar, kâtibin dağınıklığı.</summary>
         static void LibraryDressing(Transform root, float hx, float hz, float NW, float SP)
         {
@@ -563,13 +600,7 @@ namespace CoopGame.EditorTools
                 Slab("Ledge", lectern, topC - up * 0.32f + n * 0.04f, new Vector3(0.9f, 0.04f, 0.06f), stone, 1f, false).transform.localRotation = face;
                 var paper = Slab("Parchment", lectern, topC + n * 0.035f, new Vector3(0.7f, 0.5f, 0.004f), K.paperA, 1f, false);
                 paper.transform.localRotation = face;
-                for (int i = 0; i < LetterPuzzle.Len; i++)
-                {
-                    var g = new GameObject("Glyph" + i).transform;
-                    g.SetParent(lectern, false);
-                    g.localPosition = topC + n * 0.04f + up * 0.08f + new Vector3(-0.26f + i * 0.13f, 0, 0);
-                    g.localRotation = face;
-                }
+                // Mektup yırtılmış: kürsüde yalnız mühürlü kapak kalır, 5 sembol 3 parçaya dağılmış (LetterFragments)
                 var waxMat = MakeMat("K_SealWax", Color.Lerp(Pal.Bordo, Color.black, 0.2f));
                 var seal = Prim("Seal", lectern, PrimitiveType.Cylinder, topC + n * 0.04f - up * 0.14f + new Vector3(0.22f, 0, 0), new Vector3(0.14f, 0.008f, 0.14f), waxMat);
                 seal.transform.localRotation = face * Quaternion.Euler(90, 0, 0);
@@ -603,7 +634,7 @@ namespace CoopGame.EditorTools
                     Slab("Lid", root, new Vector3(x, 0.96f, z), new Vector3(1.3f, 0.12f, 2.5f), stone, 1.2f, false);
                     Slab("CrossV", root, new Vector3(x + s * 0.61f, 0.5f, z), new Vector3(0.02f, 0.5f, 0.1f), stone, 1f, false);
                     Slab("CrossH", root, new Vector3(x + s * 0.61f, 0.58f, z), new Vector3(0.02f, 0.1f, 0.34f), stone, 1f, false);
-                    KitR("StatueKing", root, new Vector3(x, 1.2f, z + 0.85f), Quaternion.Euler(-90, 0, 0), 0.85f);
+                    Kit("StatueKing", root, new Vector3(x, 1.02f, z + 0.75f), s < 0 ? 90f : -90f, 0.75f); // lahit başında ayakta
                 }
                 foreach (float z in new[] { -11f, -2.3f, 6.5f })
                 {
@@ -660,6 +691,7 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", root, new Vector3(hx - 0.03f, 0, hz - 0.03f), Quaternion.Euler(0, 0, 0), 1.2f);
 
             LibraryDressing(root, hx, hz, NW, SP);
+            LetterFragments(root, hx);
 
             arrive = new GameObject("LibraryArrive").transform;
             arrive.SetParent(root, false);
