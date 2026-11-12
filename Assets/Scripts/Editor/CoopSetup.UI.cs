@@ -607,7 +607,9 @@ namespace CoopGame.EditorTools
                 Shot(dir + "/o_vt_bay.png", v + new Vector3(-1.5f, 1.72f, -2.5f), v + new Vector3(0.5f, 1.3f, -10f), false);
                 Shot(dir + "/o_vt_west.png", v + new Vector3(3f, 1.72f, 2.5f), v + new Vector3(-9f, 1.6f, -1.5f), false);
                 Shot(dir + "/o_vt_gallery.png", v + new Vector3(-2.2f, VtGal + 1.72f, 7.2f), v + new Vector3(3f, 3.4f, -6f), false);
-                Shot(dir + "/o_vt_stair.png", v + new Vector3(3.5f, 1.72f, 0.5f), v + new Vector3(-1.6f, 2.2f, 4.6f), false);
+                Shot(dir + "/o_vt_stair.png", v + new Vector3(3.5f, 1.72f, 0.5f), v + new Vector3(-1.6f, 2.2f, 4.3f), false);
+                Shot(dir + "/o_vt_exit.png", v + new Vector3(1.6f, VtGal + 1.72f, 8.0f), v + new Vector3(-1.6f, VtGal + 0.4f, 6.2f), false);
+                Shot(dir + "/o_vt_exit2.png", v + new Vector3(-1.6f, VtGal + 1.72f, 8.3f), v + new Vector3(-1.6f, 3.4f, 4.3f), false);
             }
             Shot(dir + "/o_dg_entry.png", b + new Vector3(1.8f, 1.72f, -11f), b + new Vector3(0.5f, 2.6f, 4f), false);
             Shot(dir + "/o_dg_cells.png", b + new Vector3(-1.5f, 1.72f, 3.5f), b + new Vector3(0.5f, 1.4f, 12f), false);

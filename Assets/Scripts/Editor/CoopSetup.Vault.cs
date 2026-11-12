@@ -286,33 +286,44 @@ namespace CoopGame.EditorTools
                 // Korkuluk: tek ağa birleşen çubuklar + görünmez engel
                 var rail = new GameObject("Railing" + i).transform; rail.SetParent(root, false);
                 Vector3 ra = inn + VtTang(i) * galHalf + Vector3.up * VtGal, rb = inn - VtTang(i) * galHalf + Vector3.up * VtGal;
-                bool stairGap = i == 2; // merdiven köprüsü (x -2.05..-1.05)
+                bool stairGap = i == 2; // merdiven köprüsü (x -2.35..-0.85)
                 int nb = Mathf.RoundToInt((ra - rb).magnitude / 0.22f);
                 for (int k = 0; k <= nb; k++)
                 {
                     var p = Vector3.Lerp(ra, rb, k / (float)nb);
-                    if (stairGap && Mathf.Abs(p.x + 1.55f) < 0.55f) continue;
+                    if (stairGap && Mathf.Abs(p.x + 1.6f) < 0.8f) continue;
                     Rod("Bar", rail, p, p + Vector3.up * 0.95f, 0.025f, K.iron);
                 }
-                Rod("Top", rail, ra + Vector3.up * 0.98f, rb + Vector3.up * 0.98f, 0.06f, K.iron);
-                Rod("Mid", rail, ra + Vector3.up * 0.1f, rb + Vector3.up * 0.1f, 0.04f, K.iron);
+                var segs = new List<(Vector3, Vector3)>();
+                if (stairGap)
+                {   // köprü ağzında üst/alt bar da kesilir (çıkış açık görünsün)
+                    Vector3 ga = new Vector3(-2.4f, VtGal, galIn), gb = new Vector3(-0.8f, VtGal, galIn);
+                    bool aLeft = ra.x < rb.x;
+                    segs.Add(aLeft ? (ra, ga) : (ra, gb)); segs.Add(aLeft ? (gb, rb) : (ga, rb));
+                }
+                else segs.Add((ra, rb));
+                foreach (var (s0, s1) in segs)
+                {
+                    Rod("Top", rail, s0 + Vector3.up * 0.98f, s1 + Vector3.up * 0.98f, 0.06f, K.iron);
+                    Rod("Mid", rail, s0 + Vector3.up * 0.1f, s1 + Vector3.up * 0.1f, 0.04f, K.iron);
+                }
                 CombineChildren(rail, "vault_rail_" + i, K.iron);
                 ProbeLit(rail.gameObject, false);
                 if (stairGap) continue;
                 var blk = new GameObject("RailBlock").AddComponent<BoxCollider>();
                 blk.transform.SetParent(root, false);
-                blk.transform.localPosition = (ra + rb) * 0.5f + Vector3.up * 0.55f;
+                blk.transform.localPosition = (ra + rb) * 0.5f + Vector3.up * 0.65f;
                 blk.transform.localRotation = Quaternion.LookRotation(-VtDir(i));
-                blk.size = new Vector3((ra - rb).magnitude, 1.1f, 0.12f);
+                blk.size = new Vector3((ra - rb).magnitude + 0.3f, 1.3f, 0.25f);
             }
             // Kuzey korkuluğunda merdiven ağzı: engeli iki parçaya böl (yukarıdaki tek parça yerine)
             {
-                foreach (var (x0, x1) in new[] { (-galHalf, -2.1f), (-1.0f, galHalf) })
+                foreach (var (x0, x1) in new[] { (-galHalf - 0.15f, -2.4f), (-0.8f, galHalf + 0.15f) })
                 {
                     var b = new GameObject("RailBlock").AddComponent<BoxCollider>();
                     b.transform.SetParent(root, false);
-                    b.transform.localPosition = new Vector3((x0 + x1) * 0.5f, VtGal + 0.55f, galIn);
-                    b.size = new Vector3(x1 - x0, 1.1f, 0.12f);
+                    b.transform.localPosition = new Vector3((x0 + x1) * 0.5f, VtGal + 0.65f, galIn);
+                    b.size = new Vector3(x1 - x0, 1.3f, 0.25f);
                 }
             }
 
@@ -331,36 +342,54 @@ namespace CoopGame.EditorTools
                 ProbeLit(bat.gameObject);
             }
 
-            // --- Döner merdiven (ortada serbest; kuzey galeriye çıkar) ---
+            // --- Döner merdiven (ortada serbest; kuzey galeriye çıkar). Geniş (r 1.8), dış kenar görünmez engelli, çıkış açık. ---
             {
                 var st = new GameObject("SpiralStair").transform; st.SetParent(root, false);
-                var axis = new Vector3(-1.6f, 0, 4.6f);
+                var axis = new Vector3(-1.6f, 0, 4.3f);
                 st.localPosition = axis;
-                const int N = 21; const float rise = 0.2f, rIn = 0.16f, rOut = 1.3f, dTh = 27.4f;
-                Prim("Newel", st, PrimitiveType.Cylinder, new Vector3(0, 2.4f, 0), new Vector3(0.3f, 2.4f, 0.3f), K.iron).AddComponent<CapsuleCollider>();
+                const int N = 21; const float rise = 0.2f, rIn = 0.18f, rOut = 1.8f, dTh = 27.4f;
+                const int railFrom = 3, railTo = 18; // alt 3 basamak giriş, son 2 basamak çıkış: korkuluksuz
+                Prim("Newel", st, PrimitiveType.Cylinder, new Vector3(0, 2.4f, 0), new Vector3(0.36f, 2.4f, 0.36f), K.iron).AddComponent<CapsuleCollider>();
                 var posts = new GameObject("Rail").transform; posts.SetParent(st, false);
-                Vector3 prevTop = Vector3.zero;
+                const float hh = 0.95f;
+                void Guard(Vector3 a0, Vector3 b0) // a0/b0: basamak/köprü yüzeyinde iki nokta
+                {
+                    Rod("Post", posts, b0, b0 + Vector3.up * hh, 0.035f, K.iron);
+                    Rod("Hand", posts, a0 + Vector3.up * hh, b0 + Vector3.up * hh, 0.05f, K.iron);
+                    Rod("Mid", posts, a0 + Vector3.up * 0.45f, b0 + Vector3.up * 0.45f, 0.025f, K.iron);
+                    var h = b0 - a0; h.y = 0;
+                    var c = new GameObject("RailBlock").AddComponent<BoxCollider>();
+                    c.transform.SetParent(st, false);
+                    c.transform.localPosition = (a0 + b0) * 0.5f + Vector3.up * 0.65f;
+                    c.transform.localRotation = Quaternion.FromToRotation(Vector3.right, h.normalized);
+                    c.size = new Vector3(h.magnitude + 0.15f, 1.3f + Mathf.Abs(a0.y - b0.y), 0.22f);
+                }
+                Vector3 Edge(int k) { float t = (-90f + k * dTh) * Mathf.Deg2Rad; return new Vector3(Mathf.Cos(t), 0, Mathf.Sin(t)) * (rOut - 0.05f) + Vector3.up * (rise * (k + 1)); }
                 for (int k = 0; k < N; k++)
                 {
                     float th = (-90f + k * dTh) * Mathf.Deg2Rad;
                     var dir = new Vector3(Mathf.Cos(th), 0, Mathf.Sin(th));
                     float y = rise * (k + 1);
-                    var tread = Slab("Tread", st, dir * ((rIn + rOut) * 0.5f) + Vector3.up * (y - 0.04f), new Vector3(0.66f, 0.08f, rOut - rIn + 0.1f), K.beam, 1f, false);
+                    var tread = Slab("Tread", st, dir * ((rIn + rOut) * 0.5f) + Vector3.up * (y - 0.04f), new Vector3(0.92f, 0.08f, rOut - rIn + 0.1f), K.beam, 1f, false);
                     tread.transform.localRotation = Quaternion.LookRotation(dir);
                     var bc = tread.AddComponent<BoxCollider>();
-                    bc.center = new Vector3(0, -0.06f, 0); bc.size = new Vector3(0.66f, 0.2f, rOut - rIn + 0.1f);
+                    bc.center = new Vector3(0, -0.06f, 0); bc.size = new Vector3(0.92f, 0.2f, rOut - rIn + 0.1f);
                     Slab("Riser", st, dir * ((rIn + rOut) * 0.5f) + Vector3.up * (y - 0.14f), new Vector3(0.04f, 0.12f, rOut - rIn), K.iron, 1f, false).transform.localRotation = Quaternion.LookRotation(dir);
-                    var pb = dir * (rOut - 0.04f) + Vector3.up * y;
-                    Rod("Post", posts, pb, pb + Vector3.up * 0.92f, 0.03f, K.iron);
-                    if (k > 0) Rod("Hand", posts, prevTop, pb + Vector3.up * 0.92f, 0.045f, K.iron);
-                    prevTop = pb + Vector3.up * 0.92f;
+                    if (k == railFrom) Rod("Post", posts, Edge(k), Edge(k) + Vector3.up * hh, 0.035f, K.iron);
+                    if (k > railFrom && k <= railTo) Guard(Edge(k - 1), Edge(k));
                 }
+                // Köprü: son basamaktan (y 4.2, ~98°) galeri kenarına; iki yanı korkuluklu
+                float bz0 = 1.5f, bz1 = galIn - axis.z + 0.15f, bw = 0.78f;
+                Slab("Bridge", st, new Vector3(0, VtGal - 0.055f, (bz0 + bz1) * 0.5f), new Vector3(bw * 2f, 0.1f, bz1 - bz0), K.beam, 1f);
+                Rod("Post", posts, new Vector3(bw, VtGal, bz0), new Vector3(bw, VtGal + hh, bz0), 0.035f, K.iron);
+                Guard(new Vector3(bw, VtGal, bz0), new Vector3(bw, VtGal, bz1 - 0.1f));
+                Guard(new Vector3(-bw, VtGal, bz0), new Vector3(-bw, VtGal, bz1 - 0.1f));
+                // Sağ: son korkuluk dikmesinden köprüye; sol: köprüden direğe (üst basamağın açık kenarı)
+                Guard(Edge(railTo), new Vector3(bw, VtGal, bz0));
+                float tl = 114f * Mathf.Deg2Rad;
+                Guard(new Vector3(Mathf.Cos(tl) * 0.22f, VtGal, Mathf.Sin(tl) * 0.22f), new Vector3(-bw, VtGal, bz0));
                 CombineChildren(posts, "vault_stair_rail", K.iron);
                 ProbeLit(posts.gameObject, false);
-                // Son basamak (y 4.2, ~98°) → galeri kenarına köprü
-                float bz0 = 1.25f, bz1 = galIn - axis.z + 0.15f;
-                Slab("Bridge", st, new Vector3(0.05f, VtGal - 0.055f, (bz0 + bz1) * 0.5f), new Vector3(1.0f, 0.1f, bz1 - bz0), K.beam, 1f);
-                foreach (float s in new[] { -1f, 1f }) Rod("BridgeRail", st, new Vector3(0.05f + s * 0.52f, VtGal, bz0 + 0.3f), new Vector3(0.05f + s * 0.52f, VtGal + 0.9f, bz0 + 0.3f), 0.03f, K.iron);
                 ProbeLit(st.gameObject);
             }
 
