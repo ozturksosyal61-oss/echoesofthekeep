@@ -904,7 +904,7 @@ namespace CoopGame.EditorTools
             PhProp("DisplayShelf", "wooden_display_shelves_01", 1.6f);
             PhProp("FirePit", "stone_fire_pit", 0.36f);
             PhProp("LanternChandelier", "lantern_chandelier_01", 0.9f, solid: false);
-            PhProp("Barrel2", "Barrel_01", 0.9f);
+            PhProp("Barrel2", "wine_barrel_01", 0.9f, tint: new Color(0.78f, 0.72f, 0.66f)); // Barrel_01/02, barrel_03 modern metal varil: kullanılmaz
             PhProp("HorseHead", "horse_head", 0.45f, solid: false);
             PhProp("PaintingPortrait", "hanging_picture_frame_03", 1.0f, solid: false, wall: true);
             // Harita odası (B5) seyahat/kâşif koleksiyonu
@@ -936,8 +936,8 @@ namespace CoopGame.EditorTools
             PhProp("Bucket2", "wooden_bucket_02", 0.35f);
             PhProp("FoldStool", "folding_wooden_stool", 0.44f);
             PhProp("LadderWood", "wooden_ladder", 1.33f, solid: false);
-            PhProp("Barrel3", "barrel_03", 0.93f);
-            PhProp("Barrel4", "Barrel_02", 0.88f);
+            PhProp("Barrel3", "wine_barrel_01", 0.93f, tint: new Color(0.66f, 0.6f, 0.56f));
+            PhProp("Barrel4", "wine_barrel_01", 0.88f, tint: new Color(0.85f, 0.8f, 0.72f));
             PhProp("Tray", "wicker_basket_01", 0.38f, solid: false, byMax: true);
             PhProp("CeramicVase1", "ceramic_vase_01", 0.4f, solid: false);
             PhProp("CeramicVase3", "ceramic_vase_03", 0.41f, solid: false);
