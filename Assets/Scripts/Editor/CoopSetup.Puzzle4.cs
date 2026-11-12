@@ -207,6 +207,7 @@ namespace CoopGame.EditorTools
             {
                 Kit("Bookshelf", root, new Vector3(x, 0, hz - 0.4f), 180f);
                 Kit("BookRow", root, new Vector3(x, 0.98f, hz - 0.4f), 180f);
+                if (x < -7f) continue; // galeride çarkın yeri
                 Kit("Bookshelf", root, new Vector3(x, GY, hz - 0.4f), 180f);
                 Kit("BookRow", root, new Vector3(x, GY + 0.98f, hz - 0.4f), 180f);
             }
@@ -215,7 +216,7 @@ namespace CoopGame.EditorTools
             Kit("WindowRose", root, new Vector3(0, 7.6f, hz), 180f, 0.8f);
             Kit("StudyTable", root, new Vector3(-3.0f, GY, 9.6f), 180f);
             Kit("Stool", root, new Vector3(-3.2f, GY, 8.7f), 20f);
-            Kit("L_Lantern", root, new Vector3(-2.3f, GY + 0.82f, 9.5f));
+            Kit("L_Lantern", root, new Vector3(-6.4f, GY, 7.7f), 30f); // çarkı aydınlatır
             Kit("Armillary", root, new Vector3(3.0f, GY, 8.4f), 30f);
             Kit("WallSconce", root, new Vector3(-2.1f, GY + 2.1f, hz - 0.03f), 180f);
             Kit("L_Candle", root, new Vector3(-2.1f, GY + 2.2f, hz - 0.7f));
@@ -238,7 +239,7 @@ namespace CoopGame.EditorTools
             Kit("StatueKing", root, new Vector3(hx - 0.75f, 0.7f, -6f), -90f, 1.2f);
             foreach (float z in new[] { -5f, 5f })
                 KitR("WindowLancet", root, new Vector3(hx, 5.0f, z), Quaternion.Euler(0, -90, 0), 1.3f);
-            KitR("PaintingKeep", root, new Vector3(hx - 0.04f, 2.6f, -2.6f), Quaternion.Euler(0, -90, 0), 1.3f);
+            KitR("PaintingKeep", root, new Vector3(hx - 0.04f, 2.6f, -9.3f), Quaternion.Euler(0, -90, 0), 1.3f);
             // --- Güney: giriş kapısı (geliş), iki büyük vitray, büstler ---
             Kit("Door", root, new Vector3(0, 0, -hz + 0.12f), 0f, 1.1f);
             ArchTrim(root, "EntryArch", new Vector3(0, 0, -hz), Vector3.forward, 2.6f, 3.8f, true);
@@ -257,16 +258,18 @@ namespace CoopGame.EditorTools
             {
                 var stand = new GameObject("WheelStand").transform;
                 stand.SetParent(root, false);
-                stand.localPosition = new Vector3(0, 0, 0.6f);
+                stand.localPosition = new Vector3(-hx + 0.55f, GY, 9.0f); // galerinin batı ucu: girişten görünmez, aranır
+                stand.localRotation = Quaternion.Euler(0, -90, 0);
                 foreach (int s in new[] { -1, 1 })
-                    Slab("Post", stand, new Vector3(s * 1.3f, 1.6f, 0.1f), new Vector3(0.18f, 3.2f, 0.18f), K.furniture, 1.2f);
-                Slab("Cross", stand, new Vector3(0, 3.25f, 0.1f), new Vector3(2.8f, 0.18f, 0.18f), K.furniture, 1.2f, false);
-                Slab("Foot", stand, new Vector3(0, 0.1f, 0.1f), new Vector3(2.9f, 0.2f, 0.7f), K.furniture, 1.2f);
+                    Slab("Post", stand, new Vector3(s * 1.3f, 1.6f, 0.15f), new Vector3(0.18f, 3.2f, 0.18f), K.furniture, 1.2f);
+                Slab("Cross", stand, new Vector3(0, 3.25f, 0.15f), new Vector3(2.8f, 0.18f, 0.18f), K.furniture, 1.2f, false);
+                Slab("Foot", stand, new Vector3(0, 0.1f, 0.15f), new Vector3(2.9f, 0.2f, 0.5f), K.furniture, 1.2f);
                 ProbeLit(stand.gameObject);
 
                 var w = new GameObject("CipherWheel").transform;
                 w.SetParent(root, false);
-                w.localPosition = new Vector3(0, 2.0f, 0.55f);
+                w.localPosition = new Vector3(-hx + 0.5f, GY + 2.0f, 9.0f);
+                w.localRotation = Quaternion.Euler(0, -90, 0); // yüz doğuya (galeriye)
                 var bc = w.gameObject.AddComponent<BoxCollider>(); bc.size = new Vector3(2.4f, 2.4f, 0.25f);
                 w.gameObject.AddComponent<Interactable>().Label = "Çarkı çevir";
                 var axisZ = Quaternion.Euler(90, 0, 0);
@@ -296,10 +299,31 @@ namespace CoopGame.EditorTools
                 }
                 wheelRoot = w;
             }
-            Kit("StudyTable", root, new Vector3(0, 0, -0.55f), 180f);
-            Kit("L_Candelabra", root, new Vector3(0.9f, 1.8f, -0.9f));
-            Kit("L_Lantern", root, new Vector3(-0.9f, 0.82f, -0.6f));
-            Kit("Stool", root, new Vector3(0.6f, 0, -1.5f), 30f);
+            // Orta: harita masası (dikkat dağıtır; çark galeride)
+            Kit("RoundTable", root, new Vector3(0, 0, 0.2f), 0f, 1.3f);
+            Kit("Compass", root, new Vector3(0.3f, 1.05f, 0.1f), 40f);
+            Kit("Magnifier", root, new Vector3(-0.35f, 1.05f, 0.35f), 120f);
+            Kit("OilLamp", root, new Vector3(0.5f, 1.04f, 0.6f));
+            Kit("PaperPile", root, new Vector3(-0.2f, 1.04f, -0.2f), 15f);
+            Kit("CandlestickWood", root, new Vector3(-0.55f, 1.04f, -0.1f));
+            Kit("L_Candelabra", root, new Vector3(0.4f, 1.8f, 0.2f));
+            Kit("L_Lantern", root, new Vector3(-0.9f, 0, -1.1f));
+            Kit("Stool", root, new Vector3(1.1f, 0, -0.9f), 30f);
+            Kit("Stool", root, new Vector3(-1.2f, 0, 1.2f), -50f);
+            // Silah duvarı (doğu, merdiven başı) + ayna + portre + at heykeli
+            KitR("Shield", root, new Vector3(hx - 0.06f, 1.55f, -2.6f), Quaternion.Euler(0, -90, 0));
+            foreach (int s in new[] { -1, 1 })
+                KitR("Sword", root, new Vector3(hx - 0.1f, 1.45f, -2.6f + s * 0.25f), Quaternion.Euler(0, -90, 0) * Quaternion.Euler(0, 0, s * 28f));
+            KitR("Mirror", root, new Vector3(-hx + 0.04f, 1.4f, -7.5f), Quaternion.Euler(0, 90, 0));
+            KitR("PaintingPortrait", root, new Vector3(-hx + 0.04f, 2.3f, 3.6f), Quaternion.Euler(0, 90, 0), 1.3f);
+            Slab("HorsePlinth", root, new Vector3(4.6f, 0.4f, -7.4f), new Vector3(1.2f, 0.8f, 0.8f), stone, 1.2f);
+            Kit("HorseStatue", root, new Vector3(4.6f, 0.8f, -7.4f), -120f);
+            Kit("DisplayShelf", root, new Vector3(-hx + 0.3f, 0, -6.9f + 4.6f), 90f);
+            Kit("VaseCeramic", root, new Vector3(-hx + 0.5f, 0, -3.3f));
+            Kit("Jug", root, new Vector3(0.1f, 1.04f, 0.6f), 40f);
+            Kit("Plate", root, new Vector3(-0.2f, 1.04f, 0.55f));
+            Kit("Basket", root, new Vector3(-6.8f, 0, -9.6f), 20f);
+            Kit("LanternChandelier", root, new Vector3(0, H - 1.0f, 4.2f - 4.2f), 0f);
             Kit("PaperScatter", root, new Vector3(-1.4f, 0, -2.2f), 30f);
             Kit("PaperScatter", root, new Vector3(1.8f, 0, -1.8f), 150f);
             Kit("PaperPile", root, new Vector3(2.2f, 0, -0.4f), 70f);
@@ -458,7 +482,8 @@ namespace CoopGame.EditorTools
             {
                 lectern = new GameObject("Lectern").transform;
                 lectern.SetParent(root, false);
-                lectern.localPosition = new Vector3(-2.4f, 0, 5.0f);
+                lectern.localPosition = new Vector3(-7.4f, 0, -10.4f); // batı yan nef, gölgede: aranır
+                lectern.localRotation = Quaternion.Euler(0, 90, 0);
                 Slab("Base", lectern, new Vector3(0, 0.08f, 0), new Vector3(0.7f, 0.16f, 0.6f), stone, 1f);
                 Slab("Stem", lectern, new Vector3(0, 0.6f, 0), new Vector3(0.32f, 1.0f, 0.32f), stone, 1f, false);
                 const float tilt = 28f;
@@ -484,10 +509,19 @@ namespace CoopGame.EditorTools
                 sg.SetParent(lectern, false);
                 sg.localPosition = topC + n * 0.05f - up * 0.14f + new Vector3(0.22f, 0, 0);
                 sg.localRotation = face;
+                Kit("CandleCluster", root, new Vector3(-6.8f, 0, -9.7f));
+                Kit("L_Lantern", root, new Vector3(-7.0f, 0, -11.3f), 30f);
+                Kit("PaperScatter", root, new Vector3(-6.2f, 0, -10.0f), 60f);
+                // Nefteki sahte kürsü: açık kitap, mum (mektup burada değil)
+                var decoy = new GameObject("DecoyLectern").transform;
+                decoy.SetParent(root, false);
+                decoy.localPosition = new Vector3(-2.4f, 0, 5.0f);
+                Slab("Base", decoy, new Vector3(0, 0.08f, 0), new Vector3(0.7f, 0.16f, 0.6f), stone, 1f);
+                Slab("Stem", decoy, new Vector3(0, 0.6f, 0), new Vector3(0.32f, 1.0f, 0.32f), stone, 1f, false);
+                Slab("Board", decoy, new Vector3(0, 1.15f, 0), new Vector3(0.9f, 0.08f, 0.62f), stone, 1f, false).transform.localRotation = Quaternion.Euler(-28, 0, 0);
+                KitR("BookStack", decoy, new Vector3(0, 1.2f, 0), Quaternion.Euler(-28, 90, 0), 0.8f);
                 Kit("CandleCluster", root, new Vector3(-1.7f, 0, 5.5f));
                 Kit("L_Candle", root, new Vector3(-1.9f, 1.6f, 5.6f));
-                Kit("L_Lantern", root, new Vector3(-3.1f, 0, 5.6f), 30f);
-                Kit("PaperScatter", root, new Vector3(-2.0f, 0, 4.0f), 60f);
                 Kit("BookStack", root, new Vector3(-3.0f, 0, 4.4f), 20f);
             }
 
@@ -527,6 +561,23 @@ namespace CoopGame.EditorTools
             Kit("StudyTable", root, new Vector3(-6.7f, 0, 10.6f), 90f); // aradaki mektuplar (hikâye)
             Kit("Stool", root, new Vector3(-5.8f, 0, 10.2f), -30f);
             Kit("Chest", root, new Vector3(6.9f, 0, 12.6f), -90f);
+            // Yeni dekor: giriş mangalı, lahitlerde kılıç/kalkan, testi/vazo, balta, sepet
+            Kit("FirePit", root, new Vector3(0, 0, 9.5f), 0f, 0.8f);
+            Prim("Embers", root, PrimitiveType.Sphere, new Vector3(0, 0.1f, 9.5f), new Vector3(0.75f, 0.1f, 0.75f),
+                 GlowMat("K_Embers", new Color(0.25f, 0.06f, 0.02f), new Color(1f, 0.38f, 0.1f) * 1.4f));
+            Kit("L_Candelabra", root, new Vector3(0, 0.8f, 9.5f));
+            foreach (int s in new[] { -1, 1 })
+                foreach (float z in new[] { -6.8f, 2.2f })
+                {
+                    KitR("Shield", root, new Vector3(s * (hx - 0.06f), 1.6f, z), Quaternion.Euler(0, s < 0 ? 90 : -90, 0));
+                    KitR("Sword", root, new Vector3(s * 6.05f, 0.02f, z - 0.4f), Quaternion.Euler(0, s < 0 ? 90 : -90, 0) * Quaternion.Euler(0, 0, s * 8f));
+                }
+            Kit("VaseCeramic", root, new Vector3(-8.4f, 0, 4.0f));
+            Kit("Jug", root, new Vector3(8.3f, 0, -4.0f), 30f);
+            KitR("Axe", root, new Vector3(8.6f, 0.02f, 4.2f), Quaternion.Euler(0, -90, -12));
+            Kit("Basket", root, new Vector3(7.8f, 0, 11.0f), 10f);
+            Kit("HorseHead", root, new Vector3(-8.65f, 1.66f, -2.3f), 90f);
+            Kit("Mace", root, new Vector3(-6.9f, 0.02f, 9.4f), 30f);
             Kit("Amphora", root, new Vector3(7.6f, 0, -12.8f), 20f);
             // Avizeler (orta nef)
             foreach (float z in new[] { -8f, 0f, 8f })

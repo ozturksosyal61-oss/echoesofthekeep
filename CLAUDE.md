@@ -27,6 +27,7 @@ Görsel yenileme fazları ve devam notu: Docs/ArtPhases.md (Faz 5: mahzen onayl�
 - Referanslar: Docs/Reference/ → lobi_hol.png, mekanizma.jpg, mahzen.png, genel_ic.jpg. Oda tasarlamadan önce hepsini incele. Her yeni oda bu detay seviyesinde, aynı şato stilinde.
 - Yeni oda ASLA boş taş kutu + bulmaca değil; komple yaşanmış mekan: masa, üstünde kağıt/mektup/mum, raf, şişe, sandık, tablo, alet, örümcek ağı. Oda başına min 8-10 dekor objesi, environmental storytelling.
 - Ölçek: yeni odalar lobi gibi geniş ve yüksek (lobi 18x22, tavan 9 m; ref CoopSetup.Hall.cs + lobi_hol.png): galeri/sahanlık, niş, heykel, büst, sancak, tablo. Basık 10x10 oda yok (bilinçli dar: mahzen). Eski odalar sonra büyütülecek.
+- Bulmaca girişte göze batmaz: oyuncu odayı keşfedip aramalı (galeri, yan nef, niş; gerekirse sahte ipucu). Odalar arası tekrar yok: her odaya yeni dekor (Assets/ThirdParty, gerekirse yeni CC0 indir).
 - Şato iç: ahşap lambri, sıva, kiriş, parke, kumaş. Yer altı (mahzen/sarnıç): taş.
 - Sadece Docs/StyleGuide.md paleti ve Art kit (Assets/Art/Kit) kullanılır. Pembe/neon/parlak renk yasak.
 - Referans görseli olmayan yeni oda için önce kullanıcıya Gemini prompt'u yaz (sonuna "no text"), görsel gelince tasarla.

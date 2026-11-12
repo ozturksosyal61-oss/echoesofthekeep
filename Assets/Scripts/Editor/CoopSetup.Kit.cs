@@ -863,6 +863,30 @@ namespace CoopGame.EditorTools
             PhProp("Plane", "hand_plane_no4", 0.26f, solid: false, byMax: true);
             PhProp("Dagger", "ornate_medieval_dagger", 0.38f, solid: false, byMax: true);
             PhProp("Lantern", "wooden_lantern_01", 0.42f, solid: false);
+            // Faz 6 ekleri (Poly Haven CC0): heykel, silah, ayna, masa üstü, raf
+            PhProp("HorseStatue", "horse_statue_01", 0.9f);
+            PhProp("Shield", "kite_shield", 1.05f, solid: false, wall: true);
+            PhProp("Sword", "antique_estoc", 1.25f, solid: false);
+            PhProp("WarHammer", "ornate_war_hammer", 0.72f, solid: false);
+            PhProp("Mace", "ornate_medieval_mace", 0.63f, solid: false);
+            PhProp("Mirror", "ornate_mirror_01", 1.1f, solid: false, wall: true);
+            PhProp("Magnifier", "magnifying_glass_01", 0.27f, solid: false, byMax: true, euler: new Vector3(90, 0, 0));
+            PhProp("Compass", "seadogs_compass", 0.09f, solid: false);
+            PhProp("OilLamp", "vintage_oil_lamp", 0.45f, solid: false);
+            PhProp("CandlestickWood", "wooden_candlestick", 0.22f, solid: false);
+            PhProp("Jug", "jug_01", 0.22f, solid: false);
+            PhProp("VaseCeramic", "antique_ceramic_vase_01", 0.45f, solid: false);
+            PhProp("Plate", "carved_wooden_plate", 0.04f, solid: false);
+            PhProp("FrameStanding", "standing_picture_frame_01", 0.25f, solid: false);
+            PhProp("Basket", "wicker_basket_02", 0.24f);
+            PhProp("Axe", "wooden_axe", 0.65f, solid: false);
+            PhProp("RoundTable", "round_wooden_table_01", 0.8f);
+            PhProp("DisplayShelf", "wooden_display_shelves_01", 1.6f);
+            PhProp("FirePit", "stone_fire_pit", 0.36f);
+            PhProp("LanternChandelier", "lantern_chandelier_01", 0.9f, solid: false);
+            PhProp("Barrel2", "Barrel_01", 0.9f);
+            PhProp("HorseHead", "horse_head", 0.45f, solid: false);
+            PhProp("PaintingPortrait", "hanging_picture_frame_03", 1.0f, solid: false, wall: true);
 
             // --- Manuel (CC-BY) modeller ---
             ManualProp("StatueAngel", "statue", 1.9f, 0.3f, 0f);
