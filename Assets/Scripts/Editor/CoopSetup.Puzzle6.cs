@@ -61,7 +61,10 @@ namespace CoopGame.EditorTools
             SetRefArray(vso, "skyMats", skyMats);
             SetRefArray(vso, "tileMats", tileMats);
             SetRefArray(vso, "tiles", tiles);
-            SetRef(vso, "beamMat", GlowMat("K_MoonBeam", new Color(0.55f, 0.65f, 0.85f), new Color(0.75f, 0.9f, 1.4f)));
+            var beamM = MakeMat("K_MoonBeam", new Color(0.22f, 0.34f, 0.62f), "CoopGame/MoonBeam");
+            beamM.SetColor("_Core", new Color(1.1f, 1.35f, 1.9f));
+            SetRef(vso, "beamMat", beamM);
+            SetRef(vso, "flareMat", MakeMat("K_MoonFlare", new Color(0.9f, 1.15f, 1.7f), "CoopGame/MoonFlare"));
             SetRef(vso, "mouth", mouth);
             SetRef(vso, "wellTop", wellTop);
             SetRef(vso, "spot", spot);
@@ -359,6 +362,63 @@ namespace CoopGame.EditorTools
             Kit("CandleCluster", root, new Vector3(-6.3f, 0, 9.2f));
             Kit("CandleCluster", root, new Vector3(6.2f, 0, -8.6f));
 
+            // --- Gözlemevi genişletmesi (ref cati.png): teleskoplar, küreler, çalışma masaları, notlar, kitaplar ---
+            var navy = MakeMat("K_CelestialGlobe", new Color(0.09f, 0.12f, 0.2f)); navy.SetFloat("_Smoothness", 0.45f);
+            // doğu gözlem platformu: büyük teleskop aya doğru
+            Slab("ObsDeck", root, new Vector3(5.2f, 0.06f, 6.7f), new Vector3(2.8f, 0.12f, 2.4f), wood, 1.2f, false);
+            Telescope(root, new Vector3(5.3f, 0.12f, 6.8f), -30f, 34f, 1.25f);
+            Kit("Stool", root, new Vector3(4.4f, 0.12f, 5.9f), 20f);
+            Kit("Crate", root, new Vector3(6.3f, 0.12f, 5.8f), 10f);
+            Kit("BookStack", root, new Vector3(6.3f, 0.72f, 5.8f), 40f);
+            Kit("PaperC", root, new Vector3(6.2f, 0.75f, 5.7f), 70f);
+            Kit("Lantern", root, new Vector3(4.1f, 0.12f, 7.6f), 0f);
+            // gökbilimci masası (doğu) zenginleşir
+            Kit("BookSet", root, new Vector3(5.45f, 0.56f, -1.35f), 105f, 0.8f);
+            Kit("OilLamp", root, new Vector3(4.35f, 0.56f, -1.3f), 0f);
+            Kit("Goblet1", root, new Vector3(5.6f, 0.56f, -0.55f), 0f);
+            Kit("PaperScatter", root, new Vector3(4.3f, 0.01f, -2.4f), 40f);
+            Globe(root, new Vector3(6.2f, 0, -2.5f), 1.0f, navy);
+            Kit("Commode", root, new Vector3(6.45f, 0, -4.4f), -90f);
+            Kit("BookStack", root, new Vector3(6.45f, 0.95f, -4.75f), 15f);
+            Kit("Jug", root, new Vector3(6.45f, 0.95f, -4.0f), 0f);
+            Kit("Candlestick", root, new Vector3(6.5f, 0.95f, -4.4f), 0f);
+            // batı çalışma köşesi: masa + notlar + orta teleskop
+            Kit("Rug", root, new Vector3(-5.3f, 0.04f, 6.3f), 90f, 0.8f);
+            Kit("StudyTable", root, new Vector3(-5.8f, 0, 6.3f), 90f);
+            Kit("Stool", root, new Vector3(-4.7f, 0, 5.7f), 10f);
+            Kit("PaperScatter", root, new Vector3(-4.9f, 0.05f, 7.2f), 200f);
+            Kit("BookStack", root, new Vector3(-6.5f, 0.05f, 7.3f), 70f);
+            Telescope(root, new Vector3(-2.7f, 0, 6.3f), 20f, 40f, 1.0f);
+            Kit("Lantern", root, new Vector3(-3.3f, 0.05f, 5.4f), 0f);
+            // güneybatı harita masası: küre + harita + mumlar
+            Kit("RoundTable", root, new Vector3(-3.6f, 0, -4.6f), 0f);
+            Globe(root, new Vector3(-3.75f, 0.8f, -4.45f), 0.45f, navy);
+            Kit("PaperA", root, new Vector3(-3.3f, 0.8f, -4.85f), 30f);
+            Kit("Compass", root, new Vector3(-3.25f, 0.8f, -4.4f), 0f);
+            Kit("Candlestick", root, new Vector3(-3.95f, 0.8f, -4.95f), 0f);
+            Kit("Stool", root, new Vector3(-2.7f, 0, -5.1f), 40f);
+            Kit("Stool", root, new Vector3(-4.4f, 0, -3.7f), 200f);
+            Kit("Basket", root, new Vector3(-4.6f, 0, -5.6f), 0f);
+            // batı onarım tezgâhı (mercek/ayna parçaları)
+            Kit("Workbench", root, new Vector3(-6.2f, 0, -6.9f), 90f);
+            Kit("Crate", root, new Vector3(-5.9f, 0, -10.6f), 25f);
+            Kit("Lantern", root, new Vector3(-5.9f, 0.6f, -10.6f), 0f);
+            Kit("Bottle1", root, new Vector3(-5.2f, 0, -9.4f), 0f);
+            // güneydoğu küçük teleskop + sepet
+            Telescope(root, new Vector3(3.3f, 0, -12.1f), 0f, 28f, 0.85f);
+            Kit("Basket", root, new Vector3(4.2f, 0, -12.9f), 0f);
+            Kit("PaperB", root, new Vector3(2.7f, 0.01f, -11.4f), 10f);
+            // batı: kaide üstünde armiller küre
+            Slab("ArmPlinth", root, new Vector3(-6.0f, 0.45f, 0.0f), new Vector3(0.8f, 0.9f, 0.8f), stone, 1f);
+            Kit("Armillary", root, new Vector3(-6.0f, 0.9f, 0.0f), 30f, 1.3f);
+            // korkuluklarda fenerler + mumlar
+            foreach (float z in new[] { -6.4f, 3.6f, 11.6f }) Kit("Lantern", root, new Vector3(-hx - 0.3f, 1.1f, z), 0f);
+            foreach (float z in new[] { -5f, 3f, 9f }) Kit("Lantern", root, new Vector3(hx + 0.25f, 0.5f, z), 0f);
+            Kit("CandleCluster", root, new Vector3(-6.4f, 0, -1.4f));
+            Kit("CandleCluster", root, new Vector3(6.4f, 0, 2.6f));
+            Kit("L_Candle", root, new Vector3(-5.6f, 1.15f, 6.3f));
+            Kit("L_Candle", root, new Vector3(5.0f, 0.9f, -1.0f));
+
             // Işık: yukarıdan baked ay dolgu ışığı (kuzeyden)
             var fill = LightGo("MoonFill", LightType.Spot, Pal.Moon, 30f, 60f, true);
             fill.transform.SetParent(root, false);
@@ -373,6 +433,75 @@ namespace CoopGame.EditorTools
             KitProbes(root, new Vector3(0, 2.2f, 0), new Vector3(hx * 2f, 4f, hz * 2f), 5, 2, 9);
             KitReflection(root, new Vector3(0, 2f, 0), new Vector3(hx * 2f, 6f, hz * 2f));
             return root;
+        }
+
+        /// <summary>Silindir boru (yuvarlak; Rod kare kesitli).</summary>
+        static GameObject Tube(string name, Transform parent, Vector3 a, Vector3 b, float r, Material mat)
+        {
+            var go = Prim(name, parent, PrimitiveType.Cylinder, (a + b) * 0.5f, new Vector3(r * 2f, (b - a).magnitude * 0.5f, r * 2f), mat);
+            go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, (b - a).normalized);
+            return go;
+        }
+
+        /// <summary>Ahşap tripod üstünde pirinç teleskop. yaw: bakış yönü, pitch: yükselme açısı. pos: zemin.</summary>
+        static void Telescope(Transform parent, Vector3 pos, float yaw, float pitch, float scale)
+        {
+            var t = new GameObject("Telescope").transform;
+            t.SetParent(parent, false); t.localPosition = pos; t.localRotation = Quaternion.Euler(0, yaw, 0); t.localScale = Vector3.one * scale;
+            var head = new Vector3(0, 1.25f, 0);
+            foreach (float a in new[] { 0f, 120f, 240f })
+            {
+                var foot = Quaternion.Euler(0, a + 60f, 0) * Vector3.forward * 0.55f;
+                Tube("Leg", t, foot, head, 0.03f, K.beam);
+                Prim("Shoe", t, PrimitiveType.Sphere, foot + Vector3.up * 0.02f, Vector3.one * 0.07f, K.brass);
+                Tube("Brace", t, Vector3.Lerp(foot, head, 0.35f), new Vector3(0, 0.45f, 0), 0.012f, K.brass);
+            }
+            Prim("Hub", t, PrimitiveType.Cylinder, head, new Vector3(0.16f, 0.05f, 0.16f), K.brass);
+            Prim("Yoke", t, PrimitiveType.Cube, head + Vector3.up * 0.1f, new Vector3(0.05f, 0.18f, 0.14f), K.bronze);
+            var dir = Quaternion.Euler(-pitch, 0, 0) * Vector3.forward;
+            var p = head + Vector3.up * 0.18f;
+            var back = p - dir * 0.55f; var front = p + dir * 0.95f;
+            Tube("TubeMain", t, back, front, 0.075f, K.brass);
+            Tube("TubeLeather", t, Vector3.Lerp(back, front, 0.25f), Vector3.Lerp(back, front, 0.6f), 0.08f, K.leather);
+            Tube("Dew", t, front, front + dir * 0.28f, 0.095f, K.brass);
+            Tube("Draw", t, back - dir * 0.3f, back, 0.05f, K.brass);
+            Tube("Eyepiece", t, back - dir * 0.42f, back - dir * 0.3f, 0.028f, K.iron);
+            foreach (float k in new[] { 0.05f, 0.62f, 0.98f })
+                Tube("Band", t, Vector3.Lerp(back, front, k) - dir * 0.015f, Vector3.Lerp(back, front, k) + dir * 0.015f, 0.088f, K.bronze);
+            Tube("Lens", t, front + dir * 0.26f, front + dir * 0.275f, 0.08f, K.lanternGlass);
+            Tube("Finder", t, Vector3.Lerp(back, front, 0.3f) + Vector3.up * 0.12f, Vector3.Lerp(back, front, 0.75f) + Vector3.up * 0.12f, 0.022f, K.brass);
+            var col = t.gameObject.AddComponent<CapsuleCollider>(); col.center = new Vector3(0, 0.8f, 0); col.radius = 0.35f; col.height = 1.6f;
+        }
+
+        /// <summary>Gök küresi: koyu lacivert küre, eğik pirinç meridyen halkası, ekvator halkası, ahşap ayak. size 1 = yer küresi (~1.2 m).</summary>
+        static void Globe(Transform parent, Vector3 pos, float size, Material sphere)
+        {
+            var g = new GameObject("Globe").transform;
+            g.SetParent(parent, false); g.localPosition = pos; g.localScale = Vector3.one * size;
+            bool floor = size > 0.7f;
+            float cy = floor ? 0.85f : 0.42f;
+            if (floor)
+            {
+                foreach (float a in new[] { 0f, 90f, 180f, 270f })
+                {
+                    var d = Quaternion.Euler(0, a + 45f, 0) * Vector3.forward;
+                    Tube("Leg", g, d * 0.38f, d * 0.2f + Vector3.up * 0.62f, 0.03f, K.furniture);
+                }
+                MeshObj("Horizon", g, Vector3.up * 0.62f, RingMesh(0.42f, 0.08f, 0.04f), K.furniture);
+            }
+            else
+            {
+                Prim("Foot", g, PrimitiveType.Cylinder, Vector3.up * 0.02f, new Vector3(0.36f, 0.02f, 0.36f), K.furniture);
+                Tube("Stem", g, Vector3.up * 0.04f, Vector3.up * 0.14f, 0.03f, K.brass);
+            }
+            var c = Vector3.up * cy;
+            Prim("Sphere", g, PrimitiveType.Sphere, c, Vector3.one * (floor ? 0.62f : 0.5f), sphere);
+            float rr = floor ? 0.35f : 0.29f;
+            var mer = MeshObj("Meridian", g, c, RingMesh(rr, 0.025f, 0.03f), K.brass).transform;
+            mer.localRotation = Quaternion.Euler(0, 0, 23.5f) * Quaternion.Euler(90, 0, 0);
+            if (!floor) Tube("Arm", g, Vector3.up * 0.14f, c + Quaternion.Euler(0, 0, 23.5f) * Vector3.down * rr, 0.015f, K.brass);
+            MeshObj("Equator", g, c, RingMesh(rr * 0.98f, 0.015f, 0.02f), K.brass).transform.localRotation = Quaternion.Euler(0, 0, 23.5f);
+            if (floor) { var col = g.gameObject.AddComponent<SphereCollider>(); col.center = c; col.radius = 0.4f; }
         }
 
         // ---------------- Kuyu odası (O) ----------------
