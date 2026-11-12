@@ -68,6 +68,7 @@ namespace CoopGame.EditorTools
             }
             if (recess)
             {
+                if (voidMat == null) { voidMat = MakeMat("K_Void", new Color(0.012f, 0.012f, 0.016f)); voidMat.SetFloat("_Smoothness", 0f); } // hol öncesi odalar da kullanır
                 Slab("Void", t, new Vector3(0, hs * 0.5f, 0.02f), new Vector3(w, hs, 0.03f), voidMat, 1f, false);
                 for (int i = 0; i < 4; i++)
                 {
