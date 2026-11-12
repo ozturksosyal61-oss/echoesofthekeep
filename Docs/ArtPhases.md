@@ -19,6 +19,7 @@ Token tasarrufu: oda başına 1–2 ekran görüntüsü oku; her faz ayrı oturu
 - O rolü şu an Layout.Spawn(Roles.O) = zindan başlangıcına ışınlanıyor; kullanıcı "O → aşağı mahzen" dedi, mahzen yenilenince başlangıcı gözden geçir.
 
 ## Sonra / açık konular
+- Eski odaları lobi ölçeğine büyüt (saat, hazne, zindan, sarnıç; mahzen dar kalabilir). Kullanıcı istedi, bulmaca 4-7 sonrası.
 - Occlusion culling (StaticOcclusionCulling.Compute) henüz yok.
 - Oyun içi credits ekranı (CC-BY modeller: Docs/CREDITS.md).
 - treasure_chest 95k üçgen; mesh LOD'un devrede olduğu doğrulanmadı.
