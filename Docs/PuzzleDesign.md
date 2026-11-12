@@ -16,3 +16,12 @@ Zorluk: 1 < 2 < 3 < 5 < 4 < 6.
 
 
 Mektuplar: odalarda isteğe bağlı mektup/günlük sayfaları (şatonun hikâyesi); bulmaca çözümü içermez.
+## Bulmaca 7 (uygulanan) — Çan ve kemik org
+- Simge: nota işaretleri (tam, yarım, dörtlük, sekizlik, çift sekizlik, diyez).
+- Aşama 1: O kitabedeki 4 notayı okur → X notası kazılı 4 çanı o sırayla çalar (yanlış: başa).
+- Aşama 2: kadran açılır, X 4 nota okur → O orgda ilk 3'ünü çalar (yanlış: kadran yeni dizi).
+- Aşama 3: X büyük çanı, O 4. notayı ±0.8 sn içinde (3-2-1). Olmazsa kadran karışır, aşama 2.
+- Çözülünce kafes asansörler → Büyük Salon.
+## Final (uygulanan)
+- X güney, O kuzey yarıya iner; parmaklık arasından yüz yüze. İki kol birlikte → orta kapı açılır.
+- Mühürlü kapı önündeki iki taşa birlikte basınca kapı sarsılır, açılmaz → kapanış ekranı ("Devam edecek").
