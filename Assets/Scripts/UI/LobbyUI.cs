@@ -33,7 +33,7 @@ namespace CoopGame
                 startButton.onClick.AddListener(() =>
                 {
                     if (busy) return;
-                    startChoice = (startChoice + 1) % (Progress.LastPuzzle + 1);
+                    startChoice = (startChoice + 1) % (Progress.LastPuzzle + 2); // son seçenek: tümü açık
                     if (startChoice == 0 && Progress.Saved == 0) startChoice = 1;
                     ApplyStart();
                 });
@@ -54,6 +54,7 @@ namespace CoopGame
             if (label != null)
                 label.text = startChoice == 0 ? "BAŞLANGIÇ: KALDIĞIN YER (BULMACA " + Progress.StartPuzzle + ")"
                            : startChoice == 1 ? "BAŞLANGIÇ: BAŞTAN"
+                           : startChoice > Progress.LastPuzzle ? "BAŞLANGIÇ: TÜM ODALAR AÇIK (GEZİNTİ)"
                            : "BAŞLANGIÇ: BULMACA " + startChoice;
         }
 

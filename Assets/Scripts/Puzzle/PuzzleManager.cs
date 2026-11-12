@@ -39,7 +39,7 @@ namespace CoopGame
                     if (d.StartsActive && GetState(d.Id) == PuzzleState.Locked) ServerSetState(d.Id, PuzzleState.Active);
             if (HasStateAuthority)
             {   // Menüde seçilen başlangıç: öncekiler sırayla çözülmüş sayılır (kilit açma zinciri sonrakini aktif eder)
-                int start = Mathf.Clamp(Progress.StartPuzzle, 1, Progress.LastPuzzle);
+                int start = Mathf.Clamp(Progress.StartPuzzle, 1, Progress.LastPuzzle + 1); // Last+1: hepsi çözülmüş (gezinti)
                 for (int id = 1; id < start; id++) ServerSetState(id, PuzzleState.Solved);
                 Progress.Save(start - 1);
             }
