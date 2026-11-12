@@ -600,6 +600,28 @@ namespace CoopGame.EditorTools
                 Kit("Banner", root, new Vector3(s * (HX - 0.02f), WH - 0.4f, 7.5f), s > 0 ? -90f : 90f, 1.5f);
             }
 
+            // --- Zemin dağınıklığı (v2): kemikler, mum dipleri, düşmüş nota yaprakları, kırık kafatası, kâse (halkaların dışında) ---
+            {
+                var fr = new System.Random(7171);
+                for (int k = 0; k < 26; k++)
+                {
+                    float x = (fr.NextDouble() < 0.5 ? -1f : 1f) * (2.6f + (float)fr.NextDouble() * 2.4f), z = -12.5f + (float)fr.NextDouble() * 22f;
+                    var p0 = new Vector3(x, 0.03f, z);
+                    if (k % 4 == 0) Skull(root, p0, fr.Next(360), 0.9f + (float)fr.NextDouble() * 0.3f, k % 8 == 0 ? oldBone : bone, voidM);
+                    else { float ang = fr.Next(360) * Mathf.Deg2Rad; var dd = new Vector3(Mathf.Cos(ang), 0, Mathf.Sin(ang)) * 0.25f; Rod("Bone", root, p0 - dd, p0 + dd + Vector3.up * 0.03f, 0.045f, oldBone); }
+                }
+                for (int k = 0; k < 8; k++) // mum dipleri (eriyik)
+                {
+                    var cp = new Vector3((k % 2 == 0 ? -1f : 1f) * (1.7f + k * 0.15f), 0, -11f + k * 2.6f);
+                    Kit("Candle", root, cp, k * 40f, 0.7f + (k % 3) * 0.15f);
+                }
+                foreach (var (px, pz, yw) in new[] { (1.2f, 6.8f, 20f), (-0.8f, 8.1f, 140f), (2.4f, 3.6f, 75f) }) // orgdan savrulmuş boş nota yaprakları
+                    Slab("LooseSheet", root, new Vector3(px, 0.004f, pz), new Vector3(0.36f, 0.004f, 0.26f), K.paperB, 1f, false).transform.localRotation = Quaternion.Euler(0, yw, 0);
+                Kit("Bowl2", root, new Vector3(-3.1f, 0, 6.2f), 30f);
+                Kit("Goblet1", root, new Vector3(-3.4f, 0, 6.5f), 0f);
+                Kit("Rat", root, new Vector3(4.3f, 0, -5.4f), 250f);
+                Kit("Rat", root, new Vector3(-4.6f, 0, 8.4f), 70f, 0.9f);
+            }
             // --- Zemin işlemesi: iç içe halkalar + ışınlar (ref org.png) ---
             foreach (var (z, rr) in new[] { (-2f, 2.2f), (-2f, 3.6f), (-2f, 5.2f), (9.5f, 1.8f), (9.5f, 3.0f) })
                 MeshObj("FloorRing", root, new Vector3(0, 0.005f, z), RingMesh(rr, 0.1f, 0.012f), inlay);
