@@ -597,8 +597,14 @@ namespace CoopGame.EditorTools
             Shot(dir + "/x_bench.png", a + new Vector3(0.5f, 1.72f, -1.5f), a + new Vector3(8f, 1.3f, 2.2f), false);
             Shot(dir + "/x_south.png", a + new Vector3(0f, 1.72f, 4.5f), a + new Vector3(0f, 1.8f, -8f), false);
             Shot(dir + "/x_hud.png", a + new Vector3(-2f, 1.72f, 2.5f), a + new Vector3(-1.5f, 1.5f, 7f), true);
-            Shot(dir + "/o_fresco.png", b + new Vector3(-2.5f, 1.72f, -1f), b + new Vector3(8f, 2f, 0.5f), false);
+            Shot(dir + "/o_fresco.png", b + new Vector3(4.5f, 1.72f, -0.5f), b + new Vector3(12.9f, 2f, 0.3f), false);
             Shot(dir + "/o_vault.png", b + new Vector3(2.5f, 1.72f, -1.5f), b + new Vector3(-8f, 1.5f, 2.5f), false);
+            Shot(dir + "/o_dg_entry.png", b + new Vector3(1.8f, 1.72f, -11f), b + new Vector3(0.5f, 2.6f, 4f), false);
+            Shot(dir + "/o_dg_cells.png", b + new Vector3(-1.5f, 1.72f, 3.5f), b + new Vector3(0.5f, 1.4f, 12f), false);
+            Shot(dir + "/o_dg_back.png", b + new Vector3(1.5f, 1.72f, 8f), b + new Vector3(-2.5f, 1.8f, -12f), false);
+            Shot(dir + "/o_dg_watch.png", b + new Vector3(-6.5f, 4.32f, -11.5f), b + new Vector3(3f, 1.5f, 2f), false);
+            Shot(dir + "/o_dg_east.png", b + new Vector3(-3f, 1.72f, -3f), b + new Vector3(8f, 1.6f, 6f), false);
+            Shot(dir + "/o_dg_desk.png", b + new Vector3(2.2f, 1.72f, -6.5f), b + new Vector3(6.5f, 0.9f, -11f), false);
             Shot(dir + "/x_clock.png", a + new Vector3(-17.5f, -2.28f, 1.5f), a + new Vector3(-26f, -2.2f, 0), false);
             Shot(dir + "/x_hazne.png", a + new Vector3(-17f, -5.28f, -14f), a + new Vector3(-20f, -5.5f, -21.5f), false);
             Shot(dir + "/x_archive.png", a + new Vector3(40f, 1.72f, -9.5f), a + new Vector3(40f, 3.5f, 6f), false);
@@ -645,6 +651,13 @@ namespace CoopGame.EditorTools
 
         static void Shot(string path, Vector3? pos, Vector3 lookAt, bool ui)
         {
+            var filter = Arg("-shotFilter"); // virgüllü önekler: yalnızca eşleşen görüntüler
+            if (!string.IsNullOrEmpty(filter))
+            {
+                bool hit = false;
+                foreach (var f in filter.Split(',')) if (Path.GetFileName(path).StartsWith(f)) hit = true;
+                if (!hit) return;
+            }
             const int W = 1600, H = 720;
             var cam = Camera.main;
             if (pos.HasValue) { cam.transform.position = pos.Value; cam.transform.LookAt(lookAt); }

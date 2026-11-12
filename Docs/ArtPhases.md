@@ -18,6 +18,16 @@ Token tasarrufu: oda başına 1–2 ekran görüntüsü oku; her faz ayrı oturu
 - Zindan (O, bulmaca 1) + sarnıç v2: KODLANDI, kullanıcı kontrol edecek (CoopSetup.Dungeon.cs ref zindan.png: 2 tuğla tonoz + sütun dizisi, boyalı fresk, yuvarlak perçinli kasa kapısı, baked; Cistern.cs ref sarnic2.png: yüksek tonoz, tavan açıklıkları + ay huzmesi, renkli boru dirsekleri, suyla yükselen kayık/döküntü). Mahzen: girişten 3 sn sonra tüm ışıklar söner (CryptHud). Hazne kuyusu ızgaralı.
 - O rolü şu an Layout.Spawn(Roles.O) = zindan başlangıcına ışınlanıyor; kullanıcı "O → aşağı mahzen" dedi, mahzen yenilenince başlangıcı gözden geçir.
 
+## Faz 7 – Tüm odaların yenilenmesi (DEVAM EDİYOR, 2026-11-12)
+Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kule → saat → hazne → arşiv). Her oda: lobi ölçeği, 110-140 dekor, 5 özgün hikâye detayı, sonda oyuncu gözüyle eleştiri + en zayıf 3 noktayı düzelt. Oda başına ayrı commit, push yok.
+- 35 yeni Poly Haven CC0 model indirildi (Models/: old_bed_frame, street_rat, mousetrap, IronGate vb.), Kit.cs "Faz 7 ekleri" PhProp'ları; mesh LOD kapalı (NoMeshLod).
+- Zindan v3 YAZILDI, DOĞRULANMADI (CoopSetup.Dungeon.cs): 16x26, tonoz 7.2, kuzeyde 3 hücre, gözcü platformu + serbest merdiven, gibbet kafes, gardiyan masası, sorgu köşesi; fresk doğu Kayıt Şapeli'ne taşındı (Art.cs x 12.9). O doğma noktası Layout.Spawn → (1.8, 0, -11).
+- Bake çökmesi ÇÖZÜLDÜ: reflection probe'lar bake sırasında Custom, sonra RenderProbesManually ile kamerayla çekilir (Unity 6.6 ReplaceIndicesForSingleLod hatası).
+- Hızlı deneme: batch `-draft -bakeOnly RoomB_Sarnic` (yalnız o kök pişer, düşük kalite; ~30 sn bake, ~3 dk toplam). Sahne taslak kalır → build/commit öncesi tam Setup All.
+- Zindan v3 doğrulandı (ekran görüntüsü): zemin cobblestone_floor_08, saman dirt_floor, gardiyan köşesi dolduruldu. Kullanıcı onayı bekliyor.
+- Shots: -shotFilter önek listesi eklendi (o_dg*, o_fresco, o_vault).
+- Batch bake ~8-9 GB RAM kullanıyor; makinede bellek dar.
+
 ## Sonra / açık konular
 - Eski odaları lobi ölçeğine büyüt (saat, hazne, zindan, sarnıç; mahzen dar kalabilir). Kullanıcı istedi, bulmaca 4-7 sonrası.
 - Occlusion culling (StaticOcclusionCulling.Compute) henüz yok.

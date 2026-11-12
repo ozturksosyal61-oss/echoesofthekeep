@@ -678,20 +678,20 @@ namespace CoopGame.EditorTools
             sso.ApplyModifiedPropertiesWithoutUndo();
 
             // Oda B: doğu duvarında fresk (soldan sağa = 1→4; doğuya bakınca sol = kuzey)
-            var board = Slab("HintBoard", roomO, new Vector3(7.9f, 2f, 0), new Vector3(0.18f, 2.2f, 9.6f), A.plaque, 2f, false);
-            Slab("HintBoardFrameTop", roomO, new Vector3(7.86f, 3.16f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
-            Slab("HintBoardFrameBottom", roomO, new Vector3(7.86f, 0.84f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
+            var board = Slab("HintBoard", roomO, new Vector3(12.9f, 2f, 0), new Vector3(0.18f, 2.2f, 9.6f), A.plaque, 2f, false);
+            Slab("HintBoardFrameTop", roomO, new Vector3(12.86f, 3.16f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
+            Slab("HintBoardFrameBottom", roomO, new Vector3(12.86f, 0.84f, 0), new Vector3(0.26f, 0.14f, 9.9f), A.iron, 1f, false);
             var slots = new Transform[4];
             var plates = new Renderer[4];
             for (int i = 0; i < 4; i++)
             {
                 float z = 3.3f - i * 2.2f;
-                var plate = Slab("HintPlate" + (i + 1), roomO, new Vector3(7.78f, 2f, z), new Vector3(0.06f, 1.4f, 1.7f), A.plate, 1f, false);
+                var plate = Slab("HintPlate" + (i + 1), roomO, new Vector3(12.78f, 2f, z), new Vector3(0.06f, 1.4f, 1.7f), A.plate, 1f, false);
                 plate.isStatic = false;
                 plates[i] = plate.GetComponent<Renderer>();
                 var slot = new GameObject("HintSlot" + (i + 1)).transform;
                 slot.SetParent(roomO, false);
-                slot.localPosition = new Vector3(7.71f, 2f, z);
+                slot.localPosition = new Vector3(12.71f, 2f, z);
                 slot.localRotation = Quaternion.Euler(0, 90, 0); // yassı sembol plakaya yatar
                 slot.localScale = Vector3.one * 2.2f;
                 slots[i] = slot;
