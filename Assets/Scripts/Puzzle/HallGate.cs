@@ -29,7 +29,9 @@ namespace CoopGame
             if (Value == Departed || plateX == null || plateO == null) return;
             var x = plateX.Occupant(null);
             var o = plateO.Occupant(x);
-            if (x == null || o == null)
+            // Tek kişilik test (editör / geliştirme sürümü): oturumda tek oyuncu varsa kendi plakasında rolünü alır
+            var solo = (x == null) != (o == null) && PlayerAvatar.All.Count == 1 && (Application.isEditor || Debug.isDebugBuild) ? (x != null ? x : o) : null;
+            if ((x == null || o == null) && solo == null)
             {
                 if (Value != Waiting) ServerSetValue(Waiting);
                 return;
@@ -37,6 +39,13 @@ namespace CoopGame
             if (Value == Waiting) { ServerSetValue(Counting, stamp: true); return; }
             if (M.TickSeconds(M.GetTick(NodeId), M.Runner.Tick) < hold) return;
 
+            if (solo != null)
+            {
+                Dbg.Puzzle("Hol (tek kişi test): " + solo.name + " → " + (x != null ? "X" : "O"));
+                ServerSetValue(Departed);
+                solo.ServerAssignRole(x != null ? Roles.X : Roles.O);
+                return;
+            }
             Dbg.Puzzle("Hol: X=" + x.name + " O=" + o.name + " yola çıkıyor");
             ServerSetValue(Departed);
             x.ServerAssignRole(Roles.X);

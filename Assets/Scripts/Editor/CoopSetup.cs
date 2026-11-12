@@ -24,6 +24,17 @@ namespace CoopGame.EditorTools
         const string GamePath = "Assets/Scenes/Game.unity";
         const string ApkPath = "Builds/Android/CoopGame-dev.apk";
 
+        static bool quickSetup;
+
+        /// <summary>Hızlı kontrol: ışık pişirme yok; baked ışıklar geçici olarak gerçek zamanlı (yalnızca editörde bakmak için, build'e çıkmadan önce Setup All).</summary>
+        [MenuItem("CoopGame/Setup Hızlı (bake yok, editör testi)")]
+        public static void SetupQuick()
+        {
+            quickSetup = true;
+            try { SetupAll(); }
+            finally { quickSetup = false; }
+        }
+
         [MenuItem("CoopGame/Setup All")]
         public static void SetupAll()
         {
@@ -44,7 +55,15 @@ namespace CoopGame.EditorTools
 
             CreateLobbyScene();
             CreateGameScene(avatar);
-            if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBake") < 0)
+            if (quickSetup)
+            {
+                foreach (var l in Object.FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    if (l.lightmapBakeType == LightmapBakeType.Baked) { l.lightmapBakeType = LightmapBakeType.Realtime; l.shadows = LightShadows.None; }
+                Lightmapping.Clear();
+                EditorSceneManager.SaveOpenScenes();
+                Debug.LogWarning("[CoopSetup] HIZLI kurulum: bake yok, ışıklar gerçek zamanlı. Telefona build'den önce Setup All yap.");
+            }
+            else if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBake") < 0)
             {
                 KitBake(); // Game sahnesi açık ve kayıtlı: kit odalarının ışığı pişer
                 EditorSceneManager.SaveOpenScenes();
