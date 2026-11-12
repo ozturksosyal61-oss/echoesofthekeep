@@ -160,6 +160,113 @@ namespace CoopGame.EditorTools
 
         // ---------------- Arşiv (X) ----------------
 
+        /// <summary>
+        /// Arşiv v2 dekor turu + 5 özgün detay: mühür ocağı (eriyik mum + mühür), boş kancalı anahtar panosu, merdivene uzanan mühürlü mektup izi,
+        /// karalanmış belgeler panosu, galeride kâtibin yarım bıraktığı kopya masası (çark çizimi). Saman, harita tomarları, mum, kitap kuleleri.
+        /// </summary>
+        static void ArchiveDressing(Transform root, float hx, float hz, float GY, float GZ)
+        {
+            var det = new GameObject("ArchiveDetails").transform; det.SetParent(root, false);
+            var wax = MakeMat("K_SealWax", Color.Lerp(Pal.Bordo, Color.black, 0.2f));
+            var ink = MakeMat("K_Ink", new Color(0.12f, 0.08f, 0.06f));
+            var straw = KTex("K_Straw", "dirt_floor", new Color(0.55f, 0.48f, 0.36f), 0.05f, 1.2f);
+            // Detay 1: mühür ocağı (güneybatı masa)
+            var tp = new Vector3(-5.6f, 0, -6.2f);
+            Kit("Table", root, tp, 0f, 1.05f);
+            float ty = 0.82f * 1.05f;
+            Kit("ChairWood", root, tp + new Vector3(0, 0, -0.8f), 10f);
+            Prim("WaxPot", det, PrimitiveType.Cylinder, tp + new Vector3(0.4f, ty + 0.06f, 0.1f), new Vector3(0.14f, 0.06f, 0.14f), K.iron);
+            Prim("WaxMelt", det, PrimitiveType.Cylinder, tp + new Vector3(0.4f, ty + 0.115f, 0.1f), new Vector3(0.12f, 0.005f, 0.12f), wax);
+            KCandle(root, tp + new Vector3(0.4f, ty, -0.15f), 0.06f, 0.025f);
+            Rod("SealStamp", det, tp + new Vector3(0.1f, ty + 0.02f, 0.2f), tp + new Vector3(0.1f, ty + 0.14f, 0.2f), 0.035f, K.brass);
+            for (int k = 0; k < 7; k++)
+            {
+                var lp = tp + new Vector3(-0.5f + (k % 4) * 0.2f, ty + 0.004f + (k / 4) * 0.006f, -0.2f + (k / 4) * 0.22f);
+                Slab("Envelope", det, lp, new Vector3(0.18f, 0.004f, 0.12f), K.paperA, 1f, false).transform.localRotation = Quaternion.Euler(0, k * 17f - 20f, 0);
+                Prim("Seal", det, PrimitiveType.Cylinder, lp + Vector3.up * 0.004f, new Vector3(0.035f, 0.003f, 0.035f), wax);
+            }
+            Kit("BookStack", root, tp + new Vector3(-0.6f, ty, 0.3f), 30f, 0.7f);
+            // Detay 2: anahtar panosu (batı duvarı): 9 kanca, 3'ü boş; düşmüş anahtar halkası yerde
+            Slab("KeyBoard", det, new Vector3(-hx + 0.04f, 1.8f, -1.6f), new Vector3(0.05f, 0.7f, 1.6f), K.beam, 1f, false);
+            for (int i = 0; i < 9; i++)
+            {
+                float z = -2.25f + i * 0.165f;
+                Rod("Peg", det, new Vector3(-hx + 0.06f, 1.95f, z), new Vector3(-hx + 0.16f, 1.95f, z), 0.02f, K.iron);
+                if (i == 2 || i == 5 || i == 6) continue;
+                MeshObj("KeyRing", det, new Vector3(-hx + 0.15f, 1.83f, z), RingMesh(0.045f, 0.01f, 0.01f), K.brass).transform.localRotation = Quaternion.Euler(0, 0, 90);
+                Slab("Key", det, new Vector3(-hx + 0.15f, 1.7f, z), new Vector3(0.012f, 0.16f, 0.02f), K.brass, 1f, false);
+            }
+            MeshObj("DroppedRing", det, new Vector3(1.2f, 0.01f, -4.6f), RingMesh(0.07f, 0.012f, 0.012f), K.brass);
+            foreach (float a in new[] { 20f, 75f })
+                Slab("DroppedKey", det, new Vector3(1.2f, 0.012f, -4.6f) + Quaternion.Euler(0, a, 0) * new Vector3(0.12f, 0, 0), new Vector3(0.16f, 0.012f, 0.025f), K.brass, 1f, false).transform.localRotation = Quaternion.Euler(0, a, 0);
+            // Detay 3: girişten merdivene uzanan mühürlü mektup izi
+            for (int k = 0; k < 10; k++)
+            {
+                var lp = Vector3.Lerp(new Vector3(0.6f, 0.004f, -7.6f), new Vector3(5.6f, 0.004f, -1.6f), k / 9f) + new Vector3(((k * 37) % 7 - 3) * 0.12f, 0, ((k * 53) % 5 - 2) * 0.1f);
+                Slab("TrailLetter", det, lp, new Vector3(0.2f, 0.004f, 0.13f), k % 3 == 0 ? K.paperB : K.paperA, 1f, false).transform.localRotation = Quaternion.Euler(0, k * 41f, 0);
+                if (k % 2 == 0) Prim("TrailSeal", det, PrimitiveType.Cylinder, lp + Vector3.up * 0.004f, new Vector3(0.035f, 0.003f, 0.035f), wax);
+            }
+            // Detay 4: karalanmış belgeler panosu (doğu duvarı)
+            Slab("CensorBoard", det, new Vector3(hx - 0.04f, 2.2f, -3.8f), new Vector3(0.05f, 1.3f, 1.9f), K.furniture, 1f, false);
+            for (int k = 0; k < 6; k++)
+            {
+                var pp = new Vector3(hx - 0.07f, 2.6f - (k / 3) * 0.6f, -4.4f + (k % 3) * 0.6f);
+                Slab("Doc", det, pp, new Vector3(0.006f, 0.44f, 0.34f), K.paperA, 1f, false).transform.localRotation = Quaternion.Euler((k - 2.5f) * 3f, 0, 0);
+                for (int l = 0; l < 4; l++)
+                    Slab("Redact", det, pp + new Vector3(-0.006f, 0.14f - l * 0.09f, ((l * 7 + k) % 3 - 1) * 0.04f), new Vector3(0.004f, 0.035f, 0.18f + (l % 2) * 0.08f), ink, 1f, false);
+                Prim("Pin", det, PrimitiveType.Sphere, pp + new Vector3(-0.01f, 0.2f, 0), Vector3.one * 0.025f, K.leatherRed);
+            }
+            // Detay 5: galeride kâtibin kopya masası: çarkın kaba çizimi (çark yakında)
+            {
+                var gp = new Vector3(-5.4f, GY, 10.0f);
+                Kit("Table", root, gp, 180f);
+                Kit("ChairWood", root, gp + new Vector3(0, 0, -0.8f), 180f);
+                Slab("Sketch", det, gp + new Vector3(0.1f, 0.825f, 0), new Vector3(0.5f, 0.004f, 0.38f), K.paperC, 1f, false);
+                MeshObj("SketchRing", det, gp + new Vector3(0.1f, 0.83f, 0), RingMesh(0.14f, 0.008f, 0.002f), ink);
+                MeshObj("SketchRing2", det, gp + new Vector3(0.1f, 0.83f, 0), RingMesh(0.08f, 0.006f, 0.002f), ink);
+                Prim("Quill", det, PrimitiveType.Cylinder, gp + new Vector3(-0.25f, 0.86f, 0.1f), new Vector3(0.008f, 0.12f, 0.008f), K.paperC).transform.localRotation = Quaternion.Euler(70, 30, 0);
+                Kit("Candlestick", root, gp + new Vector3(0.6f, 0.82f, 0.1f));
+                Kit("L_Candle", root, gp + new Vector3(0.6f, 1.4f, 0.1f));
+            }
+            // Zemin: saman yığınları, harita tomarları, kitap kuleleri, mumlar
+            var piles = new[] { (new Vector3(-7.4f, 0.012f, -3.8f), new Vector3(1.6f, 0.02f, 1.0f), 20f), (new Vector3(7.0f, 0.012f, -8.8f), new Vector3(1.4f, 0.02f, 0.9f), -30f), (new Vector3(-3.0f, GY + 0.012f, 9.2f), new Vector3(1.0f, 0.02f, 0.7f), 10f) };
+            foreach (var (p, sz2, yw) in piles)
+                Slab("StrawPile", det, p, sz2, straw, 1f, false).transform.localRotation = Quaternion.Euler(0, yw, 0);
+            for (int k = 0; k < 8; k++)
+            {
+                var sp = new Vector3(-hx + 0.4f + (k % 2) * 0.12f, 0.06f + (k / 2) * 0.1f, -9.8f + (k % 4) * 0.05f);
+                Prim("Scroll", det, PrimitiveType.Cylinder, sp, new Vector3(0.09f, 0.42f, 0.09f), k % 2 == 0 ? K.paperC : K.paperB).transform.localRotation = Quaternion.Euler(0, 0, 90);
+            }
+            Kit("Basket", root, new Vector3(-hx + 0.9f, 0, -8.8f), 0f);
+            foreach (var bp in new[] { new Vector3(3.2f, 0, -9.8f), new Vector3(-2.2f, 0, 6.4f), new Vector3(2.4f, GY, 10.2f), new Vector3(-7.8f, GY, 7.9f) })
+            {
+                Kit("BookStack", root, bp, bp.x * 13f);
+                Kit("BookStack", root, bp + new Vector3(0.05f, 0.36f, 0.02f), bp.z * 11f, 0.85f);
+                Kit("CandleCluster", root, bp + new Vector3(0.55f, 0, 0.2f));
+            }
+            Kit("Candlestick", root, new Vector3(-0.8f, 0.01f, -8.3f));
+            Kit("L_Candle", root, new Vector3(-0.8f, 0.6f, -8.3f));
+            // Galeri: kitaplık sırası (çark ucu hariç) + korkuluk sancakları
+            foreach (float x in new[] { -2.6f, 1.8f }) Books(root, new Vector3(x, GY, hz - 0.4f), 180f);
+            foreach (float x in new[] { -6f, -2f, 2f }) Kit("Banner", root, new Vector3(x, GY - 0.95f, GZ + 0.28f), 180f, 1.0f);
+            // Kâtip sırası (batı): iki küçük yazı masası
+            foreach (float z in new[] { 2.6f, -3.6f })
+            {
+                Kit("SmallTable", root, new Vector3(-6.6f, 0, z), 90f);
+                Kit("Stool", root, new Vector3(-5.8f, 0, z), 0f);
+                Kit("PaperA", root, new Vector3(-6.6f, 0.625f, z + 0.1f), z * 20f);
+                Kit("Spectacles", root, new Vector3(-6.5f, 0.63f, z - 0.15f), 60f);
+            }
+            foreach (var p in new[] { new Vector3(-4f, 3.4f, -3f), new Vector3(3f, 3.4f, -4f), new Vector3(-2f, GY + 2.6f, 9.4f) })
+            {
+                var f = LightGo("ArchiveFill", LightType.Point, Pal.Candle, 2.6f, 9f, true);
+                f.transform.SetParent(root, false); f.transform.localPosition = p;
+            }
+            ProbeLit(det.gameObject);
+            var anc = new GameObject("DetailProbeAnchor").transform; anc.SetParent(det, false); anc.localPosition = new Vector3(0, 1.2f, -4f);
+            foreach (var r in det.GetComponentsInChildren<Renderer>()) if (r.transform.localPosition.y < 0.1f) r.probeAnchor = anc; // zemindeki ince kâğıtlar kararmasın
+        }
+
         static Transform BuildArchive(Transform roomX, out Transform wheelRoot, out Transform arrive)
         {
             const float SX = 18f, SZ = 22f, H = 9f, hx = SX * 0.5f, hz = SZ * 0.5f, GY = 4f, GZ = 7f;
@@ -168,7 +275,7 @@ namespace CoopGame.EditorTools
             root.localPosition = new Vector3(40f, 0, 0);
             var stone = K.castleStone;
 
-            Deck(root, "Floor", new Vector3(0, -0.25f, 0), SX, SZ, 0.5f, K.hallFloor, 3, 4);
+            Deck(root, "Floor", new Vector3(0, -0.25f, 0), SX, SZ, 0.5f, KTex("K_ArchiveFloor", "patterned_paving", new Color(0.62f, 0.6f, 0.58f), 0.35f, 1.1f), 3, 4); // lobi zemini tekrar etmesin
             Wall(root, "WallN", new Vector3(0, 0, hz + 0.25f), true, SX + 1f, H, stone, 2.2f);
             Wall(root, "WallS", new Vector3(0, 0, -hz - 0.25f), true, SX + 1f, H, stone, 2.2f);
             Wall(root, "WallW", new Vector3(-hx - 0.25f, 0, 0), false, SZ, H, stone, 2.2f);
@@ -190,7 +297,7 @@ namespace CoopGame.EditorTools
             Slab("GalleryFascia", root, new Vector3(0, GY - 0.45f, GZ + 0.12f), new Vector3(SX, 0.9f, 0.24f), K.beam, 1.5f, false);
             foreach (float x in new[] { -6f, -2f, 2f })
                 Pillar(root, "GalleryPost", new Vector3(x, 0, GZ + 0.5f), GY - 0.4f, 0.6f);
-            const float sx0 = 6.4f, sw = 2.4f, sz0 = -1f; // merdiven: x 6.4..8.8, z -1 → 7
+            const float sx0 = 5.2f, sw = 2.4f, sz0 = -1f; // merdiven: x 5.2..7.6 (doğu duvarından 1.4 m açık), z -1 → 7
             {
                 float run = GZ - sz0; int steps = 16; float sr = run / steps, sh = GY / steps;
                 for (int i = 0; i < steps; i++)
@@ -202,6 +309,17 @@ namespace CoopGame.EditorTools
                 ramp.transform.localPosition = new Vector3(sx0 + sw * 0.5f, GY * 0.5f - 0.15f * Mathf.Cos(ang), sz0 + run * 0.5f + 0.15f * Mathf.Sin(ang));
                 ramp.transform.localRotation = Quaternion.Euler(-ang * Mathf.Rad2Deg, 0, 0);
                 Balustrade(root, "StairRail", new Vector3(sx0, 0, sz0 + 0.1f), new Vector3(sx0, GY, GZ), false);
+                Balustrade(root, "StairRailE", new Vector3(sx0 + sw, 0, sz0 + 0.1f), new Vector3(sx0 + sw, GY, GZ), false);
+                Slab("StairSideE", root, new Vector3(sx0 + sw + 0.02f, 0.2f, sz0 + run * 0.5f), new Vector3(0.05f, 0.4f, run), stone, 1.5f, false);
+                foreach (float xr in new[] { sx0, sx0 + sw }) // korkuluk hattında görünmez engel (merdivenden düşülmesin)
+                {
+                    var rb = new GameObject("StairBlock").AddComponent<BoxCollider>(); rb.transform.SetParent(root, false);
+                    rb.transform.localPosition = new Vector3(xr, GY * 0.5f + 0.6f, sz0 + run * 0.5f + 0.2f);
+                    rb.transform.localRotation = Quaternion.Euler(-ang * Mathf.Rad2Deg, 0, 0);
+                    rb.size = new Vector3(0.2f, 1.3f, Mathf.Sqrt(run * run + GY * GY));
+                }
+                Balustrade(root, "GalleryRailE", new Vector3(sx0 + sw, GY, GZ + 0.12f), new Vector3(hx - 0.1f, GY, GZ + 0.12f), true);
+                Kit("Crate", root, new Vector3(sx0 + 0.9f, 0, 4.6f), 20f, 0.8f); // merdiven altı
                 Balustrade(root, "GalleryRail", new Vector3(-hx + 0.1f, GY, GZ + 0.12f), new Vector3(sx0, GY, GZ + 0.12f), true);
                 Slab("StairSide", root, new Vector3(sx0 - 0.02f, 0.2f, sz0 + run * 0.5f), new Vector3(0.05f, 0.4f, run), stone, 1.5f, false);
             }
@@ -249,7 +367,7 @@ namespace CoopGame.EditorTools
                 KitR("WindowLancet", root, new Vector3(s * 4.6f, 3.0f, -hz), Quaternion.identity, 1.7f);
                 Slab("BustPedestal", root, new Vector3(s * 7.6f, 0.55f, -9.6f), new Vector3(0.6f, 1.1f, 0.6f), stone, 1.2f);
                 Kit("Bust", root, new Vector3(s * 7.6f, 1.1f, -9.6f), s * -30f, 0.9f);
-                Kit("Banner", root, new Vector3(s * 4.6f, 8.0f, -hz), 0f, 1.8f);
+                Kit("Banner", root, new Vector3(s * 7.4f, 8.0f, -hz), 0f, 1.6f); // vitrayları örtmesin
             }
             // Kirişlerden sarkan sancaklar
             foreach (var p in new[] { new Vector2(-4.5f, -5f), new Vector2(4.5f, -5f), new Vector2(-4.5f, 0f), new Vector2(4.5f, 0f) })
@@ -354,11 +472,13 @@ namespace CoopGame.EditorTools
             KitR("Cobweb", root, new Vector3(-hx + 0.03f, 0, hz - 0.03f), Quaternion.identity, 1.2f);
             KitR("Cobweb", root, new Vector3(hx - 0.03f, 0, -hz + 0.03f), Quaternion.Euler(0, 180, 0), 1.2f);
 
+            ArchiveDressing(root, hx, hz, GY, GZ);
+
             arrive = new GameObject("ArchiveArrive").transform;
             arrive.SetParent(root, false);
             arrive.localPosition = new Vector3(0, 0.05f, -9.3f);
 
-            KitProbes(root, new Vector3(0, H * 0.5f, 0), new Vector3(SX, H, SZ), 6, 4, 7, new Bounds(new Vector3(7.6f, 2f, 3f), new Vector3(2.8f, 4.2f, 8.4f)));
+            KitProbes(root, new Vector3(0, H * 0.5f, 0), new Vector3(SX, H, SZ), 6, 4, 7, new Bounds(new Vector3(6.4f, 2f, 3f), new Vector3(2.6f, 4.2f, 8.4f)));
             KitReflection(root, new Vector3(0, 3f, 0), new Vector3(SX, H, SZ));
             return root;
         }
