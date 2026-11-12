@@ -302,85 +302,139 @@ namespace CoopGame.EditorTools
 
         // ---------- Lobby: şato kapısı önünde ana menü ----------
 
+        const string MenuVideoPath = "Assets/Art/Menu/menu_loop.mp4";
+
+        /// <summary>Ana menü (ref Docs/Reference/anasayfa.png): arka planda döngü video (yoksa 3B şato kapısı), solda başlık + üç seçenek,
+        /// altta sekmeler, sağ altta ilerleme kartı.</summary>
         static void CreateLobbyScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var cam = MakeCamera(new Vector3(-2.2f, 1.75f, -8.5f), new Vector3(1.2f, 3.3f, 6f), Color.black);
             cam.name = "Main Camera";
             cam.fieldOfView = 52f;
-            cam.gameObject.AddComponent<CameraDrift>();
-            ApplyAtmosphere(cam, new Color(0.1f, 0.12f, 0.19f), new Color(0.05f, 0.07f, 0.12f), 0.022f);
-            Moon(new Vector3(32f, 38f, 0f), 0.9f);
-            BuildLobbyBackdrop();
+            var clip = AssetDatabase.LoadAssetAtPath<UnityEngine.Video.VideoClip>(MenuVideoPath);
+            if (clip != null)
+            {
+                cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = Color.black;
+                var vp = cam.gameObject.AddComponent<UnityEngine.Video.VideoPlayer>();
+                vp.clip = clip; vp.isLooping = true; vp.playOnAwake = true; vp.skipOnDrop = true;
+                vp.renderMode = UnityEngine.Video.VideoRenderMode.CameraFarPlane; vp.targetCamera = cam; vp.targetCameraAlpha = 1f;
+                vp.aspectRatio = UnityEngine.Video.VideoAspectRatio.FitOutside;
+                vp.audioOutputMode = UnityEngine.Video.VideoAudioOutputMode.None;
+                var cd = cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                if (cd != null) cd.renderPostProcessing = false; // video zaten renklendirilmiş
+            }
+            else
+            {
+                cam.gameObject.AddComponent<CameraDrift>();
+                ApplyAtmosphere(cam, new Color(0.1f, 0.12f, 0.19f), new Color(0.05f, 0.07f, 0.12f), 0.022f);
+                Moon(new Vector3(32f, 38f, 0f), 0.9f);
+                BuildLobbyBackdrop();
+            }
 
             var root = MakeCanvas();
             var vig = MakeImage(root, "Vignette", Vector2.zero, Vector2.zero, U.vignette);
             Stretch(vig, Vector2.zero, Vector2.one); vig.raycastTarget = false;
             var shade = MakeImage(root, "ShadeLeft", Vector2.zero, Vector2.zero, U.shadeH);
-            Stretch(shade, Vector2.zero, new Vector2(0.62f, 1f)); shade.raycastTarget = false;
+            Stretch(shade, Vector2.zero, new Vector2(0.6f, 1f)); shade.raycastTarget = false;
 
             var canvas = MakeSafeArea(root);
-            var L = new Vector2(0f, 0.5f);
+            var TL = new Vector2(0f, 1f); var BL = Vector2.zero; var BR = new Vector2(1f, 0f);
+            var dimCream = new Color(Cream.r, Cream.g, Cream.b, 0.6f);
+            const float X0 = 116f;
 
-            // Sol: başlık bloğu
-            var title = MakeText(canvas, "Title", GameTitle, 168, Vector2.zero, new Vector2(1100, 190), TextAnchor.MiddleLeft, U.title, GoldBright);
-            Corner(title, L, L, new Vector2(104, 230));
+            // Sol kenar çizgisi + başlık
+            var edge = MakeImage(canvas, "EdgeLine", Vector2.zero, new Vector2(2, 0), null, new Color(Gold.r, Gold.g, Gold.b, 0.35f));
+            edge.raycastTarget = false;
+            edge.rectTransform.anchorMin = new Vector2(0, 0); edge.rectTransform.anchorMax = new Vector2(0, 1);
+            edge.rectTransform.pivot = new Vector2(0.5f, 0.5f); edge.rectTransform.anchoredPosition = new Vector2(70, 0); edge.rectTransform.sizeDelta = new Vector2(2, -170);
+            var title = MakeText(canvas, "Title", GameTitle, 150, Vector2.zero, new Vector2(1000, 170), TextAnchor.MiddleLeft, U.title, GoldBright);
+            Corner(title, TL, TL, new Vector2(X0 - 6, -44));
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             var ts = title.GetComponent<Shadow>(); ts.effectDistance = new Vector2(4f, -5f); ts.effectColor = new Color(0, 0, 0, 0.85f);
-            var title2 = MakeText(canvas, "TitleSub", GameTitleSub, 62, Vector2.zero, new Vector2(1100, 80), TextAnchor.MiddleLeft, U.head, Gold);
-            Corner(title2, L, L, new Vector2(116, 112));
+            var title2 = MakeText(canvas, "TitleSub", "O F    T H E    K E E P", 38, Vector2.zero, new Vector2(700, 56), TextAnchor.MiddleLeft, U.head, Gold);
+            Corner(title2, TL, TL, new Vector2(X0, -206));
             title2.horizontalOverflow = HorizontalWrapMode.Overflow;
-            var line = MakeImage(canvas, "TitleLine", Vector2.zero, new Vector2(520, 3), null, Gold);
-            Corner(line, L, L, new Vector2(116, 56)); line.raycastTarget = false;
+            var tl = MakeImage(canvas, "TitleLine", Vector2.zero, new Vector2(120, 2), null, Gold);
+            Corner(tl, TL, new Vector2(0f, 0.5f), new Vector2(X0 + 470, -234)); tl.raycastTarget = false;
 
-            // Alt sol: ana menü sekmeleri (Oyna aktif; diğerleri ileride)
-            string[] tabs = { "OYNA", "MAĞAZA", "ARKADAŞLAR", "AYARLAR" };
-            float tx = 116;
-            for (int i = 0; i < tabs.Length; i++)
+            // Menü öğeleri (şeffaf düğme + başlık + alt satır)
+            Button Item(RectTransform parent, string name, string head, string sub, float y, bool hero, out Text headT, out Text subT)
             {
-                bool on = i == 0;
-                float w = 70 + tabs[i].Length * 26;
-                var tab = MakeText(canvas, "Tab_" + tabs[i], tabs[i], 36, Vector2.zero, new Vector2(w, 56), TextAnchor.MiddleLeft, U.head,
-                                   on ? GoldBright : new Color(Cream.r, Cream.g, Cream.b, 0.45f));
-                Corner(tab, Vector2.zero, Vector2.zero, new Vector2(tx, 92));
-                if (on)
-                {
-                    var ul = MakeImage(canvas, "TabLine", Vector2.zero, new Vector2(w - 70, 3), null, Gold);
-                    Corner(ul, Vector2.zero, Vector2.zero, new Vector2(tx, 82)); ul.raycastTarget = false;
-                }
-                else
-                {
-                    var soon = MakeText(canvas, "Soon", "YAKINDA", 18, Vector2.zero, new Vector2(w, 26), TextAnchor.MiddleLeft, U.body,
-                                        new Color(Gold.r, Gold.g, Gold.b, 0.5f), false);
-                    Corner(soon, Vector2.zero, Vector2.zero, new Vector2(tx, 64));
-                }
+                var hit = MakeImage(parent, name, Vector2.zero, new Vector2(720, hero ? 128 : 112), null, new Color(0, 0, 0, 0));
+                Corner(hit, TL, TL, new Vector2(X0 - 10, y));
+                var b = hit.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+                hit.gameObject.AddComponent<UiPress>();
+                headT = MakeText(hit.rectTransform, "Head", head, hero ? 64 : 50, Vector2.zero, new Vector2(700, 72), TextAnchor.MiddleLeft, U.head, hero ? GoldBright : Cream);
+                Corner(headT, TL, TL, new Vector2(10, 0));
+                subT = MakeText(hit.rectTransform, "Sub", sub, hero ? 30 : 27, Vector2.zero, new Vector2(700, 44), TextAnchor.MiddleLeft, U.body, hero ? Cream : dimCream, false);
+                Corner(subT, TL, TL, new Vector2(10, hero ? -74 : -64));
+                if (hero) subT.fontStyle = FontStyle.Italic;
+                return b;
+            }
+            var main = new GameObject("MainPanel", typeof(RectTransform)).GetComponent<RectTransform>();
+            main.SetParent(canvas, false); main.anchorMin = Vector2.zero; main.anchorMax = Vector2.one; main.offsetMin = main.offsetMax = Vector2.zero;
+            var cont = Item(main, "ContinueButton", "DEVAM ET", "Bulmaca 1 · kaldığın yerden sürdür", -372, true, out var contHead, out var contSub);
+            var dia = MakeImage(main, "Marker", Vector2.zero, new Vector2(18, 18), null, Gold); dia.raycastTarget = false;
+            Corner(dia, TL, new Vector2(0.5f, 0.5f), new Vector2(70, -412)); dia.rectTransform.localRotation = Quaternion.Euler(0, 0, 45);
+            var arrow = MakeText(main, "Arrow", "→", 52, Vector2.zero, new Vector2(80, 70), TextAnchor.MiddleCenter, U.body, GoldBright, false);
+            Corner(arrow, TL, new Vector2(0.5f, 0.5f), new Vector2(X0 + 690, -410));
+            var ul = MakeImage(main, "ContinueLine", Vector2.zero, new Vector2(700, 2), null, new Color(Gold.r, Gold.g, Gold.b, 0.55f));
+            Corner(ul, TL, TL, new Vector2(X0, -500)); ul.raycastTarget = false;
+            var create = Item(main, "CreateButton", "ODA KUR", "Arkadaşını davet et", -526, false, out _, out _);
+            var openJoin = Item(main, "OpenJoinButton", "ODAYA KATIL", "Oda kodunu gir", -660, false, out _, out _);
+            // Başlangıç seçici (test/ilerleme): küçük metin düğmesi
+            var startImg = MakeImage(main, "StartButton", Vector2.zero, new Vector2(700, 46), null, new Color(0, 0, 0, 0));
+            Corner(startImg, TL, TL, new Vector2(X0 - 10, -800));
+            var startSel = startImg.gameObject.AddComponent<Button>(); startSel.targetGraphic = startImg; startSel.transition = Selectable.Transition.None;
+            var stl = MakeText(startImg.rectTransform, "Label", "BAŞLANGIÇ: BAŞTAN", 22, Vector2.zero, new Vector2(690, 46), TextAnchor.MiddleLeft, U.head,
+                               new Color(Gold.r, Gold.g, Gold.b, 0.55f), false);
+            Corner(stl, TL, TL, new Vector2(10, 0));
+
+            // Katıl paneli (menü öğelerinin yerinde)
+            var joinP = new GameObject("JoinPanel", typeof(RectTransform)).GetComponent<RectTransform>();
+            joinP.SetParent(canvas, false); joinP.anchorMin = Vector2.zero; joinP.anchorMax = Vector2.one; joinP.offsetMin = joinP.offsetMax = Vector2.zero;
+            var jt = MakeText(joinP, "JoinTitle", "ODA KODU", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
+            Corner(jt, TL, TL, new Vector2(X0, -372));
+            var input = MakeInput(joinP, "CodeInput", Vector2.zero, new Vector2(520, 124));
+            Corner((Graphic)input.targetGraphic, TL, TL, new Vector2(X0, -460));
+            var back = MakeButton(joinP, "BackButton", "GERİ", Vector2.zero, new Vector2(200, 104), false, 38);
+            Corner((Graphic)back.targetGraphic, TL, TL, new Vector2(X0, -612));
+            var join = MakeButton(joinP, "JoinButton", "KATIL", Vector2.zero, new Vector2(300, 104), true, 44);
+            Corner((Graphic)join.targetGraphic, TL, TL, new Vector2(X0 + 220, -612));
+
+            var status = MakeText(canvas, "Status", "", 26, Vector2.zero, new Vector2(760, 44), TextAnchor.MiddleLeft, U.body, Cream);
+            Corner(status, TL, TL, new Vector2(X0, -852));
+
+            // Alt: ayraç + sekmeler (mağaza yok; günlük = okunan mektuplar, ileride)
+            var bl = MakeImage(canvas, "BottomLine", Vector2.zero, new Vector2(600, 2), null, new Color(Gold.r, Gold.g, Gold.b, 0.3f));
+            Corner(bl, BL, BL, new Vector2(X0, 168)); bl.raycastTarget = false;
+            string[] tabs = { "GÜNLÜK", "ARKADAŞLAR", "AYARLAR" };
+            float tx = X0;
+            foreach (var tab in tabs)
+            {
+                float w = 80 + tab.Length * 24;
+                var t = MakeText(canvas, "Tab_" + tab, tab, 32, Vector2.zero, new Vector2(w, 50), TextAnchor.MiddleLeft, U.head, new Color(Cream.r, Cream.g, Cream.b, 0.75f));
+                Corner(t, BL, BL, new Vector2(tx, 100));
+                var soon = MakeText(canvas, "Soon", "Y A K I N D A", 17, Vector2.zero, new Vector2(w, 26), TextAnchor.MiddleLeft, U.body,
+                                    new Color(Gold.r, Gold.g, Gold.b, 0.5f), false);
+                Corner(soon, BL, BL, new Vector2(tx, 70));
                 tx += w;
             }
 
-            // Sağ: kompakt oyna kartı
-            var panel = MakeImage(canvas, "Panel", Vector2.zero, new Vector2(600, 560), U.panel, Color.white, true);
-            Corner(panel, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-104, -10));
-            var p = panel.rectTransform;
-            // Ana panel: iki büyük seçenek
-            var main = new GameObject("MainPanel", typeof(RectTransform)).GetComponent<RectTransform>();
-            main.SetParent(p, false); main.sizeDelta = new Vector2(600, 330); main.anchoredPosition = new Vector2(0, 80);
-            var create = MakeButton(main, "CreateButton", "ODA KUR", new Vector2(0, 112), new Vector2(500, 112), true, 48);
-            var openJoin = MakeButton(main, "OpenJoinButton", "ODAYA KATIL", new Vector2(0, -16), new Vector2(500, 112), false, 44);
-            var startSel = MakeButton(main, "StartButton", "BAŞLANGIÇ: BAŞTAN", new Vector2(0, -122), new Vector2(500, 70), false, 24); // ilerleme / test başlangıcı
-            // Katıl paneli: kod gir
-            var joinP = new GameObject("JoinPanel", typeof(RectTransform)).GetComponent<RectTransform>();
-            joinP.SetParent(p, false); joinP.sizeDelta = new Vector2(600, 330); joinP.anchoredPosition = new Vector2(0, 80);
-            MakeText(joinP, "JoinTitle", "ODA KODU", 40, new Vector2(0, 126), new Vector2(500, 50), TextAnchor.MiddleCenter, U.head, GoldBright);
-            var input = MakeInput(joinP, "CodeInput", new Vector2(0, 30), new Vector2(500, 116));
-            var back = MakeButton(joinP, "BackButton", "GERİ", new Vector2(-152, -98), new Vector2(196, 104), false, 38);
-            var join = MakeButton(joinP, "JoinButton", "KATIL", new Vector2(102, -98), new Vector2(296, 104), true, 44);
-            Divider(p, new Vector2(0, -116), 400, 0.35f);
-            var status = MakeText(p, "Status", "", 28, new Vector2(0, -170), new Vector2(520, 80), TextAnchor.MiddleCenter, U.body, Cream);
-            MakeText(p, "MicHint", "Sesli sohbet · Kulaklık önerilir", 22, new Vector2(0, -236), new Vector2(520, 34), TextAnchor.MiddleCenter, U.body,
-                     new Color(Cream.r, Cream.g, Cream.b, 0.45f), false);
+            // Sağ alt: ilerleme kartı
+            var card = MakeImage(canvas, "ProgressCard", Vector2.zero, new Vector2(600, 190), U.panel, new Color(1f, 1f, 1f, 0.92f), true);
+            Corner(card, BR, BR, new Vector2(-60, 56));
+            var cr = card.rectTransform;
+            MakeText(cr, "ProgressLabel", "İ L E R L E M E", 24, new Vector2(-120, 52), new Vector2(320, 40), TextAnchor.MiddleLeft, U.head, Gold, false);
+            var pv = MakeText(cr, "ProgressValue", "0 / 8", 34, new Vector2(150, 52), new Vector2(220, 46), TextAnchor.MiddleRight, U.head, GoldBright, false);
+            var barBg = MakeImage(cr, "BarBg", new Vector2(0, 2), new Vector2(520, 6), null, new Color(0f, 0f, 0f, 0.55f)); barBg.raycastTarget = false;
+            var fill = MakeImage(barBg.rectTransform, "BarFill", Vector2.zero, new Vector2(0, 6), null, Gold); fill.raycastTarget = false;
+            fill.rectTransform.anchorMin = new Vector2(0, 0.5f); fill.rectTransform.anchorMax = new Vector2(0, 0.5f); fill.rectTransform.pivot = new Vector2(0, 0.5f);
+            fill.rectTransform.anchoredPosition = Vector2.zero;
+            MakeText(cr, "MicHint", "Sesli sohbet · Kulaklık önerilir", 24, new Vector2(0, -50), new Vector2(520, 40), TextAnchor.MiddleLeft, U.body, dimCream, false);
 
             joinP.gameObject.SetActive(false);
-            status.text = "Yeni oda kur ya da bir odaya katıl.";
             var lobby = new GameObject("LobbyUI").AddComponent<LobbyUI>();
             var so = new SerializedObject(lobby);
             SetRef(so, "codeInput", input);
@@ -392,6 +446,11 @@ namespace CoopGame.EditorTools
             SetRef(so, "joinPanel", joinP.gameObject);
             SetRef(so, "status", status);
             SetRef(so, "startButton", startSel);
+            SetRef(so, "continueButton", cont);
+            SetRef(so, "continueHead", contHead);
+            SetRef(so, "continueSub", contSub);
+            SetRef(so, "progressValue", pv);
+            SetRef(so, "progressFill", fill.rectTransform);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, LobbyPath);

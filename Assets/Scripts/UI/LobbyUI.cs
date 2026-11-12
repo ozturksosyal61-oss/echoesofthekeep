@@ -17,6 +17,10 @@ namespace CoopGame
         [SerializeField] GameObject joinPanel;
         [SerializeField] Text status;
         [SerializeField] Button startButton;     // başlangıç seçimi (yalnızca Oda Kur için)
+        [SerializeField] Button continueButton;  // Devam Et: kayıttan oda kurar (kayıt yoksa Yeni Oyun)
+        [SerializeField] Text continueHead, continueSub;
+        [SerializeField] Text progressValue;
+        [SerializeField] RectTransform progressFill;
 
         // Seçenekler: 0 = kaldığın yer (kayıt varsa), sonra 1..LastPuzzle (1 = baştan)
         int startChoice;
@@ -39,7 +43,18 @@ namespace CoopGame
                 });
             }
             codeInput.characterLimit = 4;
-            createButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(true)); });
+            createButton.onClick.AddListener(() => { if (!busy) { if (startButton != null) ApplyStart(); else Progress.StartPuzzle = 1; StartCoroutine(Flow(true)); } });
+            if (continueButton != null)
+            {
+                int saved = Progress.Saved;
+                bool has = saved > 0 && saved < Progress.LastPuzzle;
+                int next = Mathf.Min(saved + 1, Progress.LastPuzzle);
+                if (continueHead != null) continueHead.text = has ? "DEVAM ET" : saved >= Progress.LastPuzzle ? "YENİDEN OYNA" : "YENİ OYUN";
+                if (continueSub != null) continueSub.text = has ? "Bulmaca " + next + " · kaldığın yerden sürdür" : "Hikâyeye baştan başla";
+                continueButton.onClick.AddListener(() => { if (!busy) { Progress.StartPuzzle = has ? next : 1; StartCoroutine(Flow(true)); } });
+            }
+            if (progressValue != null) progressValue.text = Progress.Saved + " / " + Progress.LastPuzzle;
+            if (progressFill != null) progressFill.sizeDelta = new Vector2(520f * Progress.Saved / Progress.LastPuzzle, progressFill.sizeDelta.y);
             joinButton.onClick.AddListener(() => { if (!busy) StartCoroutine(Flow(false)); });
             openJoinButton.onClick.AddListener(() => { if (!busy) ShowJoin(true); });
             backButton.onClick.AddListener(() => { if (!busy) ShowJoin(false); });
@@ -62,7 +77,7 @@ namespace CoopGame
         {
             mainPanel.SetActive(!join);
             joinPanel.SetActive(join);
-            status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "Yeni oda kur ya da bir odaya katıl.";
+            status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "";
             if (join) codeInput.text = "";
         }
 
@@ -70,6 +85,7 @@ namespace CoopGame
         {
             busy = b;
             createButton.interactable = !b;
+            if (continueButton != null) continueButton.interactable = !b;
             joinButton.interactable = !b;
             openJoinButton.interactable = !b;
             backButton.interactable = !b;
