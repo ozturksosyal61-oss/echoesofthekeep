@@ -1091,11 +1091,13 @@ namespace CoopGame.EditorTools
             Wall(root, "Curtain", new Vector3(0, 0, 6.25f), true, 36, 7f, A.towerWall, 3f, new Opening(0, 3.6f, 0, 4.4f));
             for (int i = -11; i <= 11; i++)
                 if (i % 2 != 0) Slab("Merlon", root, new Vector3(i * 0.8f * 2f, 7.5f, 6.25f), new Vector3(1.6f, 1.0f, 0.5f), A.towerWall, 3f, false);
+            // Pencere: lanternGlass (emisyon x3) ACES ile beyaza patlıyordu; loş sıcak cam
+            var towerWin = GlowMat("MenuTowerWindow", new Color(0.5f, 0.32f, 0.16f), new Color(1f, 0.55f, 0.22f) * 0.75f);
             foreach (float x in new[] { -9.5f, 9.5f })
             {
                 Slab("Tower", root, new Vector3(x, 6f, 7.5f), new Vector3(5f, 12f, 5f), A.towerWall, 3f, false);
                 for (int k = -1; k <= 1; k++) Slab("TowerMerlon", root, new Vector3(x + k * 1.9f, 12.5f, 5.25f), new Vector3(1.1f, 1.0f, 0.5f), A.towerWall, 3f, false);
-                Slab("TowerWindow", root, new Vector3(x, 8.5f, 4.98f), new Vector3(0.7f, 1.5f, 0.06f), A.lanternGlass, 1f, false);
+                Slab("TowerWindow", root, new Vector3(x, 8.5f, 4.98f), new Vector3(0.7f, 1.5f, 0.06f), towerWin, 1f, false);
             }
             Slab("GateBack", root, new Vector3(0, 2.2f, 6.6f), new Vector3(3.8f, 4.6f, 0.2f), A.darkWood, 2f, false);
             Prop("large_castle_door", root, new Vector3(0, 0, 6.15f), 0f, 4.4f, false);
