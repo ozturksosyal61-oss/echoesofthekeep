@@ -1035,6 +1035,7 @@ namespace CoopGame.EditorTools
             }
             const int W = 1600, H = 720;
             var cam = Camera.main;
+            cam.useOcclusionCulling = Arg("-shotNoOcc") == null;
             if (pos.HasValue) { cam.transform.position = pos.Value; cam.transform.LookAt(lookAt); }
             foreach (var cv in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude))
             {

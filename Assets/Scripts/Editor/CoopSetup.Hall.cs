@@ -352,6 +352,11 @@ namespace CoopGame.EditorTools
             Kit("ChandelierOrnate", root, new Vector3(0, 4.9f, -2.5f), 0f, 2.3f);
             Rod("ChandelierChain", root, new Vector3(0, 8.3f, -2.5f), new Vector3(0, H - 0.1f, -2.5f), 0.05f, K.iron);
             Kit("L_Chandelier", root, new Vector3(0, 4.6f, -2.5f));
+            // Karakter dolgusu (yalnız bake → light probe'lara girer, çalışma anında maliyet yok): doğuş alanına yukarıdan soluk, soğuk spot
+            var cf = LightGo("CharFillCool", LightType.Spot, new Color(0.62f, 0.7f, 0.86f), 0.5f, 8f, true);
+            cf.transform.SetParent(root, false); cf.transform.localPosition = new Vector3(0, 5.6f, -10.2f);
+            cf.transform.localRotation = Quaternion.Euler(62f, 0, 0);
+            var cfl = cf.GetComponent<Light>(); cfl.spotAngle = 70f; cfl.innerSpotAngle = 35f;
             Kit("L_Chandelier", root, new Vector3(0, 6.2f, -2.5f));
             Kit("ChandelierIron", root, new Vector3(0, H - 0.45f, 5.2f), 0f, 1.5f);
             Kit("L_Chandelier", root, new Vector3(0, 5.6f, 5.2f));

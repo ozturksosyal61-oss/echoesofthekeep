@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -110,16 +110,17 @@ namespace CoopGame.EditorTools
         {
             string texDir = CharRoot + "/" + r + "/Textures";
             var tex = Directory.Exists(texDir)
-                ? Directory.GetFiles(texDir).Where(f => f.EndsWith(".png") || f.EndsWith(".jpg")).OrderBy(f => f)
+                ? Directory.GetFiles(texDir).Where(f => f.EndsWith(".png") || f.EndsWith(".jpg")).OrderBy(f => f.Contains("_adj") ? 0 : 1).ThenBy(f => f)
                     .Select(f => AssetDatabase.LoadAssetAtPath<Texture2D>(f.Replace('\\', '/'))).FirstOrDefault(t => t != null)
                 : null;
             // ref karakter_sheet.jpg: X koyu kahve deri + haki kanvas (sıcak), O koyu füme-yeşil palto + soluk mavi şerit (soğuk).
             // Doku çarpanı hafif: dokudaki ayrıntı korunur, doygunluk artmaz.
             // Doku referanstan koyu: X'i sıcak yönde biraz aç (deri kahvesi), O'yu soğuk yeşile çek (çarpan >1 bilerek)
-            var tint = r == "X" ? new Color(1.3f, 1.1f, 0.88f) : new Color(0.98f, 1.1f, 1.04f);
+            // X: cilt/saç turuncusu dokuda soldurulmuş kopya (X_tpose_tex0_adj.png); çarpan nötre yakın, hafif sıcak
+            var tint = r == "X" ? new Color(1.16f, 1.07f, 0.97f) : new Color(0.98f, 1.1f, 1.04f);
             var m = MakeMat("M_Char" + r, tint);
             if (tex != null) m.SetTexture("_BaseMap", tex); else { m.color = r == "X" ? HexC("#8A5A2B") : HexC("#3B4A44"); Debug.LogWarning("[CoopSetup] Karakter dokusu yok: " + r); }
-            m.SetFloat("_Smoothness", 0.22f);
+            m.SetFloat("_Smoothness", r == "X" ? 0.12f : 0.2f); // X: saç/cilt mat
             m.SetFloat("_Metallic", 0f);
             EditorUtility.SetDirty(m);
             return m;
@@ -207,12 +208,19 @@ namespace CoopGame.EditorTools
             // Deri defter (~0.15 x 0.2): kapak, sayfalar, dikey kayış + pirinç toka
             var book = new GameObject("PropJournal").transform;
             book.SetParent(root, false);
-            book.localPosition = new Vector3(0.22f, 0.9f, 0.05f);
+            book.localPosition = new Vector3(0.23f, 0.9f, 0.05f);
             book.localRotation = Quaternion.Euler(0, -12f, -6f);
-            Slab("Cover", book, Vector3.zero, new Vector3(0.038f, 0.2f, 0.15f), leather, 1f, false);
-            Slab("Pages", book, new Vector3(0.002f, 0, 0.004f), new Vector3(0.03f, 0.19f, 0.145f), pages, 1f, false);
-            Slab("Strap", book, new Vector3(0.0205f, 0, 0.02f), new Vector3(0.004f, 0.21f, 0.022f), leather, 1f, false);
-            Slab("Buckle", book, new Vector3(0.023f, 0.02f, 0.02f), new Vector3(0.004f, 0.025f, 0.028f), brass, 1f, false);
+            // Koyu mat deri (turuncu yok), kalın (5.5 cm), dikey kenarları yuvarlak: iki çapraz kutu + 4 köşe silindiri
+            var jl = MakeMat("K_JournalLeather", HexC("#33251B")); jl.SetFloat("_Smoothness", 0.12f);
+            var strapM = MakeMat("K_JournalStrap", HexC("#24190F")); strapM.SetFloat("_Smoothness", 0.1f);
+            const float T = 0.055f, BH = 0.2f, BW = 0.15f, R = 0.012f;
+            Slab("CoverA", book, Vector3.zero, new Vector3(T - 2 * R, BH, BW), jl, 1f, false);
+            Slab("CoverB", book, Vector3.zero, new Vector3(T, BH, BW - 2 * R), jl, 1f, false);
+            foreach (var (cx, cz) in new[] { (1, 1), (1, -1), (-1, 1), (-1, -1) })
+                Prim("Edge", book, PrimitiveType.Cylinder, new Vector3(cx * (T * 0.5f - R), 0, cz * (BW * 0.5f - R)), new Vector3(2 * R, BH * 0.5f, 2 * R), jl);
+            Slab("Pages", book, new Vector3(0, 0, 0.006f), new Vector3(T - 0.012f, BH - 0.01f, BW - 0.008f), pages, 1f, false);
+            Slab("Strap", book, new Vector3(T * 0.5f + 0.001f, 0, 0.025f), new Vector3(0.004f, BH + 0.006f, 0.02f), strapM, 1f, false);
+            Slab("Buckle", book, new Vector3(T * 0.5f + 0.003f, 0.02f, 0.025f), new Vector3(0.004f, 0.022f, 0.026f), iron, 1f, false);
             foreach (var t in new[] { lantern, book })
             {
                 foreach (var mr in t.GetComponentsInChildren<MeshRenderer>()) { mr.shadowCastingMode = ShadowCastingMode.Off; mr.lightProbeUsage = LightProbeUsage.BlendProbes; }
