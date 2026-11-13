@@ -40,6 +40,7 @@ namespace CoopGame
 
         void Start()
         {
+            if (!TestTools.On) { Destroy(gameObject); return; }
             urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
             addLightsField = typeof(UniversalRenderPipelineAsset).GetField("m_AdditionalLightsRenderingMode", BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None))

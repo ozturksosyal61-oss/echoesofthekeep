@@ -5,6 +5,7 @@
 # Kurulum (bir kez): Unity Hub'da 6000.6.7f1 + "iOS Build Support"; Xcode → Settings → Accounts'ta Apple ID;
 # App Store Connect'te uygulama kaydı (BUNDLE_ID ile).
 # Kullanım:  TEAM_ID=ABCDE12345 BUNDLE_ID=com.ornek.echoes ./Tools/ios_testflight.sh
+#            DEV=1 ile development build (FPS, debug paneli, başlangıç seçici açık; App Store incelemesine gönderme)
 set -euo pipefail
 
 : "${TEAM_ID:?TEAM_ID gerekli (developer.apple.com → Membership → Team ID)}"
@@ -20,7 +21,7 @@ git pull --ff-only
 echo "== Unity: Xcode projesi (ilk seferde içe aktarma uzun sürer)"
 mkdir -p Logs
 "$UNITY" -batchmode -quit -projectPath "$ROOT" -buildTarget iOS \
-  -executeMethod CoopGame.EditorTools.CoopSetup.BuildIOS -bundleId "$BUNDLE_ID" -teamId "$TEAM_ID" \
+  -executeMethod CoopGame.EditorTools.CoopSetup.BuildIOS -bundleId "$BUNDLE_ID" -teamId "$TEAM_ID" ${DEV:+-dev} \
   -logFile "$ROOT/Logs/ios_build.log" || { echo "Unity build başarısız: Logs/ios_build.log"; exit 1; }
 
 echo "== Xcode: arşiv"

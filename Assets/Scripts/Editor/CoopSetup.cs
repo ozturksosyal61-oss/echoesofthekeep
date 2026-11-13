@@ -428,7 +428,7 @@ namespace CoopGame.EditorTools
                 target = BuildTarget.iOS,
                 targetGroup = BuildTargetGroup.iOS,
                 locationPathName = outDir,
-                options = BuildOptions.None,
+                options = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-dev") >= 0 ? BuildOptions.Development : BuildOptions.None, // -dev: test araçları açık
             };
             var report = BuildPipeline.BuildPlayer(opts);
             Debug.Log("[CoopSetup] iOS build: " + report.summary.result + " -> " + Path.GetFullPath(outDir) + " build " + PlayerSettings.iOS.buildNumber);

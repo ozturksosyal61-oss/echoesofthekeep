@@ -14,6 +14,13 @@ namespace CoopGame
         float fpsSum, nextLog;
         int fpsN;
 
+        void Start()
+        {
+            if (TestTools.On) return;
+            if (label != null) label.gameObject.SetActive(false); // yayın: FPS/ping ve uzun basma debug paneli yok
+            Destroy(gameObject);
+        }
+
         void Update()
         {
             frames++;
