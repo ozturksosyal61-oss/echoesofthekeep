@@ -217,7 +217,18 @@ namespace CoopGame.EditorTools
                 Kit("ChandelierIron", root, new Vector3(0, top, z), 20f, 2.4f);
                 var cl = LightGo("ChandelierLight", LightType.Point, Pal.Candle, 5f, 17f, true);
                 cl.transform.SetParent(root, false); cl.transform.localPosition = new Vector3(0, top - 4.4f, z);
+                // Çatı dolgusu (yalnızca bake): avizenin mumlarından yukarı vuran loş sıcak ışık, makaslar gölge düşürür
+                var up = LightGo("RoofFill", LightType.Spot, Pal.Candle * 0.85f, 1.1f, 15f, true);
+                up.transform.SetParent(root, false); up.transform.localPosition = new Vector3(0, top + 0.3f, z);
+                up.transform.localRotation = Quaternion.Euler(-90f, 0, 0);
+                var ul = up.GetComponent<Light>(); ul.spotAngle = 150f; ul.innerSpotAngle = 60f;
             }
+            foreach (int s in new[] { -1, 1 }) // çatı eteklerine (galeri üstü) zayıf dolgu
+                foreach (float z in new[] { -14f, 0f, 14f })
+                {
+                    var e = LightGo("EavesFill", LightType.Point, Pal.Candle * 0.8f, 0.7f, 9f, true);
+                    e.transform.SetParent(root, false); e.transform.localPosition = new Vector3(s * (HX - 3.5f), WH + 1.5f, z);
+                }
 
             // --- Ortada parmaklık: taş direkler, demir bölmeler, iki kanatlı orta kapı (kuzeye açılır) ---
             const float GH = 6.5f, GW = 2.2f;
