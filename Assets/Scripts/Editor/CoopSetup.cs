@@ -67,6 +67,7 @@ namespace CoopGame.EditorTools
             else if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBake") < 0)
             {
                 KitBake(); // Game sahnesi açık ve kayıtlı: kit odalarının ışığı pişer
+                if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noOcclusion") < 0) KitOcclusion();
                 EditorSceneManager.SaveOpenScenes();
             }
 

@@ -1330,6 +1330,30 @@ namespace CoopGame.EditorTools
         static bool BakeDraft => System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-draft") >= 0;
 
         /// <summary>-bakeOnly Kök1,Kök2: yalnız bu köklerin altı pişer (diğer odalar lightmap/probe almaz; sadece deneme için).</summary>
+        /// <summary>Occlusion culling: yalnızca büyük opak statik yüzeyler (duvar/zemin/tavan, ≥2.5 m) örtücü; dekor yalnız örtülen.</summary>
+        [MenuItem("CoopGame/Occlusion Hesapla")]
+        static void KitOcclusion()
+        {
+            int occ = 0, small = 0;
+            foreach (var mr in Object.FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var go = mr.gameObject;
+                var f = GameObjectUtility.GetStaticEditorFlags(go);
+                if ((f & StaticEditorFlags.OccluderStatic) == 0 && (f & StaticEditorFlags.OccludeeStatic) == 0) continue;
+                var sz = mr.bounds.size;
+                bool opaque = mr.sharedMaterials.All(m => m != null && m.renderQueue < 2500);
+                bool big = opaque && Mathf.Max(sz.x, sz.y, sz.z) >= 2.5f && Mathf.Min(sz.x, sz.y, sz.z) >= 0.05f && mr.enabled;
+                if (big) { f |= StaticEditorFlags.OccluderStatic; occ++; } else { f &= ~StaticEditorFlags.OccluderStatic; small++; }
+                GameObjectUtility.SetStaticEditorFlags(go, f | StaticEditorFlags.OccludeeStatic);
+            }
+            StaticOcclusionCulling.smallestOccluder = 2f;
+            StaticOcclusionCulling.smallestHole = 0.3f;
+            StaticOcclusionCulling.backfaceThreshold = 100f;
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            bool ok = StaticOcclusionCulling.Compute();
+            Debug.Log("[CoopSetup] Occlusion " + (ok ? "tamam" : "BAŞARISIZ") + " " + sw.Elapsed.TotalSeconds.ToString("0") + " sn, örtücü " + occ + ", örtülen " + small);
+        }
+
         static void ApplyBakeOnly()
         {
             string only = Arg("-bakeOnly");

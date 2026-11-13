@@ -37,11 +37,11 @@ Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kul
 
 ## Sonra / açık konular
 - Eski odaları lobi ölçeğine büyüt (saat, hazne, zindan, sarnıç; mahzen dar kalabilir). Kullanıcı istedi, bulmaca 4-7 sonrası.
-- Occlusion culling (StaticOcclusionCulling.Compute) henüz yok.
-- Oyun içi credits ekranı (CC-BY modeller: Docs/CREDITS.md).
+- Occlusion culling: KitOcclusion (Setup All bake sonrası; -noOcclusion ile atlanır; menü CoopGame/Occlusion Hesapla). Denenmedi.
+- Jenerik: ana menü JENERİK sekmesi (UI.cs CreditsBody; CREDITS.md değişince güncelle).
 - treasure_chest 95k üçgen; mesh LOD'un devrede olduğu doğrulanmadı.
-- Ay huzmesi kartında bir açıdan ince çizgi kalıyor (LightShaft.shader _Fade artırılabilir).
-- Menü arka planındaki kule penceresi (lanternGlass) ACES ile beyaza patlıyor.
+- Ay huzmesi ince çizgi: sönme piksel başına + smoothstep (düzeltildi, görsel doğrulanmadı).
+- Menü kule penceresi: ayrı loş MenuTowerWindow malzemesi (düzeltildi).
 - Cihaz testi + FPS hiç yapılmadı.
 - ChandelierIron askı çubuğu kalın/kırmızımsı görünüyor (kit prefabı).
 - Kit "Door" duvar çapalı değil: duvara yapışık kullanınca probe çapasını elle odaya al (Tower'daki DoorProbeAnchor).
