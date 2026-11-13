@@ -1,5 +1,5 @@
 // Ay ışığı huzmesi kartı: toplamalı, çift taraflı. Karta yandan bakınca (ince parlak çizgi olmasın diye) ve
-// kameraya çok yaklaşınca söner. Köşe başına hesap: mobilde ucuz.
+// kameraya çok yaklaşınca söner. Sönme piksel başına (köşe başında büyük kartta yandan bakınca ince çizgi kalıyordu).
 Shader "CoopGame/LightShaft"
 {
     Properties
@@ -30,7 +30,7 @@ Shader "CoopGame/LightShaft"
             CBUFFER_END
 
             struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; half fade : TEXCOORD1; };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 normalWS : TEXCOORD1; float3 positionWS : TEXCOORD2; };
 
             Varyings vert(Attributes i)
             {
@@ -38,17 +38,19 @@ Shader "CoopGame/LightShaft"
                 float3 ws = TransformObjectToWorld(i.positionOS.xyz);
                 o.positionCS = TransformWorldToHClip(ws);
                 o.uv = i.uv;
-                float3 n = TransformObjectToWorldNormal(i.normalOS);
-                float3 toCam = GetCameraPositionWS() - ws;
-                float dist = length(toCam);
-                o.fade = pow(abs(dot(n, toCam / max(dist, 0.001))), _Fade) * saturate((dist - 0.4) / 1.6);
+                o.normalWS = TransformObjectToWorldNormal(i.normalOS);
+                o.positionWS = ws;
                 return o;
             }
 
             half4 frag(Varyings i) : SV_Target
             {
+                float3 toCam = GetCameraPositionWS() - i.positionWS;
+                float dist = length(toCam);
+                half ndv = abs(dot(normalize(i.normalWS), toCam / max(dist, 0.001)));
+                half fade = pow(smoothstep(0.12, 0.6, ndv), _Fade) * saturate((dist - 0.4) / 1.6);
                 half4 t = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv);
-                return half4(_BaseColor.rgb * t.rgb, t.a * _BaseColor.a * i.fade);
+                return half4(_BaseColor.rgb * t.rgb, t.a * _BaseColor.a * fade);
             }
             ENDHLSL
         }
