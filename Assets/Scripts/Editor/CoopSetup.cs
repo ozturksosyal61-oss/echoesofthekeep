@@ -354,7 +354,7 @@ namespace CoopGame.EditorTools
             PlayerSettings.companyName = "CoopGame";
             PlayerSettings.productName = "Echoes of the Keep";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.coopgame.p0");
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.coopgame.p0");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.oztdigital.echoesofthekeep");
             // Yalnızca yatay (Android + iOS ortak ayar): LandscapeLeft/Right, otomatik döndürme; dikey kapalı.
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false;

@@ -171,7 +171,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.coopgame.p0
-    iPhone: com.coopgame.p0
+    iPhone: com.oztdigital.echoesofthekeep
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -436,7 +436,7 @@ PlayerSettings:
   m_BuildTargetGraphicsJobMode: []
   m_BuildTargetGraphicsAPIs:
   - m_BuildTarget: AndroidPlayer
-    m_APIs: 0b000000i
+    m_APIs: 15000000i
     m_Automatic: 1
   m_DefaultShaderChunkSizeInMB: 16
   m_DefaultShaderChunkCount: 0
