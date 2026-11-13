@@ -35,7 +35,7 @@ namespace CoopGame
               "öbürünüz suyun damladığı yere, aşağı inecek. Birbirinizi görmeyeceksiniz.\n\n" +
               "Gördüğünüzü anlatın. Duyduğunuza güvenin. Ve plakaların üzerinde biraz bekleyin; şato kimin nereye ait olduğuna kendisi karar verir.",
               "— Kâhya Edrik"),
-            default, default,
+            default,
             // 2 — X, Çan Kulesi (kollar)
             E("Kule defterinden",
               "Mira,\n\nDört kolu kendi ellerimle döktüm, her birinin başına bir işaret kazıdım. Ama hangisinin önce çekileceğini bana söylemediler. " +
