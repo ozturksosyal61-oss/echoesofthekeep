@@ -375,7 +375,7 @@ namespace CoopGame.EditorTools
 
         /// <summary>Jenerik: ekip + üçüncü taraf varlıklar (CC-BY yazarları zorunlu; Docs/CREDITS.md ile aynı tut).</summary>
         const string CreditsBody =
-            "<color=#E8C77A>Tasarım ve geliştirme</color>  Echoes of the Keep ekibi
+            "<color=#E8C77A>Yapım, tasarım ve geliştirme</color>  OZT Digital
 " +
             "<color=#E8C77A>Motor</color>  Unity · Photon Fusion & Voice
 
