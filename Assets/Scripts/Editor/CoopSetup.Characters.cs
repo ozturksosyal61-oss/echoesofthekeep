@@ -20,6 +20,13 @@ namespace CoopGame.EditorTools
 
         static string CharIdle(string r) => CharRoot + "/" + r + "/" + r.ToLowerInvariant() + "_Idle.fbx";
         static string CharWalk(string r) => CharRoot + "/" + r + "/" + r.ToLowerInvariant() + "_walking.fbx";
+        /// <summary>Idle clip kaynağı: {r}_Idle2.fbx varsa o (X: Breathing Idle, dik duruş), yoksa skinli {r}_Idle.fbx.</summary>
+        static string CharIdleClip(string r)
+        {
+            string alt = CharRoot + "/" + r + "/" + r.ToLowerInvariant() + "_Idle2.fbx";
+            return File.Exists(alt) ? alt : CharIdle(r);
+        }
+        const string CharOverrideO = "Assets/Prefabs/Character_O.overrideController";
         static bool CharactersAvailable => CharRoles.All(r => File.Exists(CharIdle(r)) && File.Exists(CharWalk(r)));
 
         static void ConfigureClip(ModelImporter mi, string clipName)
@@ -39,6 +46,40 @@ namespace CoopGame.EditorTools
         static AnimationClip LoadClip(string path) =>
             AssetDatabase.LoadAllAssetsAtPath(path).OfType<AnimationClip>().FirstOrDefault(c => !c.name.StartsWith("__preview__"));
 
+        /// <summary>
+        /// Avatar referans duruşu = skin bind-pose (Mixamo'ya yüklenen T-pose). Mixamo FBX'in dosya duruşu animasyonun ilk karesi
+        /// olduğundan Unity avatarı bükük duruştan kurar ve tüm clip'ler çömelik görünür ("Enforce T-Pose" karşılığı).
+        /// </summary>
+        static void EnforceBindTPose(ModelImporter mi)
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(mi.assetPath);
+            var smr = model != null ? model.GetComponentInChildren<SkinnedMeshRenderer>(true) : null;
+            if (smr == null || smr.sharedMesh == null) return;
+            var bones = smr.bones; var bind = smr.sharedMesh.bindposes;
+            if (bones.Length != bind.Length) return;
+            var world = new System.Collections.Generic.Dictionary<Transform, Matrix4x4>();
+            var meshToWorld = smr.transform.localToWorldMatrix;
+            for (int i = 0; i < bones.Length; i++) if (bones[i] != null) world[bones[i]] = meshToWorld * bind[i].inverse;
+            var hd = mi.humanDescription;
+            var sk = hd.skeleton;
+            int changed = 0;
+            for (int k = 0; k < sk.Length; k++)
+            {
+                var b = bones.FirstOrDefault(t => t != null && t.name == sk[k].name);
+                if (b == null || !world.TryGetValue(b, out var wb)) continue;
+                var wp = b.parent == null ? Matrix4x4.identity : world.TryGetValue(b.parent, out var pm) ? pm : b.parent.localToWorldMatrix;
+                var local = wp.inverse * wb;
+                sk[k].position = local.GetColumn(3);
+                sk[k].rotation = local.rotation;
+                changed++;
+            }
+            hd.skeleton = sk;
+            mi.humanDescription = hd;
+            mi.SaveAndReimport();
+            var av = LoadAvatar(mi.assetPath);
+            Debug.Log("[CoopSetup] T-pose (bind) uygulandı: " + mi.assetPath + " kemik " + changed + ", avatar " + (av != null && av.isValid && av.isHuman ? "geçerli" : "GEÇERSİZ"));
+        }
+
         /// <summary>İçe aktarma ayarları (yalnızca değişince yeniden içe aktarır).</summary>
         static void PrepareCharacters()
         {
@@ -54,6 +95,7 @@ namespace CoopGame.EditorTools
                 mi.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
                 ConfigureClip(mi, "Idle");
                 mi.SaveAndReimport();
+                EnforceBindTPose(mi);
                 if (!Directory.Exists(texDir) || Directory.GetFiles(texDir, "*.png").Length + Directory.GetFiles(texDir, "*.jpg").Length == 0)
                 {
                     Directory.CreateDirectory(texDir);
@@ -76,6 +118,22 @@ namespace CoopGame.EditorTools
                 mi.materialImportMode = ModelImporterMaterialImportMode.None; // kendi malzememiz (palet)
                 mi.SaveAndReimport();
 
+                if (CharIdleClip(r) != idle)
+                {
+                    var ii = (ModelImporter)AssetImporter.GetAtPath(CharIdleClip(r));
+                    ii.animationType = ModelImporterAnimationType.Human;
+                    // Kendi avatarı: ayrı Mixamo yüklemesinden gelen iskelet (kemik boyları farklı) → kopya avatar "Rig Error" verir, clip oynamaz.
+                    // Humanoid clip'ler avatarlar arası yeniden hedeflenir.
+                    ii.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                    ii.materialImportMode = ModelImporterMaterialImportMode.None;
+                    ii.importBlendShapes = false;
+                    ConfigureClip(ii, "Idle");
+                    ii.SaveAndReimport();
+                    // Referans duruş: skinli dosyanın T-pose dönüşleri (konumlar kendi iskeletinden)
+                    var src = mi.humanDescription.skeleton; var hd2 = ii.humanDescription; var sk2 = hd2.skeleton;
+                    for (int k = 0; k < sk2.Length; k++) { int j = System.Array.FindIndex(src, q => q.name == sk2[k].name); if (j >= 0) sk2[k].rotation = src[j].rotation; }
+                    hd2.skeleton = sk2; ii.humanDescription = hd2; ii.SaveAndReimport();
+                }
                 var wi = (ModelImporter)AssetImporter.GetAtPath(walk);
                 wi.animationType = ModelImporterAnimationType.Human;
                 wi.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
@@ -96,13 +154,19 @@ namespace CoopGame.EditorTools
             var ctrl = AnimatorController.CreateAnimatorControllerAtPath(CharControllerPath);
             ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
             var sm = ctrl.layers[0].stateMachine;
-            var sIdle = sm.AddState("Idle"); sIdle.motion = LoadClip(CharIdle("X"));
+            var sIdle = sm.AddState("Idle"); sIdle.motion = LoadClip(CharIdleClip("X"));
             var sWalk = sm.AddState("Walk"); sWalk.motion = LoadClip(CharWalk("X"));
             sm.defaultState = sIdle;
             var t1 = sIdle.AddTransition(sWalk); t1.hasExitTime = false; t1.duration = 0.15f;
             t1.AddCondition(AnimatorConditionMode.Greater, 0.3f, "Speed");
             var t2 = sWalk.AddTransition(sIdle); t2.hasExitTime = false; t2.duration = 0.2f;
             t2.AddCondition(AnimatorConditionMode.Less, 0.3f, "Speed");
+            // O: aynı controller, kendi Idle/Walk clip'leri (override; durumlar ve geçişler ortak)
+            AssetDatabase.DeleteAsset(CharOverrideO);
+            var ov = new AnimatorOverrideController(ctrl) { name = "Character_O" };
+            ov[sIdle.motion as AnimationClip] = LoadClip(CharIdleClip("O"));
+            ov[sWalk.motion as AnimationClip] = LoadClip(CharWalk("O"));
+            AssetDatabase.CreateAsset(ov, CharOverrideO);
             return ctrl;
         }
 
@@ -160,7 +224,7 @@ namespace CoopGame.EditorTools
             if (h > 0.01f && Mathf.Abs(h - 1.75f) > 0.3f) go.transform.localScale = Vector3.one * (1.75f / h);
 
             var an = go.GetComponent<Animator>(); if (an == null) an = go.AddComponent<Animator>();
-            an.runtimeAnimatorController = ctrl;
+            an.runtimeAnimatorController = r == "O" ? (RuntimeAnimatorController)AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(CharOverrideO) ?? ctrl : ctrl;
             an.avatar = LoadAvatar(CharIdle(r));
             an.applyRootMotion = false;
             an.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
@@ -269,17 +333,23 @@ namespace CoopGame.EditorTools
             var fill = new GameObject("ShotFill").AddComponent<Light>();
             fill.type = LightType.Point; fill.intensity = 2.5f; fill.range = 9f; fill.color = new Color(1f, 0.85f, 0.7f);
             fill.transform.position = basePos + new Vector3(0.3f, 1.6f, -1.8f);
-            var clip = LoadClip(CharIdle("X"));
+            var clip = LoadClip(CharIdleClip("X"));
+            var gs = new GameObject[3];
+            for (int k = 0; k < 3; k++)
+            {
+                gs[k] = Object.Instantiate(prefab.transform.Find("Model/Model_X").gameObject); gs[k].SetActive(true);
+                gs[k].transform.position = basePos + new Vector3((k - 1) * 0.9f, 0, 0); gs[k].transform.rotation = Quaternion.Euler(0, 90f, 0);
+            }
+            AnimationMode.StartAnimationMode();
+            AnimationMode.BeginSampling();
+            foreach (var g in gs) AnimationMode.SampleAnimationClip(g, clip, 0.3f);
+            AnimationMode.EndSampling();
             for (int k = 0; k < 3; k++)
             {
                 float pitch = (k - 1) * 45f;
-                var g = Object.Instantiate(prefab.transform.Find("Model/Model_X").gameObject); g.SetActive(true);
-                g.transform.position = basePos + new Vector3((k - 1) * 0.9f, 0, 0); g.transform.rotation = Quaternion.Euler(0, 90f, 0);
-                AnimationMode.StartAnimationMode();
-                AnimationMode.BeginSampling(); AnimationMode.SampleAnimationClip(g, clip, 0.3f); AnimationMode.EndSampling();
-                var an = g.GetComponent<Animator>();
+                var an = gs[k].GetComponent<Animator>();
                 var head = an.GetBoneTransform(HumanBodyBones.Head); var neck = an.GetBoneTransform(HumanBodyBones.Neck);
-                var axis = g.transform.right;
+                var axis = gs[k].transform.right;
                 neck.rotation = Quaternion.AngleAxis(pitch * 0.4f, axis) * neck.rotation;
                 head.rotation = Quaternion.AngleAxis(pitch * 0.6f, axis) * head.rotation;
             }
@@ -298,15 +368,19 @@ namespace CoopGame.EditorTools
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AvatarPath);
             var h = Layout.Hall;
             var spawned = new System.Collections.Generic.List<GameObject>();
+            var pending = new System.Collections.Generic.List<(GameObject, AnimationClip, float)>();
             void Pose(string r, Vector3 p, float yaw, string clip, float t)
             {
                 var src = prefab.transform.Find("Model/Model_" + r);
                 if (src == null) { Debug.LogError("[CoopSetup] Prefabda Model_" + r + " yok"); return; }
                 var g = Object.Instantiate(src.gameObject); g.SetActive(true); spawned.Add(g);
                 g.transform.position = p; g.transform.rotation = Quaternion.Euler(0, yaw, 0);
-                var c = AssetDatabase.LoadAllAssetsAtPath(clip == "Walk" ? CharWalk(r) : CharIdle(r)).OfType<AnimationClip>().First(x => !x.name.StartsWith("__preview__"));
+                var c = AssetDatabase.LoadAllAssetsAtPath(clip == "Walk" ? CharWalk(r) : CharIdleClip(r)).OfType<AnimationClip>().First(x => !x.name.StartsWith("__preview__"));
+                pending.Add((g, c, t * c.length));
                 AnimationMode.StartAnimationMode();
-                AnimationMode.BeginSampling(); AnimationMode.SampleAnimationClip(g, c, t * c.length); AnimationMode.EndSampling();
+                AnimationMode.BeginSampling();
+                foreach (var (pg, pc, pt) in pending) AnimationMode.SampleAnimationClip(pg, pc, pt); // hepsi aynı blokta
+                AnimationMode.EndSampling();
             }
             var basePos = h + new Vector3(0, 0.05f, -6.5f);
             // Yalnızca çekim için geçici dolgu ışığı (sahneye kaydedilmez)
@@ -319,13 +393,13 @@ namespace CoopGame.EditorTools
             Shot(dir + "/chars_idle.png", basePos + new Vector3(0, 1.3f, -3.4f), basePos + new Vector3(0, 0.95f, 0), false);
             AnimationMode.StopAnimationMode();
             foreach (var g in spawned) Object.DestroyImmediate(g);
-            spawned.Clear();
+            spawned.Clear(); pending.Clear();
             Pose("X", basePos + new Vector3(-0.8f, 0, 0), 120f, "Walk", 0.25f);
             Pose("O", basePos + new Vector3(0.8f, 0, 0), 120f, "Walk", 0.25f);
             Shot(dir + "/chars_walk.png", basePos + new Vector3(0, 1.2f, -3.4f), basePos + new Vector3(0, 0.9f, 0), false);
             AnimationMode.StopAnimationMode();
             foreach (var g in spawned) Object.DestroyImmediate(g);
-            spawned.Clear();
+            spawned.Clear(); pending.Clear();
             // Palto-bacak: O yandan, adımın iki ucu (öne ve arkaya açılmış bacak)
             foreach (var t in new[] { 0.0f, 0.25f, 0.5f })
             {
@@ -334,7 +408,7 @@ namespace CoopGame.EditorTools
                 Shot(dir + "/o_walk_side_" + (int)(t * 100) + ".png", basePos + new Vector3(0, 0.95f, -2.3f), basePos + new Vector3(0, 0.8f, 0), false);
                 AnimationMode.StopAnimationMode();
                 foreach (var g in spawned) Object.DestroyImmediate(g);
-                spawned.Clear();
+                spawned.Clear(); pending.Clear();
             }
             Object.DestroyImmediate(fill.gameObject);
             Debug.Log("[CoopSetup] Karakter görüntüleri -> " + Path.GetFullPath(dir));
