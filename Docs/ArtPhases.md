@@ -37,7 +37,7 @@ Sıra: O (zindan → kasa → mahzen → sarnıç → kütüphane), sonra X (kul
 
 ## Sonra / açık konular
 - Eski odaları lobi ölçeğine büyüt (saat, hazne, zindan, sarnıç; mahzen dar kalabilir). Kullanıcı istedi, bulmaca 4-7 sonrası.
-- Occlusion culling: KitOcclusion (Setup All bake sonrası; -noOcclusion ile atlanır; menü CoopGame/Occlusion Hesapla). Denenmedi.
+- Occlusion culling: KitOcclusion KAPALI (varsayılan Clear; -occlusion ile açılır). Açıkken holde bazı kamera konumlarında her şeyi kesti (Docs/Shots/characters). Çözülmedi.
 - Jenerik: ana menü JENERİK sekmesi (UI.cs CreditsBody; CREDITS.md değişince güncelle).
 - treasure_chest 95k üçgen; mesh LOD'un devrede olduğu doğrulanmadı.
 - Ay huzmesi ince çizgi: sönme piksel başına + smoothstep (düzeltildi, görsel doğrulanmadı).

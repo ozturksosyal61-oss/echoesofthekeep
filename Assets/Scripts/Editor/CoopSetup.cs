@@ -67,7 +67,8 @@ namespace CoopGame.EditorTools
             else if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBake") < 0)
             {
                 KitBake(); // Game sahnesi açık ve kayıtlı: kit odalarının ışığı pişer
-                if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noOcclusion") < 0) KitOcclusion();
+                // Occlusion varsayılan KAPALI: hesaplanan veri Lobi Holü'nde kamerayı yanlışlıkla tamamen kesti (2026-11-13). -occlusion ile açılır.
+                if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-occlusion") >= 0) KitOcclusion(); else StaticOcclusionCulling.Clear();
                 EditorSceneManager.SaveOpenScenes();
             }
 
