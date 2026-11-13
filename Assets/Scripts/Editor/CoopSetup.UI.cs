@@ -373,6 +373,44 @@ namespace CoopGame.EditorTools
             return jp;
         }
 
+        /// <summary>Jenerik: ekip + üçüncü taraf varlıklar (CC-BY yazarları zorunlu; Docs/CREDITS.md ile aynı tut).</summary>
+        const string CreditsBody =
+            "<color=#E8C77A>Tasarım ve geliştirme</color>  Echoes of the Keep ekibi
+" +
+            "<color=#E8C77A>Motor</color>  Unity · Photon Fusion & Voice
+
+" +
+            "<color=#E8C77A>Modeller (CC-BY 4.0, Sketchfab)</color>
+" +
+            "Bird_Amphora – GetDeadEntertainment · Armillary sphere – KRei · old church bell – vertexgrocer
+" +
+            "Engel Statue Scan – Refref1990 · Medieval Chandelier – Kevin.Popescu
+
+" +
+            "<color=#E8C77A>Doku, model ve gökyüzü (CC0)</color>  Poly Haven (polyhaven.com) · ambientCG (ambientcg.com)
+" +
+            "<color=#E8C77A>Müzik (CC0, OpenGameArt)</color>  Cathedral in the forest · Abandoned Castle – StarNinjas · Castle Cellar – Bobjt
+" +
+            "<color=#E8C77A>Yazı tipleri (SIL OFL 1.1)</color>  Cinzel, Cinzel Decorative, Spectral
+
+" +
+            "Oynadığın için teşekkürler.";
+
+        static RectTransform BuildCredits(RectTransform canvas, Vector2 a, float x0, float y0, out Button back)
+        {
+            var p = Overlay(canvas, "CreditsPanel");
+            var title = MakeText(p, "CreditsTitle", "JENERİK", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
+            Corner(title, a, a, new Vector2(x0, y0));
+            var body = MakeText(p, "CreditsBody", CreditsBody, 28, Vector2.zero, new Vector2(1300, 560), TextAnchor.UpperLeft, U.body, Cream, false);
+            Corner(body, a, a, new Vector2(x0, y0 - 76));
+            body.supportRichText = true; body.lineSpacing = 1.1f;
+            body.resizeTextForBestFit = true; body.resizeTextMinSize = 18; body.resizeTextMaxSize = 28;
+            back = MakeButton(p, "CreditsBack", "GERİ", Vector2.zero, new Vector2(200, 84), false, 34);
+            Corner((Graphic)back.targetGraphic, a, a, new Vector2(x0, y0 - 660));
+            p.gameObject.SetActive(false);
+            return p;
+        }
+
         /// <summary>Mektup okuma ekranı (en üstte; tam ekran karartma dokununca kapatır).</summary>
         static void BuildLetterView(RectTransform root)
         {
@@ -569,6 +607,7 @@ namespace CoopGame.EditorTools
             var jrnP = Overlay(canvas, "JournalPanel");
             BuildJournal(jrnP, TL, X0, -296, out var jBack);
             jrnP.gameObject.SetActive(false);
+            var crdP = BuildCredits(canvas, TL, X0, -296, out var cBack);
 
             var status = MakeText(canvas, "Status", "", 26, Vector2.zero, new Vector2(760, 44), TextAnchor.MiddleLeft, U.body, Cream);
             Corner(status, TL, TL, new Vector2(X0, -852));
@@ -576,9 +615,9 @@ namespace CoopGame.EditorTools
             // Alt: ayraç + sekmeler (mağaza yok; günlük = okunan mektuplar, ileride)
             var bl = MakeImage(canvas, "BottomLine", Vector2.zero, new Vector2(600, 2), null, new Color(Gold.r, Gold.g, Gold.b, 0.3f));
             Corner(bl, BL, BL, new Vector2(X0, 168)); bl.raycastTarget = false;
-            string[] tabs = { "GÜNLÜK", "ARKADAŞLAR", "AYARLAR" };
+            string[] tabs = { "GÜNLÜK", "ARKADAŞLAR", "AYARLAR", "JENERİK" };
             float tx = X0;
-            Button settingsTab = null, journalTab = null;
+            Button settingsTab = null, journalTab = null, creditsTab = null;
             foreach (var tab in tabs)
             {
                 float w = 80 + tab.Length * 24;
@@ -590,7 +629,7 @@ namespace CoopGame.EditorTools
                 {
                     t.raycastTarget = true;
                     var tb = t.gameObject.AddComponent<Button>(); tb.targetGraphic = t; tb.transition = Selectable.Transition.None;
-                    if (tab == "AYARLAR") settingsTab = tb; else journalTab = tb;
+                    if (tab == "AYARLAR") settingsTab = tb; else if (tab == "JENERİK") creditsTab = tb; else journalTab = tb;
                     t.gameObject.AddComponent<UiPress>();
                 }
                 else
@@ -633,6 +672,9 @@ namespace CoopGame.EditorTools
             SetRef(so, "journalButton", journalTab);
             SetRef(so, "journalPanel", jrnP.gameObject);
             SetRef(so, "journalBack", jBack);
+            SetRef(so, "creditsButton", creditsTab);
+            SetRef(so, "creditsPanel", crdP.gameObject);
+            SetRef(so, "creditsBack", cBack);
             SetRef(so, "continueHead", contHead);
             SetRef(so, "continueSub", contSub);
             SetRef(so, "progressValue", pv);
