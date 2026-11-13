@@ -90,7 +90,10 @@ namespace CoopGame
         public override void FixedUpdateNetwork()
         {
             if (GetInput(out PlayerInput input))
+            {
                 cc.Move(new Vector3(input.Move.x, 0f, input.Move.y));
+                transform.rotation = Quaternion.Euler(0f, input.Yaw, 0f); // gövde hareket yönüne değil bakış yönüne (NCC dönüşünü ezer; TRSP ile senkron)
+            }
 
             // NCC hızı konum farkından türetir: basamak/eşya kenarına tırmanınca dikey hız fırlatma etkisi yapıyordu.
             // Oyunda zıplama yok → yukarı hız asla taşınmaz.

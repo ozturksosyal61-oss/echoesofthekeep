@@ -26,7 +26,7 @@ namespace CoopGame
         {
             var m = InputSource.Move;
             var world = Quaternion.Euler(0f, FollowCamera.Yaw, 0f) * new Vector3(m.x, 0f, m.y);
-            input.Set(new PlayerInput { Move = new Vector2(world.x, world.z) });
+            input.Set(new PlayerInput { Move = new Vector2(world.x, world.z), Yaw = FollowCamera.Yaw });
         }
 
         public void OnInputMissing(NetworkRunner r, PlayerRef player, NetworkInput input) { }
