@@ -375,25 +375,14 @@ namespace CoopGame.EditorTools
 
         /// <summary>Jenerik: ekip + üçüncü taraf varlıklar (CC-BY yazarları zorunlu; Docs/CREDITS.md ile aynı tut).</summary>
         const string CreditsBody =
-            "<color=#E8C77A>Yapım, tasarım ve geliştirme</color>  OZT Digital
-" +
-            "<color=#E8C77A>Motor</color>  Unity · Photon Fusion & Voice
-
-" +
-            "<color=#E8C77A>Modeller (CC-BY 4.0, Sketchfab)</color>
-" +
-            "Bird_Amphora – GetDeadEntertainment · Armillary sphere – KRei · old church bell – vertexgrocer
-" +
-            "Engel Statue Scan – Refref1990 · Medieval Chandelier – Kevin.Popescu
-
-" +
-            "<color=#E8C77A>Doku, model ve gökyüzü (CC0)</color>  Poly Haven (polyhaven.com) · ambientCG (ambientcg.com)
-" +
-            "<color=#E8C77A>Müzik (CC0, OpenGameArt)</color>  Cathedral in the forest · Abandoned Castle – StarNinjas · Castle Cellar – Bobjt
-" +
-            "<color=#E8C77A>Yazı tipleri (SIL OFL 1.1)</color>  Cinzel, Cinzel Decorative, Spectral
-
-" +
+            "<color=#E8C77A>Yapım, tasarım ve geliştirme</color>  OZT Digital\n" +
+            "<color=#E8C77A>Motor</color>  Unity · Photon Fusion & Voice\n\n" +
+            "<color=#E8C77A>Modeller (CC-BY 4.0, Sketchfab)</color>\n" +
+            "Bird_Amphora – GetDeadEntertainment · Armillary sphere – KRei · old church bell – vertexgrocer\n" +
+            "Engel Statue Scan – Refref1990 · Medieval Chandelier – Kevin.Popescu\n\n" +
+            "<color=#E8C77A>Doku, model ve gökyüzü (CC0)</color>  Poly Haven (polyhaven.com) · ambientCG (ambientcg.com)\n" +
+            "<color=#E8C77A>Müzik (CC0, OpenGameArt)</color>  Cathedral in the forest · Abandoned Castle – StarNinjas · Castle Cellar – Bobjt\n" +
+            "<color=#E8C77A>Yazı tipleri (SIL OFL 1.1)</color>  Cinzel, Cinzel Decorative, Spectral\n\n" +
             "Oynadığın için teşekkürler.";
 
         static RectTransform BuildCredits(RectTransform canvas, Vector2 a, float x0, float y0, out Button back, out Button privacy, out Button support)
