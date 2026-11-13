@@ -15,6 +15,8 @@ namespace CoopGame
         static readonly int SpeedParam = Animator.StringToHash("Speed");
 
         public static PlayerAvatar Local { get; private set; }
+        /// <summary>Yerel tercih: uzak oyuncunun sesini kapat (oyun içi menü). Yalnız bu cihazı etkiler.</summary>
+        public static bool RemoteMuted;
         /// <summary>Spawn edilmiş tüm avatarlar (host'ta basınç plakası vb. için).</summary>
         public static readonly System.Collections.Generic.List<PlayerAvatar> All = new System.Collections.Generic.List<PlayerAvatar>();
 
@@ -22,6 +24,7 @@ namespace CoopGame
         NetworkCharacterController cc;
         Animator animator;
         Renderer[] renderers;
+        AudioSource[] voiceSources;
         bool remoteVisible = true;
         int shownRole = -99;
         Vector3 lastPos;
@@ -47,6 +50,7 @@ namespace CoopGame
             cc = GetComponent<NetworkCharacterController>();
             animator = GetComponentInChildren<Animator>();
             renderers = GetComponentsInChildren<Renderer>(true);
+            voiceSources = GetComponentsInChildren<AudioSource>(true);
             lastPos = transform.position;
             if (IsLocal) Local = this;
             if (!All.Contains(this)) All.Add(this);
@@ -131,6 +135,7 @@ namespace CoopGame
             // Alan kuralı + 1. şahıs: yalnızca yerel görünürlük. Yerel avatarı FollowCamera yönetir.
             if (!IsLocal)
             {
+                foreach (var a in voiceSources) if (a != null && a.mute != RemoteMuted) a.mute = RemoteMuted;
                 bool visible = Local != null && Room == Local.Room && !FollowCamera.HidingRemotes;
                 if (visible != remoteVisible)
                 {

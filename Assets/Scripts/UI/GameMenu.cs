@@ -7,13 +7,15 @@ namespace CoopGame
     public class GameMenu : MonoBehaviour
     {
         [SerializeField] GameObject root, mainView, settingsView, journalView;
-        [SerializeField] Button resume, journal, settings, leave, settingsBack, journalBack;
+        [SerializeField] Button resume, journal, settings, leave, settingsBack, journalBack, mute;
 
         static GameMenu inst;
         public static bool Exists => inst != null;
         public static bool IsOpen => inst != null && inst.root.activeSelf;
 
-        Text leaveLabel;
+        Text leaveLabel, muteLabel;
+
+        void MuteText() { if (muteLabel != null) muteLabel.text = PlayerAvatar.RemoteMuted ? "ARKADAŞIN SESİNİ AÇ" : "ARKADAŞINI SESSİZE AL"; }
         string leaveText;
         float confirmUntil;
 
@@ -27,6 +29,12 @@ namespace CoopGame
             settings.onClick.AddListener(() => Show(settingsView));
             settingsBack.onClick.AddListener(() => Show(mainView));
             journalBack.onClick.AddListener(() => Show(mainView));
+            if (mute != null)
+            {
+                muteLabel = mute.GetComponentInChildren<Text>();
+                mute.onClick.AddListener(() => { PlayerAvatar.RemoteMuted = !PlayerAvatar.RemoteMuted; MuteText(); });
+                MuteText();
+            }
             leave.onClick.AddListener(() =>
             {
                 if (Time.unscaledTime < confirmUntil) { Session.Leave(); return; }
