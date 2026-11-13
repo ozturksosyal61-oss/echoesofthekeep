@@ -132,7 +132,7 @@ namespace CoopGame.EditorTools
             Kit("Ladder", root, new Vector3(x0 + 0.9f, 0, 4.9f), 90f);
             KitR("PaintingPortrait", root, new Vector3(x0 + 0.04f, 3.6f, 7.6f), Quaternion.Euler(0, 90, 0), 1.1f);
             // Odacık: duvara dayalı yedek kadranlar, parça sandıkları, onarım masası
-            foreach (var (pz, r, tilt) in new[] { (z0 + 1.2f, 0.7f, -12f), (z0 + 2.4f, 0.5f, -8f) })
+            foreach (var (pz, r, tilt) in new[] { (-1.5f, 0.7f, -12f), (-0.3f, 0.5f, -8f) }) // geçidin (z -3.4) dışında, bölmeye dayalı
             {
                 var sf = Prim("SpareFace", root, PrimitiveType.Cylinder, new Vector3(px - 0.75f, r + 0.02f, pz), new Vector3(r * 2f, 0.03f, r * 2f), MakeMat("K_SpareFace", new Color(0.55f, 0.5f, 0.42f)));
                 sf.transform.localRotation = Quaternion.Euler(0, 0, 90f + tilt);

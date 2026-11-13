@@ -143,19 +143,23 @@ namespace CoopGame.EditorTools
             so.FindProperty("puzzleId").intValue = 3;
             SetRef(so, "door", door);
             so.ApplyModifiedPropertiesWithoutUndo();
+            // Geçit: taş koridor, alçak basamaklarla 1.2 m'lik sahanlığa çıkar; sonunda meşaleli karanlık sivri kemer (tavan yüksek, kapalı görünmez)
             var c = new GameObject("ArchiveStair").transform;
             c.SetParent(r, false);
-            Deck(c, "Floor", new Vector3(6.75f, -0.25f, z), 2.5f, 2.6f, 0.5f, K.castleStone, 1, 1);
-            Deck(c, "Ceil", new Vector3(6.75f, 3.75f, z), 2.5f, 2.6f, 0.5f, K.beam, 1, 1);
-            Wall(c, "N", new Vector3(6.75f, 0, z + 1.35f), true, 2.5f, 3.5f, K.castleStone, 2f);
-            Wall(c, "S", new Vector3(6.75f, 0, z - 1.35f), true, 2.5f, 3.5f, K.castleStone, 2f);
-            for (int i = 0; i < 6; i++)
-                Slab("Step" + i, c, new Vector3(6.2f + i * 0.3f, 0.1f + i * 0.2f, z), new Vector3(0.3f, 0.2f + i * 0.4f, 2.2f), K.castleStone, 1f, false);
-            ArchTrim(c, "Dark", new Vector3(8.0f, 0, z), Vector3.left, 2.2f, 3.2f, true);
-            foreach (int s in new[] { -1, 1 })
-                Slab("Jamb", r, new Vector3(4.92f, 1.55f, z + s * 1.2f), new Vector3(0.16f, 3.1f, 0.22f), K.beam, 1.2f, false);
-            Slab("Lintel", r, new Vector3(4.92f, 3.12f, z), new Vector3(0.16f, 0.24f, 2.62f), K.beam, 1.2f, false);
-            MakePassage("PassageX", r, 42, r.TransformPoint(new Vector3(7.2f, 1f, z)), new Vector3(1.4f, 2f, 2.2f), target);
+            const float cx0 = 5.25f, cx1 = 9.6f, cl = cx1 - cx0, cxm = (cx0 + cx1) * 0.5f, ch = 5.2f;
+            Deck(c, "Floor", new Vector3(cxm, -0.25f, z), cl, 2.6f, 0.5f, K.castleStone, 2, 1);
+            Deck(c, "Ceil", new Vector3(cxm, ch + 0.25f, z), cl, 2.6f, 0.5f, K.castleStone, 2, 1);
+            Wall(c, "N", new Vector3(cxm, 0, z + 1.35f), true, cl, ch, K.castleStone, 2f);
+            Wall(c, "S", new Vector3(cxm, 0, z - 1.35f), true, cl, ch, K.castleStone, 2f);
+            Wall(c, "E", new Vector3(cx1 + 0.25f, 0, z), false, 2.7f, ch, K.castleStone, 2f);
+            for (int i = 0; i < 6; i++) // 6 x 0.2 m basamak, 0.32 m adım
+                Slab("Step" + i, c, new Vector3(6.1f + i * 0.32f, 0.1f + i * 0.1f, z), new Vector3(0.32f, 0.2f + i * 0.2f, 2.2f), K.castleStone, 1f);
+            Slab("Landing", c, new Vector3((7.86f + cx1) * 0.5f, 0.6f, z), new Vector3(cx1 - 7.86f, 1.2f, 2.2f), K.castleStone, 1f);
+            ArchTrim(c, "Dark", new Vector3(cx1, 1.2f, z), Vector3.left, 2.0f, 3.4f, true);
+            Torch(c, "PassTorch", new Vector3(8.3f, 2.9f, z + 1.08f), Vector3.back, 4f, 4f);
+            Kit("Cobweb", c, new Vector3(cx1 - 0.05f, ch - 0.2f, z - 1.05f), -90f, 0.8f);
+            ArchTrim(r, "ArchiveArch", new Vector3(HzXE, 0, z), Vector3.left, 2.5f, 3.6f, false);
+            MakePassage("PassageX", r, 42, r.TransformPoint(new Vector3(8.9f, 2.2f, z)), new Vector3(1.2f, 2f, 2.2f), target);
         }
 
         // ---------------- Arşiv (X) ----------------
@@ -707,7 +711,13 @@ namespace CoopGame.EditorTools
                 }
                 Kit("Candlestick", lockRoot, new Vector3(1.15f, 1.5f, 0.05f), 0f);
                 Kit("L_Candle", lockRoot, new Vector3(1.15f, 2.05f, 0.3f));
-                Kit("L_Lantern", root, new Vector3(1.9f, 1.5f, -hz + 1.6f), 20f);
+                { // fener güney duvarında demir kolda (havada durmasın)
+                    var wp = new Vector3(4.3f, 2.5f, -hz); var tip = wp + Vector3.forward * 0.42f;
+                    Rod("LanternArm", root, wp, tip, 0.03f, K.iron);
+                    Rod("LanternBrace", root, wp + Vector3.down * 0.3f, wp + Vector3.forward * 0.3f, 0.022f, K.iron);
+                    Rod("LanternHook", root, tip - Vector3.forward * 0.02f, tip - Vector3.forward * 0.02f + Vector3.down * 0.12f, 0.015f, K.iron);
+                    Kit("L_Lantern", root, tip - Vector3.forward * 0.02f + Vector3.down * 0.54f, 20f);
+                }
                 // Kapı önünde boş sunak (kilit burada değil): mumlar + kapalı kitap
                 Slab("Altar", root, new Vector3(0, 0.45f, -hz + 2.6f), new Vector3(1.6f, 0.9f, 0.7f), stone, 1.2f);
                 Slab("AltarCap", root, new Vector3(0, 0.93f, -hz + 2.6f), new Vector3(1.75f, 0.08f, 0.8f), stone, 1.2f, false);
