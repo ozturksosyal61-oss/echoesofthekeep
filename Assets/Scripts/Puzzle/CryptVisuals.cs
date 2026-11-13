@@ -20,6 +20,7 @@ namespace CoopGame
         [SerializeField] GameObject[] solvedOn = new GameObject[0];
 
         int shownSeed = -1;
+        int carveShown = -1; // -1: yeniden uygula
 
         void Update()
         {
@@ -32,6 +33,10 @@ namespace CoopGame
             if (rewardGate != null) rewardGate.Open = solved;
             foreach (var g in solvedOn) if (g != null && g.activeSelf != solved) g.SetActive(solved);
 
+            // Lahit oymaları yalnız kibrit yanarken (ya da çözülünce) görünür; ortam ışığında parlamasın.
+            int carve = solved || crypt.Lit ? 1 : 0;
+            if (carve != carveShown) { carveShown = carve; SetCarveVisible(carve == 1); }
+
             int m = crypt.PuzzleState == PuzzleState.Active ? crypt.Matches : solved ? 0 : CryptPuzzle.MatchCount;
             for (int i = 0; i < candleFlames.Length; i++)
             {
@@ -40,9 +45,22 @@ namespace CoopGame
             }
         }
 
+        void SetCarveVisible(bool on)
+        {
+            foreach (var t in coffinSymbols) SetRenderers(t, on);
+            foreach (var t in coffinNumerals) SetRenderers(t, on);
+        }
+
+        static void SetRenderers(Transform t, bool on)
+        {
+            if (t == null) return;
+            foreach (var r in t.GetComponentsInChildren<Renderer>(true)) r.enabled = on;
+        }
+
         void Rebuild(int seed)
         {
             shownSeed = seed;
+            carveShown = -1;
             foreach (var t in coffinSymbols) Glyphs.Clear(t);
             foreach (var t in coffinNumerals) Glyphs.Clear(t);
             foreach (var t in inscription) Glyphs.Clear(t);
