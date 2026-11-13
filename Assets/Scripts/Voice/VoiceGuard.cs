@@ -54,6 +54,14 @@ namespace CoopGame
                     ScheduleReapply();
                 }
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+                // İzin oyun sırasında (sistem ayarlarından) verildiyse: kaydı yeniden başlat, yoksa mikrofon sessiz kalır
+                if (!MicGranted && UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.Microphone))
+                {
+                    MicGranted = true;
+                    if (rec != null) { rec.RecordingEnabled = true; rec.RestartRecording(); }
+                }
+#endif
                 if (rec != null && !callPaused)
                 {
                     bool want = Settings.MicOn && MicGranted;

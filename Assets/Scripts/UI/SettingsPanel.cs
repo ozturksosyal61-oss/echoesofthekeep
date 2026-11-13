@@ -10,7 +10,7 @@ namespace CoopGame
         [SerializeField] Text musicVal, voiceVal, lookVal;
         [SerializeField] Button micButton, fpsButton;
 
-        static readonly int[] FpsOptions = { 30, 60, 120 };
+        static readonly int[] FpsOptions = { 30, 60 };
 
         void Awake()
         {

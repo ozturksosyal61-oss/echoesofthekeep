@@ -35,6 +35,12 @@ namespace CoopGame
             var runner = Object.Instantiate(prefab);
             Object.DontDestroyOnLoad(runner.gameObject);
             runner.ProvideInput = true;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Android: Photon (yerel) mikrofon = VOICE_COMMUNICATION kaynağı + yankı giderme. Unity mikrofonu, AudioRoute ses modunu
+            // MODE_IN_COMMUNICATION'a geçirince bazı cihazlarda sessiz veri veriyordu (karşı taraf duymuyordu). Desteklenmezse Unity'ye düşer.
+            var rec = runner.GetComponentInChildren<Photon.Voice.Unity.Recorder>();
+            if (rec != null) { rec.UseMicrophoneTypeFallback = true; rec.MicrophoneType = Photon.Voice.Unity.Recorder.MicType.Photon; }
+#endif
 
             var args = new StartGameArgs
             {
@@ -68,19 +74,36 @@ namespace CoopGame
             return result;
         }
 
-        /// <summary>Odadan çık, runner'ı yok et, Lobby'ye dön.</summary>
+        static bool leaving;
+
+        /// <summary>Odadan çık: runner'ı kapat (Shutdown), yok et, Lobby'ye dön. Tekrar oda kurulabilir.</summary>
         public static async void Leave()
         {
-            var r = Runner;
-            Runner = null;
-            Code = null;
-            if (r != null)
+            if (leaving) return; // çift tıklama / OnShutdown aynı anda
+            leaving = true;
+            try
             {
-                await r.Shutdown();
-                if (r != null) Object.Destroy(r.gameObject);
+                var r = Runner;
+                Runner = null;
+                Code = null;
+                if (r != null)
+                {
+                    try { if (r.IsRunning) await r.Shutdown(); } catch (System.Exception e) { Debug.LogWarning("Session.Leave: " + e.Message); }
+                    if (r != null) Object.Destroy(r.gameObject);
+                }
+                AudioRoute.Exit();
+                Time.timeScale = 1f;
+                Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+                if (SceneManager.GetActiveScene().name != LobbyScene) SceneManager.LoadScene(LobbyScene);
             }
-            AudioRoute.Exit();
-            if (SceneManager.GetActiveScene().name != LobbyScene) SceneManager.LoadScene(LobbyScene);
+            finally { leaving = false; }
+        }
+
+        /// <summary>Runner kendiliğinden kapandı (host ayrıldı, bağlantı koptu): menüye dön.</summary>
+        public static void OnRunnerShutdown(NetworkRunner r)
+        {
+            if (leaving || r == null || Runner != r) return;
+            Leave();
         }
     }
 }

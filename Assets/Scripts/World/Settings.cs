@@ -15,12 +15,15 @@ namespace CoopGame
         static float look = -1f;
         public static float Look { get { if (look < 0f) look = F("Set.Look", 1f); return look; } set { look = Mathf.Clamp(value, 0.4f, 2f); F("Set.Look", look, true); } }
         public static bool MicOn { get => PlayerPrefs.GetInt("Set.Mic", 1) == 1; set { PlayerPrefs.SetInt("Set.Mic", value ? 1 : 0); PlayerPrefs.Save(); } }
-        public static int Fps { get => PlayerPrefs.GetInt("Set.Fps", 60); set { PlayerPrefs.SetInt("Set.Fps", value); PlayerPrefs.Save(); ApplyFps(); } }
+        // 30 / 60 (120 kaldırıldı: telefonu ısıtıyordu; eski kayıtlı 120 → 60)
+        public static int Fps { get { int f = PlayerPrefs.GetInt("Set.Fps", 60); return f <= 30 ? 30 : 60; } set { PlayerPrefs.SetInt("Set.Fps", value); PlayerPrefs.Save(); ApplyFps(); } }
 
+        /// <summary>Menü (Lobby sahnesi) 30 FPS ile sınırlı: video arka plan ve UI için yeterli, cihaz boşuna ısınmaz.</summary>
         public static void ApplyFps()
         {
             QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = Fps;
+            bool menu = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == Session.LobbyScene;
+            Application.targetFrameRate = menu ? Mathf.Min(30, Fps) : Fps;
         }
     }
 }

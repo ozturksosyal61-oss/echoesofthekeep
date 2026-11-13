@@ -15,17 +15,46 @@ namespace CoopGame
         [SerializeField] float modelScale = 1f / 12f;
         [SerializeField] Material wallMat, plaqueMat, glyphMat, modelWallMat, modelGlyphMat, trapMat, exitMat;
         int shownSeed = -1;
+        readonly System.Collections.Generic.List<Transform> plaques = new System.Collections.Generic.List<Transform>();
 
         void Update()
         {
             int seed = puzzle != null ? puzzle.Seed : 0;
-            if (seed == shownSeed) return;
-            shownSeed = seed;
-            Clear(mazeRoot); Clear(modelRoot);
-            if (seed == 0) return;
-            var m = LabyrinthPuzzle.Make(seed);
-            if (mazeRoot != null) BuildMaze(m);
-            if (modelRoot != null) BuildModel(m);
+            if (seed != shownSeed)
+            {
+                shownSeed = seed;
+                plaques.Clear();
+                Clear(mazeRoot); Clear(modelRoot);
+                if (seed != 0)
+                {
+                    var m = LabyrinthPuzzle.Make(seed);
+                    if (mazeRoot != null) BuildMaze(m);
+                    if (modelRoot != null) BuildModel(m);
+                }
+            }
+            FacePlaques();
+        }
+
+        /// <summary>
+        /// Hücre levhaları yakındaki kameraya döner (yalnız yatay): oyuncu hangi yönden gelirse gelsin düz okur, arkasını dönmez.
+        /// Dönüş hücrenin iç çeyreğiyle sınırlı (levha komşu hücreden okunmaz, duvara girmez).
+        /// </summary>
+        void FacePlaques()
+        {
+            var cam = Camera.main;
+            if (cam == null || mazeRoot == null || plaques.Count == 0) return;
+            var camL = mazeRoot.InverseTransformPoint(cam.transform.position);
+            const float near = 7f * 7f;
+            foreach (var p in plaques)
+            {
+                if (p == null) continue;
+                var f = p.localPosition - camL; f.y = 0f;
+                if (f.sqrMagnitude > near) continue;
+                // levha hücrenin güneybatısında: ileri yön (kameradan levhaya) güneybatı çeyreğinde kalmalı
+                f.x = Mathf.Min(f.x, -0.08f); f.z = Mathf.Min(f.z, -0.08f);
+                var want = Quaternion.LookRotation(f.normalized, Vector3.up);
+                p.localRotation = Quaternion.RotateTowards(p.localRotation, want, 360f * Time.deltaTime);
+            }
         }
 
         static void Clear(Transform t)
@@ -59,8 +88,9 @@ namespace CoopGame
                     // Levha: hücrenin güneybatı köşe sütununda, hücre merkezine dönük (yalnız bu hücreden okunur)
                     var p = new GameObject("Plaque").transform;
                     p.SetParent(mazeRoot, false);
-                    p.localPosition = new Vector3(x * c + 0.42f, 1.75f, z * c + 0.42f);
+                    p.localPosition = new Vector3(x * c + 0.52f, 1.75f, z * c + 0.52f);
                     p.localRotation = Quaternion.LookRotation(new Vector3(-1f, 0, -1f));
+                    plaques.Add(p);
                     Box(p, new Vector3(0, 0, 0.03f), new Vector3(0.56f, 0.34f, 0.05f), plaqueMat, false);
                     var g = new GameObject("G").transform; g.SetParent(p, false); g.localPosition = new Vector3(-0.13f, 0, -0.005f);
                     Runes.Rune(g, m.glyph[x, z], glyphMat, 0.24f, 0.02f);

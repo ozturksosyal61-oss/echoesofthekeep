@@ -33,7 +33,7 @@ namespace CoopGame
         public void OnInputMissing(NetworkRunner r, PlayerRef player, NetworkInput input) { }
         public void OnPlayerJoined(NetworkRunner r, PlayerRef player) { }
         public void OnPlayerLeft(NetworkRunner r, PlayerRef player) { }
-        public void OnShutdown(NetworkRunner r, ShutdownReason reason) { }
+        public void OnShutdown(NetworkRunner r, ShutdownReason reason) => Session.OnRunnerShutdown(r);
         public void OnConnectedToServer(NetworkRunner r) { }
         public void OnDisconnectedFromServer(NetworkRunner r, NetDisconnectReason reason) { }
         public void OnConnectRequest(NetworkRunner r, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }

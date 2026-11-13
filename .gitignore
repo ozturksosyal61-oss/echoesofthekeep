@@ -136,3 +136,6 @@ crashlytics-build.properties
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Kullanıcı ile paylaşılan referans görselleri (oyuna girmez, yerelde kalır)
+/Docs/Reference/

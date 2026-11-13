@@ -54,15 +54,24 @@ namespace CoopGame
 
         public override void ServerReset() { }
 
-        protected override void OnValue(int value)
+        protected override void OnValue(int value) => ApplyGlow(value);
+
+        // Bekleme: plakalar ve levhalar nabız gibi parlar (lobide yeri belli olsun); sayım: tam parlak; yola çıkınca sönük.
+        void Update()
+        {
+            if (Value == Waiting) ApplyGlow(Waiting);
+        }
+
+        void ApplyGlow(int value)
         {
             if (glow == null) return;
             if (block == null) block = new MaterialPropertyBlock();
+            float k = value == Counting ? 3f : value == Departed ? 0.35f : 1.1f + 0.45f * Mathf.Sin(Time.time * 2.2f);
             foreach (var r in glow)
             {
                 if (r == null) continue;
                 r.GetPropertyBlock(block);
-                block.SetColor(Emission, value == Counting ? glowColor * 2.2f : glowColor * 0.25f);
+                block.SetColor(Emission, glowColor * k);
                 r.SetPropertyBlock(block);
             }
         }

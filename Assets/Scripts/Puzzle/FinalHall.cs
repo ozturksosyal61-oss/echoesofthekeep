@@ -60,7 +60,7 @@ namespace CoopGame
 
         void BuildEndScreen()
         {
-            var canvas = new GameObject("FinalEnd", typeof(Canvas), typeof(CanvasScaler), typeof(CanvasGroup)).GetComponent<Canvas>();
+            var canvas = new GameObject("FinalEnd", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(CanvasGroup)).GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 90;
             var cs = canvas.GetComponent<CanvasScaler>();
             cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; cs.referenceResolution = new Vector2(1920, 1080); cs.matchWidthOrHeight = 1f;
@@ -118,7 +118,11 @@ namespace CoopGame
             endTitle.color = new Color(endTitle.color.r, endTitle.color.g, endTitle.color.b, Mathf.Clamp01((t - 13.5f) / 2f));
             endSub.color = new Color(endSub.color.r, endSub.color.g, endSub.color.b, Mathf.Clamp01((t - 15.5f) / 2f));
             exitText.color = new Color(exitText.color.r, exitText.color.g, exitText.color.b, Mathf.Clamp01((t - 18f) / 1.5f));
-            if (t > 18f && !endGroup.blocksRaycasts) { endGroup.blocksRaycasts = true; endGroup.interactable = true; }
+            if (t > 18f && !endGroup.blocksRaycasts)
+            {
+                endGroup.blocksRaycasts = true; endGroup.interactable = true;
+                Cursor.lockState = CursorLockMode.None; Cursor.visible = true; // PC: düğmeye tıklanabilsin
+            }
         }
     }
 }

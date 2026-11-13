@@ -83,24 +83,37 @@ namespace CoopGame
             roleText.color = WithA(roleText.color, a);
             if (cardSub != null) cardSub.color = WithA(cardSub.color, a);
 
+            // Metinler 5 Hz (her karede string üretip UI'yı yeniden kurmak cihazı boşuna yoruyordu)
+            if (Time.unscaledTime < nextText) return;
+            nextText = Time.unscaledTime + 0.2f;
+
             // Lobi: altta küçük oda kodu + yönerge; diğer alanlarda yalnız mikrofon uyarısı
-            infoText.text = (inHall ? "Oda kodu " + Session.Code + "  ·  " + count + "/" + Session.MaxPlayers + " oyuncu" : "") +
-                            (micGranted && Settings.MicOn ? "" : (inHall ? "  ·  " : "") + "Mikrofon kapalı");
-            roomText.text = !inHall ? ""
+            SetText(infoText, (inHall ? "Oda kodu " + Session.Code + "  ·  " + count + "/" + Session.MaxPlayers + " oyuncu" : "") +
+                              (micGranted && Settings.MicOn ? "" : (inHall ? "  ·  " : "") + "Mikrofon kapalı"));
+            SetText(roomText, !inHall ? ""
                           : count < Session.MaxPlayers ? "Arkadaşını bekle; oda kodunu ona söyle."
                           : HallGate.Instance != null && HallGate.Instance.Value == HallGate.Counting ? "Yerinizde durun..."
-                          : "Biriniz X plakasına (merdiven sahanlığı), diğeriniz O plakasına (doğu nişi) geçsin.";
+                          : "Biriniz X plakasına (merdiven sahanlığı), diğeriniz O plakasına (doğu nişi) geçsin.");
 
-            for (int i = 0; i < speakDots.Length; i++) { speakDots[i].color = Idle; speakLabels[i].text = "-"; }
-            foreach (var avatar in FindObjectsByType<PlayerAvatar>(FindObjectsSortMode.None))
+            for (int i = 0; i < speakDots.Length; i++)
             {
-                if (avatar.Object == null || !avatar.Object.IsValid) continue;
-                int r = avatar.Slot;
-                if (r < 0 || r >= speakDots.Length) continue;
-                speakLabels[r].text = (avatar.RoleIndex == Roles.None ? "Oyuncu " + (r + 1) : Roles.Name(avatar.RoleIndex)) + (avatar.IsLocal ? " (sen)" : "");
-                speakDots[r].color = avatar.Speaking ? Speaking : Idle;
+                string label = "-"; bool talking = false;
+                foreach (var avatar in PlayerAvatar.All)
+                {
+                    if (avatar == null || avatar.Object == null || !avatar.Object.IsValid || avatar.Slot != i) continue;
+                    label = (avatar.RoleIndex == Roles.None ? "Oyuncu " + (i + 1) : Roles.Name(avatar.RoleIndex)) + (avatar.IsLocal ? " (sen)" : "");
+                    talking = avatar.Speaking;
+                    break;
+                }
+                SetText(speakLabels[i], label);
+                var c = talking ? Speaking : Idle;
+                if (speakDots[i].color != c) speakDots[i].color = c;
             }
         }
+
+        float nextText;
+
+        static void SetText(Text t, string s) { if (t != null && t.text != s) t.text = s; }
 
         static Color WithA(Color c, float a) { c.a = a; return c; }
     }

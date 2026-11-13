@@ -353,6 +353,7 @@ namespace CoopGame.EditorTools
         {
             PlayerSettings.companyName = "CoopGame";
             PlayerSettings.productName = "Echoes of the Keep";
+            AppIcons.Apply(false);
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.coopgame.p0");
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.oztdigital.echoesofthekeep");
             // Yalnızca yatay (Android + iOS ortak ayar): LandscapeLeft/Right, otomatik döndürme; dikey kapalı.

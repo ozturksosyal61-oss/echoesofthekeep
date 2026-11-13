@@ -141,6 +141,16 @@ namespace CoopGame.EditorTools
             var top = Slab("Top", go.transform, new Vector3(0, 0.05f, 0), new Vector3(1.8f, 0.07f, 1.8f), K.bronze, 1.2f, false);
             top.isStatic = false;
             glow.AddRange(Symbol(top.transform, new Vector3(0, 0.04f, 0), Quaternion.Euler(90, 0, 0), isX, 1.1f));
+            // Işıyan çerçeve: plakanın yeri lobide uzaktan belli olsun (HallGate nabız gibi parlatır)
+            for (int i = 0; i < 4; i++)
+            {
+                float e = 1.02f;
+                var p0 = Quaternion.Euler(0, 90 * i, 0) * new Vector3(-e, 0.045f, -e);
+                var p1 = Quaternion.Euler(0, 90 * i, 0) * new Vector3(e, 0.045f, -e);
+                var rod = Rod("Frame" + i, go.transform, p0, p1, 0.06f, inlayMat).GetComponent<Renderer>();
+                rod.shadowCastingMode = ShadowCastingMode.Off; rod.gameObject.isStatic = false;
+                glow.Add(rod);
+            }
             var plate = go.AddComponent<PressurePlate>();
             var so = new SerializedObject(plate);
             so.FindProperty("puzzleId").intValue = HallPuzzleId;
@@ -239,8 +249,9 @@ namespace CoopGame.EditorTools
             // --- Mahzen nişi (doğu) + O plakası ---
             {
                 float ax = hx + 0.5f + AlcD * 0.5f; // niş merkezi
-                Deck(root, "AlcoveFloor", new Vector3(ax, -0.25f, AlcZ), AlcD, AlcW, 0.5f, K.cellarFloor, 1, 1);
-                Deck(root, "AlcoveCeil", new Vector3(ax, AlcH + 0.25f, AlcZ), AlcD, AlcW, 0.5f, K.cellarBrick, 1, 1);
+                // Zemin/tavan duvar kalınlığı (0.5 m) boyunca da uzanır: hol ile niş arasında boşluk kalmasın
+                Deck(root, "AlcoveFloor", new Vector3(ax - 0.25f, -0.25f, AlcZ), AlcD + 0.5f, AlcW, 0.5f, K.cellarFloor, 1, 1);
+                Deck(root, "AlcoveCeil", new Vector3(ax - 0.25f, AlcH + 0.25f, AlcZ), AlcD + 0.5f, AlcW, 0.5f, K.cellarBrick, 1, 1);
                 Slab("AlcoveN", root, new Vector3(ax, AlcH * 0.5f, AlcZ + AlcW * 0.5f + 0.25f), new Vector3(AlcD, AlcH, 0.5f), K.cellarBrick, 2f);
                 Slab("AlcoveS", root, new Vector3(ax, AlcH * 0.5f, AlcZ - AlcW * 0.5f - 0.25f), new Vector3(AlcD, AlcH, 0.5f), K.cellarBrick, 2f);
                 Slab("AlcoveE", root, new Vector3(hx + 0.5f + AlcD + 0.25f, AlcH * 0.5f, AlcZ), new Vector3(0.5f, AlcH, AlcW + 1f), K.cellarBrick, 2f);
