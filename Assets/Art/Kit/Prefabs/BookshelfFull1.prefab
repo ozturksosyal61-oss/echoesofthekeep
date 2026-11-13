@@ -75,7 +75,7 @@ MeshRenderer:
     firstSubMesh: 0
     subMeshCount: 0
   m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 5737520364518727263}
+  m_ProbeAnchor: {fileID: 3344031399612647159}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
   m_ReceiveGI: 2
@@ -126,7 +126,7 @@ Transform:
   m_Children:
   - {fileID: 554021393209796018}
   - {fileID: 849177696445501176}
-  - {fileID: 5737520364518727263}
+  - {fileID: 3344031399612647159}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!205 &5972013392676518116
@@ -150,7 +150,7 @@ LODGroup:
     - renderer: {fileID: 7876379603567603867}
   m_Enabled: 1
   m_GlobalIlluminationLOD: 0
---- !u!1 &8004588468706703457
+--- !u!1 &8301285113360452101
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -158,7 +158,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5737520364518727263}
+  - component: {fileID: 3344031399612647159}
   m_Layer: 0
   m_Name: ProbeAnchor
   m_TagString: Untagged
@@ -166,13 +166,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5737520364518727263
+--- !u!4 &3344031399612647159
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8004588468706703457}
+  m_GameObject: {fileID: 8301285113360452101}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.014217436, y: 0.9567175, z: 0.043358326}
