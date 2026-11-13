@@ -23,6 +23,7 @@ namespace CoopGame
         public static void Show(int id)
         {
             if (inst == null) return;
+            LoreTexts.MarkRead(id);
             var e = LoreTexts.Get(id);
             inst.title.text = e.title; inst.body.text = e.body; inst.sign.text = e.sign;
             inst.root.SetActive(true);

@@ -23,6 +23,8 @@ namespace CoopGame
         [SerializeField] RectTransform progressFill;
         [SerializeField] Button settingsButton, settingsBack;
         [SerializeField] GameObject settingsPanel;
+        [SerializeField] Button journalButton, journalBack;
+        [SerializeField] GameObject journalPanel;
 
         // Seçenekler: 0 = kaldığın yer (kayıt varsa), sonra 1..LastPuzzle (1 = baştan)
         int startChoice;
@@ -62,14 +64,22 @@ namespace CoopGame
             backButton.onClick.AddListener(() => { if (!busy) ShowJoin(false); });
             if (settingsButton != null) settingsButton.onClick.AddListener(() => { if (!busy) ShowSettings(true); });
             if (settingsBack != null) settingsBack.onClick.AddListener(() => ShowSettings(false));
+            if (journalButton != null) journalButton.onClick.AddListener(() => { if (!busy) ShowPanel(journalPanel); });
+            if (journalBack != null) journalBack.onClick.AddListener(() => ShowJoin(false));
             ShowJoin(false);
         }
 
         void ShowSettings(bool on)
         {
-            settingsPanel.SetActive(on);
-            mainPanel.SetActive(!on);
+            if (on) ShowPanel(settingsPanel); else ShowJoin(false);
+        }
+
+        void ShowPanel(GameObject panel)
+        {
+            mainPanel.SetActive(false);
             joinPanel.SetActive(false);
+            if (settingsPanel != null) settingsPanel.SetActive(panel == settingsPanel);
+            if (journalPanel != null) journalPanel.SetActive(panel == journalPanel);
             status.text = "";
         }
 
@@ -89,6 +99,7 @@ namespace CoopGame
         {
             mainPanel.SetActive(!join);
             if (settingsPanel != null) settingsPanel.SetActive(false);
+            if (journalPanel != null) journalPanel.SetActive(false);
             joinPanel.SetActive(join);
             status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "";
             if (join) codeInput.text = "";

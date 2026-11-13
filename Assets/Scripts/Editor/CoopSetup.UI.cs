@@ -294,6 +294,143 @@ namespace CoopGame.EditorTools
             return field;
         }
 
+        // ---------- Ortak paneller: ayarlar, günlük, mektup okuma, oyun içi menü ----------
+
+        static RectTransform Overlay(RectTransform parent, string name)
+        {
+            var r = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
+            r.SetParent(parent, false); r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one; r.offsetMin = r.offsetMax = Vector2.zero;
+            return r;
+        }
+
+        /// <summary>Ayar satırları (başlık y0'da; konumlar a çapasına göre, pivot = çapa).</summary>
+        static SettingsPanel BuildSettings(RectTransform p, Vector2 a, float x0, float y0, out Button back)
+        {
+            var title = MakeText(p, "SettingsTitle", "AYARLAR", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
+            Corner(title, a, a, new Vector2(x0, y0));
+            Slider Row(string label, float y, out Text val)
+            {
+                var l = MakeText(p, "Label_" + label, label, 32, Vector2.zero, new Vector2(330, 56), TextAnchor.MiddleLeft, U.body, Cream);
+                Corner(l, a, a, new Vector2(x0, y));
+                var sl = MakeSlider(p, "Slider_" + label, 380);
+                Corner(sl.GetComponent<Graphic>(), a, a, new Vector2(x0 + 330, y));
+                val = MakeText(p, "Value_" + label, "", 28, Vector2.zero, new Vector2(120, 56), TextAnchor.MiddleRight, U.head, Gold, false);
+                Corner(val, a, a, new Vector2(x0 + 720, y));
+                return sl;
+            }
+            Button RowButton(string label, float y)
+            {
+                var l = MakeText(p, "Label_" + label, label, 32, Vector2.zero, new Vector2(330, 56), TextAnchor.MiddleLeft, U.body, Cream);
+                Corner(l, a, a, new Vector2(x0, y));
+                var b = MakeButton(p, "Button_" + label, "-", Vector2.zero, new Vector2(240, 70), false, 28);
+                Corner((Graphic)b.targetGraphic, a, a, new Vector2(x0 + 330, y + 6));
+                return b;
+            }
+            var sMusic = Row("Müzik", y0 - 84, out var vMusic);
+            var sVoice = Row("Konuşma sesi", y0 - 164, out var vVoice);
+            var sLook = Row("Bakış hassasiyeti", y0 - 244, out var vLook);
+            var bMic = RowButton("Mikrofon", y0 - 324);
+            var bFps = RowButton("Kare hızı", y0 - 409);
+            back = MakeButton(p, "SettingsBack", "GERİ", Vector2.zero, new Vector2(200, 84), false, 34);
+            Corner((Graphic)back.targetGraphic, a, a, new Vector2(x0, y0 - 504));
+            var sp = p.gameObject.AddComponent<SettingsPanel>();
+            var so = new SerializedObject(sp);
+            SetRef(so, "music", sMusic); SetRef(so, "voice", sVoice); SetRef(so, "look", sLook);
+            SetRef(so, "musicVal", vMusic); SetRef(so, "voiceVal", vVoice); SetRef(so, "lookVal", vLook);
+            SetRef(so, "micButton", bMic); SetRef(so, "fpsButton", bFps);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return sp;
+        }
+
+        /// <summary>Günlük listesi: iki sütun x 8 satır (LoreTexts.Order), başlık + sayaç, geri düğmesi.</summary>
+        static JournalPanel BuildJournal(RectTransform p, Vector2 a, float x0, float y0, out Button back)
+        {
+            var title = MakeText(p, "JournalTitle", "GÜNLÜK", 50, Vector2.zero, new Vector2(400, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
+            Corner(title, a, a, new Vector2(x0, y0));
+            var count = MakeText(p, "JournalCount", "", 26, Vector2.zero, new Vector2(400, 70), TextAnchor.MiddleLeft, U.body, new Color(Gold.r, Gold.g, Gold.b, 0.8f), false);
+            Corner(count, a, a, new Vector2(x0 + 270, y0));
+            int n = LoreTexts.Order.Length, perCol = (n + 1) / 2;
+            var rows = new Button[n]; var labels = new Text[n];
+            for (int i = 0; i < n; i++)
+            {
+                float x = x0 + (i / perCol) * 430f, y = y0 - 76 - (i % perCol) * 48f;
+                var hit = MakeImage(p, "Entry" + i, Vector2.zero, new Vector2(410, 46), null, new Color(0, 0, 0, 0));
+                Corner(hit, a, a, new Vector2(x, y));
+                var b = hit.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+                var t = MakeText(hit.rectTransform, "Label", "", 26, Vector2.zero, new Vector2(400, 46), TextAnchor.MiddleLeft, U.body, Cream, false);
+                Corner(t, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero);
+                t.horizontalOverflow = HorizontalWrapMode.Overflow;
+                rows[i] = b; labels[i] = t;
+            }
+            back = MakeButton(p, "JournalBack", "GERİ", Vector2.zero, new Vector2(200, 84), false, 34);
+            Corner((Graphic)back.targetGraphic, a, a, new Vector2(x0, y0 - 96 - perCol * 48f));
+            var jp = p.gameObject.AddComponent<JournalPanel>();
+            var so = new SerializedObject(jp);
+            SetRef(so, "count", count);
+            SetRefArray(so, "rows", rows);
+            SetRefArray(so, "labels", labels);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return jp;
+        }
+
+        /// <summary>Mektup okuma ekranı (en üstte; tam ekran karartma dokununca kapatır).</summary>
+        static void BuildLetterView(RectTransform root)
+        {
+            var dim = MakeImage(root, "LetterView", Vector2.zero, Vector2.zero, null, new Color(0f, 0f, 0f, 0.74f));
+            Stretch(dim, Vector2.zero, Vector2.one);
+            var closeBtn = dim.gameObject.AddComponent<Button>(); closeBtn.targetGraphic = dim; closeBtn.transition = Selectable.Transition.None;
+            var panel = MakeImage(dim.rectTransform, "LetterPanel", Vector2.zero, new Vector2(1500, 920), null, new Color(0.12f, 0.095f, 0.075f, 0.97f));
+            panel.raycastTarget = false;
+            var ol = panel.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.8f); ol.effectDistance = new Vector2(3f, -3f);
+            var lt = MakeText(panel.rectTransform, "LetterTitle", "", 52, new Vector2(0, 380), new Vector2(1300, 76), TextAnchor.MiddleCenter, U.head, GoldBright);
+            var rule = MakeImage(panel.rectTransform, "LetterRule", new Vector2(0, 330), new Vector2(560, 3), null, Gold); rule.raycastTarget = false;
+            var lb = MakeText(panel.rectTransform, "LetterBody", "", 34, new Vector2(0, -20), new Vector2(1320, 640), TextAnchor.UpperLeft, U.body, Cream);
+            lb.lineSpacing = 1.12f; lb.verticalOverflow = VerticalWrapMode.Truncate;
+            lb.resizeTextForBestFit = true; lb.resizeTextMinSize = 22; lb.resizeTextMaxSize = 34;
+            var ls = MakeText(panel.rectTransform, "LetterSign", "", 36, new Vector2(0, -372), new Vector2(1300, 60), TextAnchor.MiddleRight, U.body, Gold);
+            ls.fontStyle = FontStyle.Italic;
+            MakeText(panel.rectTransform, "LetterHint", "kapatmak için dokun", 24, new Vector2(0, -428), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
+                     new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
+            var lv = new GameObject("LetterViewCtl").AddComponent<LetterView>();
+            var lso = new SerializedObject(lv);
+            SetRef(lso, "root", dim.gameObject);
+            SetRef(lso, "title", lt); SetRef(lso, "body", lb); SetRef(lso, "sign", ls); SetRef(lso, "close", closeBtn);
+            lso.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Oyun içi menü: karartma + ortada panel; ana görünüm (Devam/Günlük/Ayarlar/Ana menü), ayarlar ve günlük görünümleri.</summary>
+        static void BuildGameMenu(RectTransform root)
+        {
+            var dim = MakeImage(root, "GameMenu", Vector2.zero, Vector2.zero, null, new Color(0f, 0f, 0f, 0.7f));
+            Stretch(dim, Vector2.zero, Vector2.one);
+            var panel = MakeImage(dim.rectTransform, "MenuPanel", Vector2.zero, new Vector2(1000, 860), U.panel, new Color(1f, 1f, 1f, 0.97f), true);
+            var pr = panel.rectTransform;
+            var TLp = new Vector2(0f, 1f);
+
+            var main = Overlay(pr, "Main");
+            MakeText(main, "MenuTitle", "MENÜ", 60, new Vector2(0, 330), new Vector2(800, 80), TextAnchor.MiddleCenter, U.head, GoldBright);
+            Divider(main, new Vector2(0, 282), 420, 0.5f);
+            var resume = MakeButton(main, "ResumeButton", "DEVAM ET", new Vector2(0, 170), new Vector2(560, 104), true, 44);
+            var journal = MakeButton(main, "JournalButton", "GÜNLÜK", new Vector2(0, 40), new Vector2(560, 100), false, 40);
+            var settings = MakeButton(main, "SettingsButton", "AYARLAR", new Vector2(0, -85), new Vector2(560, 100), false, 40);
+            var leave = MakeButton(main, "LeaveButton", "ANA MENÜYE DÖN", new Vector2(0, -230), new Vector2(560, 100), false, 34);
+            MakeText(main, "MenuHint", "Oyun durmaz; arkadaşın seni bekliyor olabilir.", 24, new Vector2(0, -340), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
+                     new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
+
+            var setV = Overlay(pr, "Settings");
+            BuildSettings(setV, TLp, 70, -60, out var setBack);
+            var jrnV = Overlay(pr, "Journal");
+            BuildJournal(jrnV, TLp, 70, -60, out var jrnBack);
+
+            var gm = new GameObject("GameMenuCtl").AddComponent<GameMenu>();
+            var so = new SerializedObject(gm);
+            SetRef(so, "root", dim.gameObject);
+            SetRef(so, "mainView", main.gameObject); SetRef(so, "settingsView", setV.gameObject); SetRef(so, "journalView", jrnV.gameObject);
+            SetRef(so, "resume", resume); SetRef(so, "journal", journal); SetRef(so, "settings", settings); SetRef(so, "leave", leave);
+            SetRef(so, "settingsBack", setBack); SetRef(so, "journalBack", jrnBack);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         /// <summary>Altın dolgulu ince kaydırıcı (kök: görünmez dokunma alanı).</summary>
         static Slider MakeSlider(RectTransform parent, string name, float width)
         {
@@ -425,43 +562,13 @@ namespace CoopGame.EditorTools
             var join = MakeButton(joinP, "JoinButton", "KATIL", Vector2.zero, new Vector2(300, 104), true, 44);
             Corner((Graphic)join.targetGraphic, TL, TL, new Vector2(X0 + 220, -612));
 
-            // Ayarlar paneli (menü öğelerinin yerinde)
-            var setP = new GameObject("SettingsPanel", typeof(RectTransform)).GetComponent<RectTransform>();
-            setP.SetParent(canvas, false); setP.anchorMin = Vector2.zero; setP.anchorMax = Vector2.one; setP.offsetMin = setP.offsetMax = Vector2.zero;
-            var sTitle = MakeText(setP, "SettingsTitle", "AYARLAR", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
-            Corner(sTitle, TL, TL, new Vector2(X0, -296));
-            Slider Row(string label, float y, out Text val)
-            {
-                var l = MakeText(setP, "Label_" + label, label, 32, Vector2.zero, new Vector2(330, 56), TextAnchor.MiddleLeft, U.body, Cream);
-                Corner(l, TL, TL, new Vector2(X0, y));
-                var sl = MakeSlider(setP, "Slider_" + label, 380);
-                Corner(sl.GetComponent<Graphic>(), TL, TL, new Vector2(X0 + 330, y - 8));
-                val = MakeText(setP, "Value_" + label, "", 28, Vector2.zero, new Vector2(120, 56), TextAnchor.MiddleRight, U.head, Gold, false);
-                Corner(val, TL, TL, new Vector2(X0 + 720, y));
-                return sl;
-            }
-            Button RowButton(string label, float y)
-            {
-                var l = MakeText(setP, "Label_" + label, label, 32, Vector2.zero, new Vector2(330, 56), TextAnchor.MiddleLeft, U.body, Cream);
-                Corner(l, TL, TL, new Vector2(X0, y));
-                var b = MakeButton(setP, "Button_" + label, "-", Vector2.zero, new Vector2(240, 70), false, 28);
-                Corner((Graphic)b.targetGraphic, TL, TL, new Vector2(X0 + 330, y + 6));
-                return b;
-            }
-            var sMusic = Row("Müzik", -380, out var vMusic);
-            var sVoice = Row("Konuşma sesi", -460, out var vVoice);
-            var sLook = Row("Bakış hassasiyeti", -540, out var vLook);
-            var bMic = RowButton("Mikrofon", -620);
-            var bFps = RowButton("Kare hızı", -705);
-            var sBack = MakeButton(setP, "SettingsBack", "GERİ", Vector2.zero, new Vector2(200, 90), false, 36);
-            Corner((Graphic)sBack.targetGraphic, TL, TL, new Vector2(X0, -800));
-            var sp = setP.gameObject.AddComponent<SettingsPanel>();
-            var spo = new SerializedObject(sp);
-            SetRef(spo, "music", sMusic); SetRef(spo, "voice", sVoice); SetRef(spo, "look", sLook);
-            SetRef(spo, "musicVal", vMusic); SetRef(spo, "voiceVal", vVoice); SetRef(spo, "lookVal", vLook);
-            SetRef(spo, "micButton", bMic); SetRef(spo, "fpsButton", bFps);
-            spo.ApplyModifiedPropertiesWithoutUndo();
+            // Ayarlar ve günlük panelleri (menü öğelerinin yerinde)
+            var setP = Overlay(canvas, "SettingsPanel");
+            BuildSettings(setP, TL, X0, -296, out var sBack);
             setP.gameObject.SetActive(false);
+            var jrnP = Overlay(canvas, "JournalPanel");
+            BuildJournal(jrnP, TL, X0, -296, out var jBack);
+            jrnP.gameObject.SetActive(false);
 
             var status = MakeText(canvas, "Status", "", 26, Vector2.zero, new Vector2(760, 44), TextAnchor.MiddleLeft, U.body, Cream);
             Corner(status, TL, TL, new Vector2(X0, -852));
@@ -471,18 +578,19 @@ namespace CoopGame.EditorTools
             Corner(bl, BL, BL, new Vector2(X0, 168)); bl.raycastTarget = false;
             string[] tabs = { "GÜNLÜK", "ARKADAŞLAR", "AYARLAR" };
             float tx = X0;
-            Button settingsTab = null;
+            Button settingsTab = null, journalTab = null;
             foreach (var tab in tabs)
             {
                 float w = 80 + tab.Length * 24;
-                bool live = tab == "AYARLAR";
+                bool live = tab != "ARKADAŞLAR";
                 var t = MakeText(canvas, "Tab_" + tab, tab, 32, Vector2.zero, new Vector2(w, 50), TextAnchor.MiddleLeft, U.head,
                                  live ? GoldBright : new Color(Cream.r, Cream.g, Cream.b, 0.6f));
                 Corner(t, BL, BL, new Vector2(tx, 100));
                 if (live)
                 {
                     t.raycastTarget = true;
-                    settingsTab = t.gameObject.AddComponent<Button>(); settingsTab.targetGraphic = t; settingsTab.transition = Selectable.Transition.None;
+                    var tb = t.gameObject.AddComponent<Button>(); tb.targetGraphic = t; tb.transition = Selectable.Transition.None;
+                    if (tab == "AYARLAR") settingsTab = tb; else journalTab = tb;
                     t.gameObject.AddComponent<UiPress>();
                 }
                 else
@@ -522,12 +630,16 @@ namespace CoopGame.EditorTools
             SetRef(so, "settingsButton", settingsTab);
             SetRef(so, "settingsPanel", setP.gameObject);
             SetRef(so, "settingsBack", sBack);
+            SetRef(so, "journalButton", journalTab);
+            SetRef(so, "journalPanel", jrnP.gameObject);
+            SetRef(so, "journalBack", jBack);
             SetRef(so, "continueHead", contHead);
             SetRef(so, "continueSub", contSub);
             SetRef(so, "progressValue", pv);
             SetRef(so, "progressFill", fill.rectTransform);
             so.ApplyModifiedPropertiesWithoutUndo();
 
+            BuildLetterView(root);
             EditorSceneManager.SaveScene(scene, LobbyPath);
         }
 
@@ -625,7 +737,7 @@ namespace CoopGame.EditorTools
             jso.ApplyModifiedPropertiesWithoutUndo();
 
             // Sağ üst: Çık / Kamera. Sağ alt: Etkileş (yalnızca hedef varken görünür).
-            var leave = MakeButton(canvas, "LeaveButton", "ÇIK", Vector2.zero, new Vector2(230, 104), false, 38);
+            var leave = MakeButton(canvas, "LeaveButton", "MENÜ", Vector2.zero, new Vector2(230, 104), false, 38);
             Corner(leave.targetGraphic, TR, TR, new Vector2(-56, -30));
             var camBtn = MakeButton(canvas, "CameraButton", "KAMERA", Vector2.zero, new Vector2(230, 104), false, 38);
             Corner(camBtn.targetGraphic, TR, TR, new Vector2(-56, -150));
@@ -638,29 +750,8 @@ namespace CoopGame.EditorTools
             SetRef(pro, "crosshair", cross);
             pro.ApplyModifiedPropertiesWithoutUndo();
 
-            // Mektup okuma ekranı (en üstte; tam ekran karartma dokununca kapatır)
-            {
-                var dim = MakeImage(root, "LetterView", Vector2.zero, Vector2.zero, null, new Color(0f, 0f, 0f, 0.74f));
-                Stretch(dim, Vector2.zero, Vector2.one);
-                var closeBtn = dim.gameObject.AddComponent<Button>(); closeBtn.targetGraphic = dim; closeBtn.transition = Selectable.Transition.None;
-                var panel = MakeImage(dim.rectTransform, "LetterPanel", Vector2.zero, new Vector2(1500, 920), null, new Color(0.12f, 0.095f, 0.075f, 0.97f));
-                panel.raycastTarget = false;
-                var ol = panel.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(Gold.r, Gold.g, Gold.b, 0.8f); ol.effectDistance = new Vector2(3f, -3f);
-                var lt = MakeText(panel.rectTransform, "LetterTitle", "", 52, new Vector2(0, 380), new Vector2(1300, 76), TextAnchor.MiddleCenter, U.head, GoldBright);
-                var rule = MakeImage(panel.rectTransform, "LetterRule", new Vector2(0, 330), new Vector2(560, 3), null, Gold); rule.raycastTarget = false;
-                var lb = MakeText(panel.rectTransform, "LetterBody", "", 34, new Vector2(0, -20), new Vector2(1320, 640), TextAnchor.UpperLeft, U.body, Cream);
-                lb.lineSpacing = 1.12f; lb.verticalOverflow = VerticalWrapMode.Truncate;
-                lb.resizeTextForBestFit = true; lb.resizeTextMinSize = 22; lb.resizeTextMaxSize = 34;
-                var ls = MakeText(panel.rectTransform, "LetterSign", "", 36, new Vector2(0, -372), new Vector2(1300, 60), TextAnchor.MiddleRight, U.body, Gold);
-                ls.fontStyle = FontStyle.Italic;
-                MakeText(panel.rectTransform, "LetterHint", "kapatmak için dokun", 24, new Vector2(0, -428), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
-                         new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
-                var lv = new GameObject("LetterViewCtl").AddComponent<LetterView>();
-                var lso = new SerializedObject(lv);
-                SetRef(lso, "root", dim.gameObject);
-                SetRef(lso, "title", lt); SetRef(lso, "body", lb); SetRef(lso, "sign", ls); SetRef(lso, "close", closeBtn);
-                lso.ApplyModifiedPropertiesWithoutUndo();
-            }
+            BuildGameMenu(root);   // MENÜ düğmesi / Esc
+            BuildLetterView(root); // en üstte
 
             var camToggle = new GameObject("CameraToggle").AddComponent<CameraToggle>();
             var cto = new SerializedObject(camToggle);

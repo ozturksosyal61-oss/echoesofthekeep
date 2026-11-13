@@ -9,6 +9,19 @@ namespace CoopGame
     {
         public struct Entry { public string title, body, sign; }
 
+        /// <summary>Günlük sırası (hikâye akışı): lobi, sonra her bulmacada X ve O, en son final.</summary>
+        public static readonly int[] Order = { 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        const string ReadKey = "Lore.Read";
+        public static bool IsRead(int id) => (UnityEngine.PlayerPrefs.GetInt(ReadKey, 0) & (1 << id)) != 0;
+        public static void MarkRead(int id)
+        {
+            int m = UnityEngine.PlayerPrefs.GetInt(ReadKey, 0);
+            if ((m & (1 << id)) != 0) return;
+            UnityEngine.PlayerPrefs.SetInt(ReadKey, m | (1 << id)); UnityEngine.PlayerPrefs.Save();
+        }
+        public static int ReadCount { get { int n = 0; foreach (int id in Order) if (IsRead(id)) n++; return n; } }
+
         static Entry E(string t, string b, string s) => new Entry { title = t, body = b, sign = s };
 
         public static Entry Get(int id) => id >= 0 && id < All.Length && All[id].title != null ? All[id] : E("Solmuş sayfa", "Mürekkep akmış; okunacak bir şey kalmamış.", "");

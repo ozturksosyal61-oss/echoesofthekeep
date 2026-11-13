@@ -44,7 +44,7 @@ namespace CoopGame
 
         void Awake()
         {
-            leaveButton.onClick.AddListener(Session.Leave);
+            leaveButton.onClick.AddListener(() => { if (GameMenu.Exists) GameMenu.Toggle(); else Session.Leave(); });
         }
 
         IEnumerator Start()
