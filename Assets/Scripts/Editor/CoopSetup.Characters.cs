@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -113,8 +113,10 @@ namespace CoopGame.EditorTools
                 ? Directory.GetFiles(texDir).Where(f => f.EndsWith(".png") || f.EndsWith(".jpg")).OrderBy(f => f)
                     .Select(f => AssetDatabase.LoadAssetAtPath<Texture2D>(f.Replace('\\', '/'))).FirstOrDefault(t => t != null)
                 : null;
-            // Palet: X deri kahve/bronz (sıcak), O koyu füme-yeşil (soğuk); dokuyu çarpan olarak hafifçe yönlendir, doygunluk yok
-            var tint = r == "X" ? new Color(0.98f, 0.88f, 0.74f) : new Color(0.80f, 0.88f, 0.84f);
+            // ref karakter_sheet.jpg: X koyu kahve deri + haki kanvas (sıcak), O koyu füme-yeşil palto + soluk mavi şerit (soğuk).
+            // Doku çarpanı hafif: dokudaki ayrıntı korunur, doygunluk artmaz.
+            // Doku referanstan koyu: X'i sıcak yönde biraz aç (deri kahvesi), O'yu soğuk yeşile çek (çarpan >1 bilerek)
+            var tint = r == "X" ? new Color(1.3f, 1.1f, 0.88f) : new Color(0.98f, 1.1f, 1.04f);
             var m = MakeMat("M_Char" + r, tint);
             if (tex != null) m.SetTexture("_BaseMap", tex); else { m.color = r == "X" ? HexC("#8A5A2B") : HexC("#3B4A44"); Debug.LogWarning("[CoopSetup] Karakter dokusu yok: " + r); }
             m.SetFloat("_Smoothness", 0.22f);
@@ -137,7 +139,7 @@ namespace CoopGame.EditorTools
 
             var mat = CharMat(r);
             var smrs = go.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            var b = new Bounds();
+            var b = new Bounds(); bool hasB = false;
             for (int i = 0; i < smrs.Length; i++)
             {
                 var s = smrs[i];
@@ -148,10 +150,13 @@ namespace CoopGame.EditorTools
                 s.lightProbeUsage = LightProbeUsage.BlendProbes;
                 s.reflectionProbeUsage = ReflectionProbeUsage.BlendProbes;
                 s.updateWhenOffscreen = false;
-                if (i == 0) b = s.bounds; else b.Encapsulate(s.bounds);
+                // Gerçek boy: pozlanmış ağ (skinned bounds dolgulu olduğundan yanıltıcı)
+                var baked = new Mesh(); s.BakeMesh(baked, true);
+                foreach (var v in baked.vertices) { var w = s.transform.TransformPoint(v); if (!hasB) { b = new Bounds(w, Vector3.zero); hasB = true; } else b.Encapsulate(w); }
+                Object.DestroyImmediate(baked);
             }
             float h = b.size.y;
-            if (h > 0.01f && Mathf.Abs(h - 1.75f) > 0.08f) go.transform.localScale = Vector3.one * (1.75f / h);
+            if (h > 0.01f && Mathf.Abs(h - 1.75f) > 0.3f) go.transform.localScale = Vector3.one * (1.75f / h);
 
             var an = go.GetComponent<Animator>(); if (an == null) an = go.AddComponent<Animator>();
             an.runtimeAnimatorController = ctrl;
@@ -169,42 +174,51 @@ namespace CoopGame.EditorTools
             return go;
         }
 
-        /// <summary>O: sağ kalçada fener (soluk ay mavisi emisyon, gerçek ışık yok → bake/mobil dostu), sol kalçada defter.</summary>
+        /// <summary>O (ref karakter_sheet.jpg): sol kalçada kemerden sarkan fırtına feneri (soluk ay mavisi cam, gerçek ışık yok →
+        /// ışık bütçesine girmez), sağ kalçada kayışlı deri defter. Ön +Z, karakterin solu -X.</summary>
         static void AttachOProps(GameObject go, Animator an)
         {
             var hips = an.isHuman ? an.GetBoneTransform(HumanBodyBones.Hips) : null;
             if (hips == null) hips = go.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name.EndsWith("Hips"));
             if (hips == null) { Debug.LogWarning("[CoopSetup] O kalça kemiği bulunamadı, prop eklenmedi"); return; }
             var root = go.transform;
-            var glass = GlowMat("K_MoonLanternGlass", new Color(0.35f, 0.42f, 0.55f), new Color(0.55f, 0.66f, 0.9f) * 0.55f, 0.6f);
-            var iron = KitMat("K_Iron", K != null ? K.iron : null); var leather = KitMat("K_Leather", K != null ? K.leather : null);
+            var glass = GlowMat("K_MoonLanternGlass", new Color(0.42f, 0.5f, 0.62f), new Color(0.55f, 0.66f, 0.9f) * 0.8f, 0.7f);
+            var iron = KitMat("K_Iron", K != null ? K.iron : null);
+            var leather = KitMat("K_Leather", K != null ? K.leather : null);
+            var brass = KitMat("K_Brass", K != null ? K.brass : null);
+            var pages = MakeMat("K_JournalPages", HexC("#CDBE9A"));
 
+            // Fırtına feneri (~0.24 m): alt hazne, küre cam, 4 tel koruma, üst kapak + baca, tepe halkası
             var lantern = new GameObject("PropLantern").transform;
             lantern.SetParent(root, false);
-            lantern.localPosition = new Vector3(0.21f, 0.86f, 0.02f);
-            Prim("Glass", lantern, PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.075f, 0.06f, 0.075f), glass);
-            Prim("Cap", lantern, PrimitiveType.Cylinder, new Vector3(0, 0.068f, 0), new Vector3(0.09f, 0.01f, 0.09f), iron);
-            Prim("Base", lantern, PrimitiveType.Cylinder, new Vector3(0, -0.066f, 0), new Vector3(0.09f, 0.008f, 0.09f), iron);
-            Prim("Top", lantern, PrimitiveType.Cylinder, new Vector3(0, 0.085f, 0), new Vector3(0.04f, 0.01f, 0.04f), iron);
+            lantern.localPosition = new Vector3(-0.16f, 0.80f, 0.13f);
+            Prim("Tank", lantern, PrimitiveType.Cylinder, new Vector3(0, -0.085f, 0), new Vector3(0.085f, 0.018f, 0.085f), iron);
+            Prim("Globe", lantern, PrimitiveType.Sphere, new Vector3(0, -0.01f, 0), new Vector3(0.075f, 0.105f, 0.075f), glass);
+            Prim("Cap", lantern, PrimitiveType.Cylinder, new Vector3(0, 0.055f, 0), new Vector3(0.07f, 0.012f, 0.07f), iron);
+            Prim("Chimney", lantern, PrimitiveType.Cylinder, new Vector3(0, 0.075f, 0), new Vector3(0.03f, 0.012f, 0.03f), iron);
             for (int i = 0; i < 4; i++)
             {
-                float a = i * Mathf.PI * 0.5f + Mathf.PI * 0.25f;
-                Prim("Bar", lantern, PrimitiveType.Cube, new Vector3(Mathf.Cos(a) * 0.04f, 0, Mathf.Sin(a) * 0.04f), new Vector3(0.008f, 0.13f, 0.008f), iron);
+                float ang = i * Mathf.PI * 0.5f + Mathf.PI * 0.25f;
+                Prim("Guard", lantern, PrimitiveType.Cube, new Vector3(Mathf.Cos(ang) * 0.043f, -0.012f, Mathf.Sin(ang) * 0.043f), new Vector3(0.005f, 0.13f, 0.005f), iron);
             }
-            Prim("Hook", lantern, PrimitiveType.Cube, new Vector3(0, 0.11f, 0), new Vector3(0.006f, 0.04f, 0.006f), iron);
-            foreach (var mr in lantern.GetComponentsInChildren<MeshRenderer>()) mr.shadowCastingMode = ShadowCastingMode.Off;
-            lantern.SetParent(hips, true);
+            MeshObj("Ring", lantern, new Vector3(0, 0.1f, 0), RingMesh(0.028f, 0.005f, 0.005f), iron).transform.localRotation = Quaternion.Euler(90f, 0, 0);
+            Prim("Hook", lantern, PrimitiveType.Cube, new Vector3(0, 0.14f, 0), new Vector3(0.005f, 0.04f, 0.005f), leather);
 
+            // Deri defter (~0.15 x 0.2): kapak, sayfalar, dikey kayış + pirinç toka
             var book = new GameObject("PropJournal").transform;
             book.SetParent(root, false);
-            book.localPosition = new Vector3(-0.2f, 0.9f, 0.03f);
-            book.localRotation = Quaternion.Euler(0, 0, -8f);
-            Slab("Cover", book, Vector3.zero, new Vector3(0.035f, 0.17f, 0.12f), leather, 1f, false);
-            Slab("Pages", book, new Vector3(-0.001f, 0, 0.002f), new Vector3(0.028f, 0.16f, 0.115f), MakeMat("K_JournalPages", HexC("#CDBE9A")), 1f, false);
-            Slab("Strap", book, new Vector3(0.0185f, 0, 0), new Vector3(0.004f, 0.025f, 0.125f), iron, 1f, false);
-            foreach (var mr in book.GetComponentsInChildren<MeshRenderer>()) mr.shadowCastingMode = ShadowCastingMode.Off;
-            book.SetParent(hips, true);
-            foreach (var t in new[] { lantern, book }) foreach (var tr in t.GetComponentsInChildren<Transform>()) tr.gameObject.isStatic = false;
+            book.localPosition = new Vector3(0.22f, 0.9f, 0.05f);
+            book.localRotation = Quaternion.Euler(0, -12f, -6f);
+            Slab("Cover", book, Vector3.zero, new Vector3(0.038f, 0.2f, 0.15f), leather, 1f, false);
+            Slab("Pages", book, new Vector3(0.002f, 0, 0.004f), new Vector3(0.03f, 0.19f, 0.145f), pages, 1f, false);
+            Slab("Strap", book, new Vector3(0.0205f, 0, 0.02f), new Vector3(0.004f, 0.21f, 0.022f), leather, 1f, false);
+            Slab("Buckle", book, new Vector3(0.023f, 0.02f, 0.02f), new Vector3(0.004f, 0.025f, 0.028f), brass, 1f, false);
+            foreach (var t in new[] { lantern, book })
+            {
+                foreach (var mr in t.GetComponentsInChildren<MeshRenderer>()) { mr.shadowCastingMode = ShadowCastingMode.Off; mr.lightProbeUsage = LightProbeUsage.BlendProbes; }
+                foreach (var tr in t.GetComponentsInChildren<Transform>()) tr.gameObject.isStatic = false;
+                t.SetParent(hips, true);
+            }
         }
 
         /// <summary>Kit malzemesi (Setup All'da K hazır; tek başına çalışırken diskten).</summary>
@@ -257,6 +271,11 @@ namespace CoopGame.EditorTools
                 AnimationMode.BeginSampling(); AnimationMode.SampleAnimationClip(g, c, t * c.length); AnimationMode.EndSampling();
             }
             var basePos = h + new Vector3(0, 0.05f, -6.5f);
+            // Yalnızca çekim için geçici dolgu ışığı (sahneye kaydedilmez)
+            var fill = new GameObject("ShotFill").AddComponent<Light>();
+            fill.type = LightType.Point; fill.color = new Color(1f, 0.85f, 0.7f); fill.intensity = 2.5f; fill.range = 9f; fill.shadows = LightShadows.None;
+            fill.lightmapBakeType = LightmapBakeType.Realtime;
+            fill.transform.position = basePos + new Vector3(0.5f, 2.2f, -2.2f);
             Pose("X", basePos + new Vector3(-0.7f, 0, 0), 180f, "Idle", 0.3f);
             Pose("O", basePos + new Vector3(0.7f, 0, 0), 180f, "Idle", 0.3f);
             Shot(dir + "/chars_idle.png", basePos + new Vector3(0, 1.3f, -3.4f), basePos + new Vector3(0, 0.95f, 0), false);
@@ -266,10 +285,20 @@ namespace CoopGame.EditorTools
             Pose("X", basePos + new Vector3(-0.8f, 0, 0), 120f, "Walk", 0.25f);
             Pose("O", basePos + new Vector3(0.8f, 0, 0), 120f, "Walk", 0.25f);
             Shot(dir + "/chars_walk.png", basePos + new Vector3(0, 1.2f, -3.4f), basePos + new Vector3(0, 0.9f, 0), false);
-            Pose("O", basePos + new Vector3(2.4f, 0, 0), 90f, "Walk", 0.5f);
-            Shot(dir + "/chars_walk_o_side.png", basePos + new Vector3(2.4f, 1.0f, -2.6f), basePos + new Vector3(2.4f, 0.8f, 0), false);
             AnimationMode.StopAnimationMode();
             foreach (var g in spawned) Object.DestroyImmediate(g);
+            spawned.Clear();
+            // Palto-bacak: O yandan, adımın iki ucu (öne ve arkaya açılmış bacak)
+            foreach (var t in new[] { 0.0f, 0.25f, 0.5f })
+            {
+                Pose("O", basePos, 90f, "Walk", t);
+                fill.transform.position = basePos + new Vector3(0.3f, 1.6f, -1.8f);
+                Shot(dir + "/o_walk_side_" + (int)(t * 100) + ".png", basePos + new Vector3(0, 0.95f, -2.3f), basePos + new Vector3(0, 0.8f, 0), false);
+                AnimationMode.StopAnimationMode();
+                foreach (var g in spawned) Object.DestroyImmediate(g);
+                spawned.Clear();
+            }
+            Object.DestroyImmediate(fill.gameObject);
             Debug.Log("[CoopSetup] Karakter görüntüleri -> " + Path.GetFullPath(dir));
         }
     }
