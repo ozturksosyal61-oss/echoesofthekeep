@@ -32,7 +32,7 @@ Transform:
   - {fileID: 7875328260169139298}
   - {fileID: 8332053120975600917}
   - {fileID: 3487269722755326391}
-  - {fileID: 4157861358456698744}
+  - {fileID: 3381184417733942142}
   - {fileID: 2724187375681068422}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -88,6 +88,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2799618784509465525, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 85
+      objectReference: {fileID: 0}
     - target: {fileID: 2837783681941410302, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_Name
       value: CandleCluster
@@ -100,11 +104,7 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
-    - target: {fileID: 5902719505994395826, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
-      propertyPath: m_StaticEditorFlags
-      value: 85
-      objectReference: {fileID: 0}
-    - target: {fileID: 8886466267176143994, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
+    - target: {fileID: 4506150766532753117, guid: cd7c5ca5121e63e47a23d471db5a9c77, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 85
       objectReference: {fileID: 0}
@@ -269,7 +269,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89db4fbf209f2b647a4d832b9eaa4e0a, type: 3}
---- !u!4 &4157861358456698744 stripped
+--- !u!4 &3381184417733942142 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1880544442863729029, guid: 89db4fbf209f2b647a4d832b9eaa4e0a, type: 3}
   m_PrefabInstance: {fileID: 3816071043444122363}
