@@ -245,6 +245,7 @@ namespace CoopGame.EditorTools
 
         static void BuildModel(Transform root)
         {
+            if (BuildCharacterModels(root)) return; // Mixamo X/O (CoopSetup.Characters.cs); yoksa primitif gövde
             avatarMat = MakeMat("AvatarMat", Color.white); // URP/Lit; çalışma anında rol rengine boyanır
             var model = new GameObject("Model").transform;
             model.SetParent(root, false);

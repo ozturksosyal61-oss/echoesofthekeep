@@ -80,6 +80,15 @@ namespace CoopGame
             if (role == shownRole) return;
             shownRole = role;
             name = "Avatar_" + Roles.Name(role) + (IsLocal ? "_local" : "");
+            // Karakter modelleri (Model/Model_X, Model/Model_O): rol yoksa giriş sırasına göre (0 → X, 1 → O)
+            var mx = transform.Find("Model/Model_X"); var mo = transform.Find("Model/Model_O");
+            if (mx != null && mo != null)
+            {
+                bool isO = role == Roles.O || (role == Roles.None && Slot == 1);
+                mx.gameObject.SetActive(!isO); mo.gameObject.SetActive(isO);
+                animator = (isO ? mo : mx).GetComponent<Animator>();
+                return;
+            }
             var color = role == Roles.X ? new Color(0.25f, 0.55f, 1f) : role == Roles.O ? new Color(1f, 0.55f, 0.2f) : new Color(0.6f, 0.6f, 0.62f);
             foreach (var r in renderers)
                 if (r != null && r.gameObject.name != "Nose") r.material.color = color;
