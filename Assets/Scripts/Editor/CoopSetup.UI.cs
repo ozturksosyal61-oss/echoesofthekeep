@@ -396,7 +396,7 @@ namespace CoopGame.EditorTools
 " +
             "Oynadığın için teşekkürler.";
 
-        static RectTransform BuildCredits(RectTransform canvas, Vector2 a, float x0, float y0, out Button back)
+        static RectTransform BuildCredits(RectTransform canvas, Vector2 a, float x0, float y0, out Button back, out Button privacy, out Button support)
         {
             var p = Overlay(canvas, "CreditsPanel");
             var title = MakeText(p, "CreditsTitle", "JENERİK", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
@@ -407,6 +407,10 @@ namespace CoopGame.EditorTools
             body.resizeTextForBestFit = true; body.resizeTextMinSize = 18; body.resizeTextMaxSize = 28;
             back = MakeButton(p, "CreditsBack", "GERİ", Vector2.zero, new Vector2(200, 84), false, 34);
             Corner((Graphic)back.targetGraphic, a, a, new Vector2(x0, y0 - 660));
+            privacy = MakeButton(p, "PrivacyButton", "GİZLİLİK", Vector2.zero, new Vector2(260, 84), false, 34);
+            Corner((Graphic)privacy.targetGraphic, a, a, new Vector2(x0 + 230, y0 - 660));
+            support = MakeButton(p, "SupportButton", "DESTEK", Vector2.zero, new Vector2(260, 84), false, 34);
+            Corner((Graphic)support.targetGraphic, a, a, new Vector2(x0 + 520, y0 - 660));
             p.gameObject.SetActive(false);
             return p;
         }
@@ -627,7 +631,7 @@ namespace CoopGame.EditorTools
             var jrnP = Overlay(canvas, "JournalPanel");
             BuildJournal(jrnP, TL, X0, -296, out var jBack);
             jrnP.gameObject.SetActive(false);
-            var crdP = BuildCredits(canvas, TL, X0, -296, out var cBack);
+            var crdP = BuildCredits(canvas, TL, X0, -296, out var cBack, out var cPrivacy, out var cSupport);
             var frP = BuildFriends(canvas, TL, X0, -296, out var fBack, out var fInvite, out var fState);
 
             var status = MakeText(canvas, "Status", "", 26, Vector2.zero, new Vector2(760, 44), TextAnchor.MiddleLeft, U.body, Cream);
@@ -696,6 +700,7 @@ namespace CoopGame.EditorTools
             SetRef(so, "creditsButton", creditsTab);
             SetRef(so, "creditsPanel", crdP.gameObject);
             SetRef(so, "creditsBack", cBack);
+            SetRef(so, "privacyButton", cPrivacy); SetRef(so, "supportButton", cSupport);
             SetRef(so, "friendsButton", friendsTab); SetRef(so, "friendsBack", fBack); SetRef(so, "inviteButton", fInvite);
             SetRef(so, "friendsPanel", frP.gameObject); SetRef(so, "friendsState", fState);
             SetRef(so, "continueHead", contHead);

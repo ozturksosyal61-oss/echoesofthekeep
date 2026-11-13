@@ -27,6 +27,12 @@ namespace CoopGame
         [SerializeField] GameObject journalPanel;
         [SerializeField] Button creditsButton, creditsBack;
         [SerializeField] GameObject creditsPanel;
+        [SerializeField] Button privacyButton, supportButton;
+
+        /// <summary>App Store Connect'teki adreslerle aynı (gizlilik politikası uygulama içinden de erişilebilir olmalı).</summary>
+        static bool Turkish => Application.systemLanguage == SystemLanguage.Turkish;
+        public static string PrivacyUrl => Turkish ? "https://oztdigital.com.tr/echoes/gizlilik" : "https://oztdigital.com.tr/echoes/en/privacy";
+        public static string SupportUrl => Turkish ? "https://oztdigital.com.tr/echoes/destek" : "https://oztdigital.com.tr/echoes/en/support";
         [SerializeField] Button friendsButton, friendsBack, inviteButton;
         [SerializeField] GameObject friendsPanel;
         [SerializeField] Text friendsState;
@@ -74,6 +80,8 @@ namespace CoopGame
             if (journalBack != null) journalBack.onClick.AddListener(() => ShowJoin(false));
             if (creditsButton != null) creditsButton.onClick.AddListener(() => { if (!busy) ShowPanel(creditsPanel); });
             if (creditsBack != null) creditsBack.onClick.AddListener(() => ShowJoin(false));
+            if (privacyButton != null) privacyButton.onClick.AddListener(() => Application.OpenURL(PrivacyUrl));
+            if (supportButton != null) supportButton.onClick.AddListener(() => Application.OpenURL(SupportUrl));
             if (friendsButton != null) friendsButton.onClick.AddListener(() => { if (!busy) { ShowPanel(friendsPanel); RefreshFriends(); } });
             if (friendsBack != null) friendsBack.onClick.AddListener(() => ShowJoin(false));
             if (inviteButton != null) inviteButton.onClick.AddListener(() => { if (!busy) GameCenter.Invite(); });
