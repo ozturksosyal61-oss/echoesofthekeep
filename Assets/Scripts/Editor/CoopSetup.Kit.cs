@@ -1289,9 +1289,16 @@ namespace CoopGame.EditorTools
             go.AddComponent<LightProbeGroup>().probePositions = pts.ToArray();
         }
 
+        /// <summary>
+        /// Ortam yansıması KAPALI (2026-11-13): Unity 6.6 / URP 17.6'da oyun sırasında (editörde değil) yansıma örneklemesi Lit malzemeyi
+        /// simsiyah yapıyor — tüm odalar karanlık. Probe kapalı + ortam yansıma şiddeti 0 iken oyun içi = editör (ölçüldü). Kök neden açık.
+        /// </summary>
+        const bool UseReflections = false;
+
         /// <summary>Oda başına tek baked yansıma probu (ıslak zemin/metal parlaması; gerçek zamanlı yansıma yok).</summary>
         static void KitReflection(Transform root, Vector3 center, Vector3 size)
         {
+            if (!UseReflections) return;
             var go = new GameObject("ReflectionProbe");
             go.transform.SetParent(root, false);
             go.transform.localPosition = center;

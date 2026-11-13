@@ -30,6 +30,7 @@ Görsel yenileme fazları ve devam notu: Docs/ArtPhases.md (Faz 5: mahzen onayl�
 - Art kit (CoopSetup.Kit.cs → Assets/Art/Kit): malzemeler `K.*`, palet `Pal.*`, dekor `Kit("Ad", parent, pos, yaw)` (74 prefab; liste Assets/Art/Kit/Prefabs), ışık prefabları L_Candle/L_Candelabra/L_Chandelier (baked), L_Lantern (realtime), pencereler WindowLancet/WindowRose (ışıyan vitray + baked ay spotu, duvarda delik gerekmez). Mimari: Wainscot (lambri), BeamCeiling, KitProbes, KitReflection, KitBake. Post-fx: Art/Kit/Lighting/KitPostFx.asset.
 - Kit doğrulama: batch `-executeMethod CoopGame.EditorTools.CoopSetup.KitShots -shotDir <klasör>` (sergi odası Assets/Art/Kit/KitShowroom.unity, bake ~20 sn). Model dökümü: Logs/kit_dump.txt.
 - Baked ışık: duvar/zemin lightmap, dekor light probe. Probe ızgarası odayı zeminden tavana kaplamalı; gövde dışında kalan nesne simsiyah olur (prefablardaki ProbeAnchor bunu zemin/duvar dekoru için çözer).
+- Ortam yansıması KAPALI (CoopSetup.Kit UseReflections=false; probe yok, reflectionIntensity 0): Unity 6.6/URP 17.6 oyun sırasında yansıma örneklemesi Lit malzemeyi siyaha çeviriyordu (editör görüntüsünde görünmez!). Görsel doğrulama editör çekimiyle yapılırsa oyun içini yansıtmayabilir.
 - Nesne başına 4 ek ışık sınırı var: büyük yüzeyler Deck() ile parçalı; oda başına ~4-5 noktasal ışığı geçme.
 ## Art direction (kalıcı)
 - Referanslar: Docs/Reference/ → lobi_hol.png, mekanizma.jpg, mahzen.png, genel_ic.jpg. Oda tasarlamadan önce hepsini incele. Her yeni oda bu detay seviyesinde, aynı şato stilinde.

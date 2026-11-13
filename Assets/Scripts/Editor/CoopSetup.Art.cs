@@ -183,7 +183,7 @@ namespace CoopGame.EditorTools
             RenderSettings.fogMode = FogMode.ExponentialSquared;
             RenderSettings.fogColor = fog;
             RenderSettings.fogDensity = fogDensity;
-            RenderSettings.reflectionIntensity = 0.4f;
+            RenderSettings.reflectionIntensity = UseReflections ? 0.4f : 0f; // bkz. CoopSetup.Kit UseReflections
 
             cam.clearFlags = CameraClearFlags.Skybox;
             cam.farClipPlane = 140f; // 250 m ötedeki diğer oda hiç çizilmez
