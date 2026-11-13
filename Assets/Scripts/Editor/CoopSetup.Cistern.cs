@@ -271,12 +271,32 @@ namespace CoopGame.EditorTools
             nextGate = BarGate("CisternNextGate", cis, new Vector3(CsNicheX, 1.5f, -HZ - 0.25f), true, gaS);
 
             // --- Su (seviyeyle yükselen; çocuklar birlikte yükselir) ---
-            water = Slab("CisternWater", cis, new Vector3(XC, 0.02f, 0), new Vector3(XE - XW, 0.04f, HZ * 2f), MakeMat("K_CisternWater", new Color(0.1f, 0.2f, 0.2f)), 1f, false);
-            water.GetComponent<Renderer>().sharedMaterial.SetFloat("_Smoothness", 0.88f);
-            water.GetComponent<Renderer>().sharedMaterial.SetFloat("_Metallic", 0.1f);
-            water.isStatic = false;
-            water.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-            water.GetComponent<Renderer>().sharedMaterial.color = new Color(0.1f, 0.19f, 0.19f);
+            {
+                Rect R(float xa, float za, float xb, float zb) => Rect.MinMaxRect(xa - XC, za, xb - XC, zb);
+                var areas = new[]
+                {
+                    R(XW, -HZ, XE, HZ),
+                    R(6.975f - 1.25f, -1.75f, 6.975f + 1.25f, 1.75f),                       // doğu koridoru
+                    R(CsNicheX - 1.75f, nz + 0.15f - 1.25f, CsNicheX + 1.75f, nz + 0.15f + 1.25f), // güney nişi
+                };
+                var obs = new List<Rect>();
+                for (int i = 0; i < 4; i++)
+                    for (int j = 0; j < 4; j++) obs.Add(R(ColX(i) - 0.5f, ColZ(j) - 0.5f, ColX(i) + 0.5f, ColZ(j) + 0.5f));
+                for (int i = 0; i < 4; i++)
+                    foreach (int s in new[] { -1, 1 }) obs.Add(R(ColX(i) - 0.3f, s > 0 ? HZ - 0.28f : -HZ, ColX(i) + 0.3f, s > 0 ? HZ : -HZ + 0.28f));
+                for (int j = 0; j < 4; j++)
+                {
+                    obs.Add(R(XW, ColZ(j) - 0.3f, XW + 0.28f, ColZ(j) + 0.3f));
+                    obs.Add(R(XE - 0.28f, ColZ(j) - 0.3f, XE, ColZ(j) + 0.3f));
+                }
+                foreach (int s in new[] { -1, 1 })
+                {
+                    obs.Add(R(XE - 0.13f, s > 0 ? 1.5f : -1.75f, XE + 0.5f, s > 0 ? 1.75f : -1.5f));             // doğu kemer sövesi
+                    obs.Add(R(s > 0 ? CsNicheX + 1.5f : CsNicheX - 1.75f, -HZ - 0.5f, s > 0 ? CsNicheX + 1.75f : CsNicheX - 1.5f, -HZ + 0.13f));
+                }
+                water = WaterSurface("CisternWater", cis, new Vector3(XC, 0.02f, 0), areas, obs.ToArray(),
+                                     WaterMat("K_CisternWater", new Color(0.035f, 0.075f, 0.075f), new Color(0.09f, 0.16f, 0.15f)), 0.02f);
+            }
             {
                 var flo = water.transform;
                 Transform Boat(string name, Vector3 p, float yaw, float tilt)
@@ -300,9 +320,6 @@ namespace CoopGame.EditorTools
                 Kit("Lantern", b1, new Vector3(0.1f, 0.12f, 0.5f), 40f);           // Detay: sönmüş fener (bakıcı nerede?)
                 Kit("Bucket2", b1, new Vector3(-0.15f, 0.0f, -0.4f), 10f);
                 Boat("SunkBoat", new Vector3(ColX(0) - 1.6f, -0.32f, ColZ(0) - 0.4f), -30f, 18f); // yarı batık kayık
-                var wm = water.GetComponent<Renderer>().sharedMaterial;
-                Slab("WaterCorridor", flo, new Vector3(6.975f - XC, 0, 0), new Vector3(2.5f, 0.04f, 3.5f), wm, 1f, false);
-                Slab("WaterNiche", flo, new Vector3(CsNicheX - XC, 0, nz + 0.15f), new Vector3(3.5f, 0.04f, 2.5f), wm, 1f, false);
                 var deb = new GameObject("Debris").transform;
                 deb.SetParent(flo, false);
                 deb.localPosition = new Vector3(-XC, 0, 0);

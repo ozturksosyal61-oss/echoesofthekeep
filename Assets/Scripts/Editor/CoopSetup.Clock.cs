@@ -307,8 +307,8 @@ namespace CoopGame.EditorTools
                     Slab("PitSide", pit, new Vector3(s * (pwx + 0.15f), (pb - 0.01f) * 0.5f, (pz0 + pz1) * 0.5f), new Vector3(0.3f, -pb - 0.01f, 2f), K.cisternWall, 1.5f, false);
                     Slab("PitColumn", pit, new Vector3(s * 0.85f, pb * 0.5f - 0.1f, pz0 + 0.12f), new Vector3(0.32f, -pb - 0.2f, 0.32f), stone, 1.2f, false);
                 }
-                var wmat = MakeMat("K_HazneWater", new Color(0.04f, 0.12f, 0.13f)); wmat.SetFloat("_Smoothness", 0.94f);
-                Slab("WellWater", pit, new Vector3(0, -1.3f, (pz0 + pz1) * 0.5f), new Vector3(3.2f, 0.04f, 2f), wmat, 1f, false).GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+                var wmat = WaterMat("K_HazneWater", new Color(0.03f, 0.09f, 0.1f), new Color(0.07f, 0.15f, 0.16f), 1.8f, 0.18f);
+                WaterSurface("WellWater", pit, new Vector3(0, -1.28f, (pz0 + pz1) * 0.5f), new[] { Rect.MinMaxRect(-1.6f, -1f, 1.6f, 1f) }, null, wmat, 0f, 0.2f, 0.45f);
                 var lid = Slab("GrateCollider", pit, new Vector3(0, -0.06f, (pz0 + pz1) * 0.5f), new Vector3(3.3f, 0.12f, 2.1f), K.iron, 1f);
                 lid.GetComponent<MeshRenderer>().enabled = false;
                 for (int i = 0; i < 9; i++) { float x = -pwx + 0.18f + i * (2f * pwx - 0.36f) / 8f; Rod("GrateBar", pit, new Vector3(x, -0.05f, pz0), new Vector3(x, -0.05f, pz1), 0.05f, K.iron); }
