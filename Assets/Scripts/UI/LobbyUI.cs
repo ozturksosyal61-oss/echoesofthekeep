@@ -27,6 +27,9 @@ namespace CoopGame
         [SerializeField] GameObject journalPanel;
         [SerializeField] Button creditsButton, creditsBack;
         [SerializeField] GameObject creditsPanel;
+        [SerializeField] Button friendsButton, friendsBack, inviteButton;
+        [SerializeField] GameObject friendsPanel;
+        [SerializeField] Text friendsState;
 
         // Seçenekler: 0 = kaldığın yer (kayıt varsa), sonra 1..LastPuzzle (1 = baştan)
         int startChoice;
@@ -36,6 +39,7 @@ namespace CoopGame
         void Awake()
         {
             codeInput.contentType = InputField.ContentType.IntegerNumber;
+            if (!TestTools.On && startButton != null) { startButton.gameObject.SetActive(false); startButton = null; } // yayın: test seçici yok
             if (startButton != null)
             {
                 startChoice = Progress.Saved > 0 ? 0 : 1;
@@ -70,7 +74,60 @@ namespace CoopGame
             if (journalBack != null) journalBack.onClick.AddListener(() => ShowJoin(false));
             if (creditsButton != null) creditsButton.onClick.AddListener(() => { if (!busy) ShowPanel(creditsPanel); });
             if (creditsBack != null) creditsBack.onClick.AddListener(() => ShowJoin(false));
+            if (friendsButton != null) friendsButton.onClick.AddListener(() => { if (!busy) { ShowPanel(friendsPanel); RefreshFriends(); } });
+            if (friendsBack != null) friendsBack.onClick.AddListener(() => ShowJoin(false));
+            if (inviteButton != null) inviteButton.onClick.AddListener(() => { if (!busy) GameCenter.Invite(); });
+            GameCenter.Changed += RefreshFriends;
+            GameCenter.Failed += OnInviteFailed;
             ShowJoin(false);
+        }
+
+        void OnDestroy()
+        {
+            GameCenter.Changed -= RefreshFriends;
+            GameCenter.Failed -= OnInviteFailed;
+        }
+
+        // Game Center daveti: davet eden eşleşince odayı kurar ve kodu yollar; davetli gelen kodla katılır.
+        bool viaInvite;
+
+        void Update()
+        {
+            if (busy) return;
+            if (GameCenter.PendingHost)
+            {
+                GameCenter.PendingHost = false;
+                int saved = Progress.Saved;
+                Progress.StartPuzzle = saved > 0 && saved < Progress.LastPuzzle ? saved + 1 : 1; // davet: kaldığın yerden
+                viaInvite = true;
+                ShowJoin(false);
+                StartCoroutine(Flow(true));
+            }
+            else if (GameCenter.PendingCode != null)
+            {
+                codeInput.text = GameCenter.PendingCode;
+                GameCenter.PendingCode = null;
+                viaInvite = false;
+                ShowJoin(false);
+                StartCoroutine(Flow(false));
+            }
+        }
+
+        void RefreshFriends()
+        {
+            if (friendsState == null) return;
+            bool ok = GameCenter.Available && GameCenter.Authenticated;
+            friendsState.text = !GameCenter.Available ? "Arkadaş daveti iPhone'da Game Center ile çalışır."
+                              : ok ? "Game Center: " + GameCenter.PlayerName
+                              : "Game Center'a giriş yapılmadı. Ayarlar > Game Center'dan giriş yapıp oyunu yeniden aç.";
+            if (inviteButton != null) inviteButton.interactable = ok;
+        }
+
+        void OnInviteFailed(string reason)
+        {
+            if (reason == "cancel" || busy) return;
+            ShowJoin(false);
+            status.text = reason == "auth" ? "Davet için Game Center'a giriş yapmalısın." : "Davet kurulamadı, tekrar dene.";
         }
 
         void ShowSettings(bool on)
@@ -85,6 +142,7 @@ namespace CoopGame
             if (settingsPanel != null) settingsPanel.SetActive(panel == settingsPanel);
             if (journalPanel != null) journalPanel.SetActive(panel == journalPanel);
             if (creditsPanel != null) creditsPanel.SetActive(panel == creditsPanel);
+            if (friendsPanel != null) friendsPanel.SetActive(panel == friendsPanel);
             status.text = "";
         }
 
@@ -106,6 +164,7 @@ namespace CoopGame
             if (settingsPanel != null) settingsPanel.SetActive(false);
             if (journalPanel != null) journalPanel.SetActive(false);
             if (creditsPanel != null) creditsPanel.SetActive(false);
+            if (friendsPanel != null) friendsPanel.SetActive(false);
             joinPanel.SetActive(join);
             status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "";
             if (join) codeInput.text = "";
@@ -157,6 +216,11 @@ namespace CoopGame
                 result = t.Result;
             }
 
+            if (create && viaInvite)
+            {
+                viaInvite = false;
+                if (result.Ok) GameCenter.SendCode(code); else GameCenter.CancelMatch();
+            }
             if (result.Ok)
             {
                 // Sahne geçişini Fusion yapar (host Game'i yükler, client takip eder).

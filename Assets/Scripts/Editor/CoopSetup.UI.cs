@@ -411,6 +411,25 @@ namespace CoopGame.EditorTools
             return p;
         }
 
+        /// <summary>Arkadaşlar: Game Center durumu + davet düğmesi (davet kabul edilince oda kendiliğinden kurulur).</summary>
+        static RectTransform BuildFriends(RectTransform canvas, Vector2 a, float x0, float y0, out Button back, out Button invite, out Text state)
+        {
+            var p = Overlay(canvas, "FriendsPanel");
+            var title = MakeText(p, "FriendsTitle", "ARKADAŞLAR", 50, Vector2.zero, new Vector2(700, 70), TextAnchor.MiddleLeft, U.head, GoldBright);
+            Corner(title, a, a, new Vector2(x0, y0));
+            state = MakeText(p, "FriendsState", "", 28, Vector2.zero, new Vector2(1100, 50), TextAnchor.MiddleLeft, U.body, Gold, false);
+            Corner(state, a, a, new Vector2(x0, y0 - 80));
+            invite = MakeButton(p, "InviteButton", "ARKADAŞINI DAVET ET", Vector2.zero, new Vector2(620, 104), true, 40);
+            Corner((Graphic)invite.targetGraphic, a, a, new Vector2(x0, y0 - 160));
+            var info = MakeText(p, "FriendsInfo", "Game Center arkadaşını seç. Davetini kabul edince oda kendiliğinden kurulur,\nikiniz de Lobi Holü'nde buluşursunuz. Kodla katılmak için ana menüde ODAYA KATIL.",
+                                26, Vector2.zero, new Vector2(1200, 90), TextAnchor.UpperLeft, U.body, Cream, false);
+            Corner(info, a, a, new Vector2(x0, y0 - 300));
+            back = MakeButton(p, "FriendsBack", "GERİ", Vector2.zero, new Vector2(200, 84), false, 34);
+            Corner((Graphic)back.targetGraphic, a, a, new Vector2(x0, y0 - 420));
+            p.gameObject.SetActive(false);
+            return p;
+        }
+
         /// <summary>Mektup okuma ekranı (en üstte; tam ekran karartma dokununca kapatır).</summary>
         static void BuildLetterView(RectTransform root)
         {
@@ -448,11 +467,12 @@ namespace CoopGame.EditorTools
             var main = Overlay(pr, "Main");
             MakeText(main, "MenuTitle", "MENÜ", 60, new Vector2(0, 330), new Vector2(800, 80), TextAnchor.MiddleCenter, U.head, GoldBright);
             Divider(main, new Vector2(0, 282), 420, 0.5f);
-            var resume = MakeButton(main, "ResumeButton", "DEVAM ET", new Vector2(0, 170), new Vector2(560, 104), true, 44);
-            var journal = MakeButton(main, "JournalButton", "GÜNLÜK", new Vector2(0, 40), new Vector2(560, 100), false, 40);
-            var settings = MakeButton(main, "SettingsButton", "AYARLAR", new Vector2(0, -85), new Vector2(560, 100), false, 40);
-            var leave = MakeButton(main, "LeaveButton", "ANA MENÜYE DÖN", new Vector2(0, -230), new Vector2(560, 100), false, 34);
-            MakeText(main, "MenuHint", "Oyun durmaz; arkadaşın seni bekliyor olabilir.", 24, new Vector2(0, -340), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
+            var resume = MakeButton(main, "ResumeButton", "DEVAM ET", new Vector2(0, 190), new Vector2(560, 100), true, 44);
+            var journal = MakeButton(main, "JournalButton", "GÜNLÜK", new Vector2(0, 80), new Vector2(560, 96), false, 40);
+            var settings = MakeButton(main, "SettingsButton", "AYARLAR", new Vector2(0, -26), new Vector2(560, 96), false, 40);
+            var mute = MakeButton(main, "MuteButton", "ARKADAŞINI SESSİZE AL", new Vector2(0, -132), new Vector2(560, 96), false, 32);
+            var leave = MakeButton(main, "LeaveButton", "ANA MENÜYE DÖN", new Vector2(0, -250), new Vector2(560, 96), false, 34);
+            MakeText(main, "MenuHint", "Oyun durmaz; arkadaşın seni bekliyor olabilir.", 24, new Vector2(0, -350), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
                      new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
 
             var setV = Overlay(pr, "Settings");
@@ -465,7 +485,7 @@ namespace CoopGame.EditorTools
             SetRef(so, "root", dim.gameObject);
             SetRef(so, "mainView", main.gameObject); SetRef(so, "settingsView", setV.gameObject); SetRef(so, "journalView", jrnV.gameObject);
             SetRef(so, "resume", resume); SetRef(so, "journal", journal); SetRef(so, "settings", settings); SetRef(so, "leave", leave);
-            SetRef(so, "settingsBack", setBack); SetRef(so, "journalBack", jrnBack);
+            SetRef(so, "settingsBack", setBack); SetRef(so, "journalBack", jrnBack); SetRef(so, "mute", mute);
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -608,6 +628,7 @@ namespace CoopGame.EditorTools
             BuildJournal(jrnP, TL, X0, -296, out var jBack);
             jrnP.gameObject.SetActive(false);
             var crdP = BuildCredits(canvas, TL, X0, -296, out var cBack);
+            var frP = BuildFriends(canvas, TL, X0, -296, out var fBack, out var fInvite, out var fState);
 
             var status = MakeText(canvas, "Status", "", 26, Vector2.zero, new Vector2(760, 44), TextAnchor.MiddleLeft, U.body, Cream);
             Corner(status, TL, TL, new Vector2(X0, -852));
@@ -617,11 +638,11 @@ namespace CoopGame.EditorTools
             Corner(bl, BL, BL, new Vector2(X0, 168)); bl.raycastTarget = false;
             string[] tabs = { "GÜNLÜK", "ARKADAŞLAR", "AYARLAR", "JENERİK" };
             float tx = X0;
-            Button settingsTab = null, journalTab = null, creditsTab = null;
+            Button settingsTab = null, journalTab = null, creditsTab = null, friendsTab = null;
             foreach (var tab in tabs)
             {
                 float w = 80 + tab.Length * 24;
-                bool live = tab != "ARKADAŞLAR";
+                bool live = true;
                 var t = MakeText(canvas, "Tab_" + tab, tab, 32, Vector2.zero, new Vector2(w, 50), TextAnchor.MiddleLeft, U.head,
                                  live ? GoldBright : new Color(Cream.r, Cream.g, Cream.b, 0.6f));
                 Corner(t, BL, BL, new Vector2(tx, 100));
@@ -629,7 +650,7 @@ namespace CoopGame.EditorTools
                 {
                     t.raycastTarget = true;
                     var tb = t.gameObject.AddComponent<Button>(); tb.targetGraphic = t; tb.transition = Selectable.Transition.None;
-                    if (tab == "AYARLAR") settingsTab = tb; else if (tab == "JENERİK") creditsTab = tb; else journalTab = tb;
+                    if (tab == "AYARLAR") settingsTab = tb; else if (tab == "JENERİK") creditsTab = tb; else if (tab == "ARKADAŞLAR") friendsTab = tb; else journalTab = tb;
                     t.gameObject.AddComponent<UiPress>();
                 }
                 else
@@ -675,6 +696,8 @@ namespace CoopGame.EditorTools
             SetRef(so, "creditsButton", creditsTab);
             SetRef(so, "creditsPanel", crdP.gameObject);
             SetRef(so, "creditsBack", cBack);
+            SetRef(so, "friendsButton", friendsTab); SetRef(so, "friendsBack", fBack); SetRef(so, "inviteButton", fInvite);
+            SetRef(so, "friendsPanel", frP.gameObject); SetRef(so, "friendsState", fState);
             SetRef(so, "continueHead", contHead);
             SetRef(so, "continueSub", contSub);
             SetRef(so, "progressValue", pv);
