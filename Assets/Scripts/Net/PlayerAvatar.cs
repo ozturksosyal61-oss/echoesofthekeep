@@ -33,6 +33,13 @@ namespace CoopGame
         public bool IsLocal => Object != null && Object.IsValid && Object.HasInputAuthority;
         /// <summary>0 = seçilmedi, 1 = X, 2 = O (host yazar).</summary>
         [Networked] int RoleCode { get; set; }
+        /// <summary>Bakış eğimi (santiderece). Host yazar: en fazla ~15 Hz ve yalnız ≥0.5° değişince (Fusion yalnız değişeni yollar).</summary>
+        [Networked] short LookPitch { get; set; }
+
+        const float PitchClamp = 60f;
+        float shownPitch;
+        Transform headBone, neckBone;
+        Animator boneAnimator;
 
         /// <summary>Roles.X / Roles.O; holde henüz seçilmediyse Roles.None.</summary>
         public int RoleIndex => RoleCode - 1;
@@ -106,6 +113,11 @@ namespace CoopGame
             {
                 cc.Move(new Vector3(input.Move.x, 0f, input.Move.y));
                 transform.rotation = Quaternion.Euler(0f, input.Yaw, 0f); // gövde hareket yönüne değil bakış yönüne (NCC dönüşünü ezer; TRSP ile senkron)
+                if (Object.HasStateAuthority && !Runner.IsResimulation)
+                {
+                    int stride = Mathf.Max(1, Runner.TickRate / 15);
+                    if (Runner.Tick % stride == 0 && Mathf.Abs(input.Pitch - LookPitch) >= 50) LookPitch = input.Pitch;
+                }
             }
 
             // NCC hızı konum farkından türetir: basamak/eşya kenarına tırmanınca dikey hız fırlatma etkisi yapıyordu.
@@ -152,6 +164,28 @@ namespace CoopGame
                     foreach (var r in renderers) if (r != null) r.enabled = visible;
                 }
             }
+        }
+
+        /// <summary>Uzak avatar: bakış eğimini Animator'dan sonra boyun (%40) + kafa (%60) kemiğine uygular, yumuşatarak. Yerel avatar etkilenmez.</summary>
+        void LateUpdate()
+        {
+            if (Object == null || !Object.IsValid || IsLocal || !remoteVisible || animator == null) return;
+            if (boneAnimator != animator)
+            {
+                boneAnimator = animator;
+                headBone = animator.isHuman ? animator.GetBoneTransform(HumanBodyBones.Head) : null;
+                neckBone = animator.isHuman ? animator.GetBoneTransform(HumanBodyBones.Neck) : null;
+            }
+            if (headBone == null) return;
+            float target = Mathf.Clamp(LookPitch * 0.01f, -PitchClamp, PitchClamp);
+            shownPitch = Mathf.Lerp(shownPitch, target, 1f - Mathf.Exp(-12f * Time.deltaTime));
+            var axis = transform.right;
+            if (neckBone != null)
+            {
+                neckBone.rotation = Quaternion.AngleAxis(shownPitch * 0.4f, axis) * neckBone.rotation;
+                headBone.rotation = Quaternion.AngleAxis(shownPitch * 0.6f, axis) * headBone.rotation;
+            }
+            else headBone.rotation = Quaternion.AngleAxis(shownPitch, axis) * headBone.rotation;
         }
 
         // ---- Etkileşim: istemci → host (RPC), host doğrular, RoomState (state authority host) günceller ----

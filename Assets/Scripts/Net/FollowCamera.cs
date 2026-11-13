@@ -10,6 +10,8 @@ namespace CoopGame
     public class FollowCamera : MonoBehaviour
     {
         public static float Yaw;
+        /// <summary>Ağa giden bakış eğimi: 1. şahısta kamera eğimi, 3. şahısta 0 (yörünge açısı bakış değil).</summary>
+        public static float LookPitch => Instance != null && Instance.FirstPerson ? Instance.pitch : 0f;
         public static FollowCamera Instance { get; private set; }
         public bool FirstPerson { get; private set; } = true;
 

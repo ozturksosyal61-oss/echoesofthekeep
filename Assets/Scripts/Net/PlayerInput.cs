@@ -8,5 +8,7 @@ namespace CoopGame
     {
         public Vector2 Move;
         public float Yaw;
+        /// <summary>Bakış eğimi, santiderece (1. şahıs kamera; + aşağı). 3. şahısta 0.</summary>
+        public short Pitch;
     }
 }

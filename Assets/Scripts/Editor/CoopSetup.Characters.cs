@@ -258,6 +258,36 @@ namespace CoopGame.EditorTools
             CharacterShots();
         }
 
+        /// <summary>Bakış eğimi testi: PlayerAvatar.LateUpdate ile aynı kemik formülü (boyun %40, kafa %60), -45/0/+45, yandan.</summary>
+        public static void PitchShots()
+        {
+            string dir = Arg("-shotDir") ?? "Docs/Shots/characters";
+            Directory.CreateDirectory(dir);
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(GamePath);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AvatarPath);
+            var basePos = Layout.Hall + new Vector3(0, 0.05f, -6.5f);
+            var fill = new GameObject("ShotFill").AddComponent<Light>();
+            fill.type = LightType.Point; fill.intensity = 2.5f; fill.range = 9f; fill.color = new Color(1f, 0.85f, 0.7f);
+            fill.transform.position = basePos + new Vector3(0.3f, 1.6f, -1.8f);
+            var clip = LoadClip(CharIdle("X"));
+            for (int k = 0; k < 3; k++)
+            {
+                float pitch = (k - 1) * 45f;
+                var g = Object.Instantiate(prefab.transform.Find("Model/Model_X").gameObject); g.SetActive(true);
+                g.transform.position = basePos + new Vector3((k - 1) * 0.9f, 0, 0); g.transform.rotation = Quaternion.Euler(0, 90f, 0);
+                AnimationMode.StartAnimationMode();
+                AnimationMode.BeginSampling(); AnimationMode.SampleAnimationClip(g, clip, 0.3f); AnimationMode.EndSampling();
+                var an = g.GetComponent<Animator>();
+                var head = an.GetBoneTransform(HumanBodyBones.Head); var neck = an.GetBoneTransform(HumanBodyBones.Neck);
+                var axis = g.transform.right;
+                neck.rotation = Quaternion.AngleAxis(pitch * 0.4f, axis) * neck.rotation;
+                head.rotation = Quaternion.AngleAxis(pitch * 0.6f, axis) * head.rotation;
+            }
+            Shot(dir + "/pitch_x_up_mid_down.png", basePos + new Vector3(0, 1.45f, -2.6f), basePos + new Vector3(0, 1.4f, 0), false);
+            AnimationMode.StopAnimationMode();
+            Object.DestroyImmediate(fill.gameObject);
+        }
+
         // ---------- Karakter testi: Lobi Holü'nde X ve O yan yana (Idle + Walk karesi), ekran görüntüsü ----------
         [MenuItem("CoopGame/Karakter Testi (görüntü)")]
         public static void CharacterShots()
