@@ -165,9 +165,9 @@ namespace CoopGame
                 if (a == null || !CellOf(a.transform.position, out var c)) continue;
                 if (phase == Phase.Waiting) { Set(phaseNode, (int)Phase.Running, true); phase = Phase.Running; Dbg.Puzzle("Labirent: fener yandı"); }
                 if (c == maze.exit) { Dbg.Puzzle("Labirent çözüldü"); ServerSolve(); return; }
-                if (maze.trap[c.x, c.y]) { Dbg.Puzzle("Labirent: tuzak " + c); Set(phaseNode, (int)Phase.Dying, true); return; }
+                if (maze.trap[c.x, c.y]) { Dbg.Puzzle("Labirent: tuzak " + c); M.ServerAddDeath(); Set(phaseNode, (int)Phase.Dying, true); return; }
             }
-            if (phase == Phase.Running && Elapsed >= OilSeconds) { Dbg.Puzzle("Labirent: yağ bitti"); Set(phaseNode, (int)Phase.Dying, true); }
+            if (phase == Phase.Running && Elapsed >= OilSeconds) { Dbg.Puzzle("Labirent: yağ bitti"); M.ServerAddDeath(); Set(phaseNode, (int)Phase.Dying, true); }
         }
     }
 }

@@ -25,7 +25,7 @@ namespace CoopGame
         int armed = -1; // ilk görüşte zaten çözülmüşse (gezinti) kapanış oynamaz
         Vector3 doorRest;
         CanvasGroup endGroup;
-        Text endLine, endTitle, endSub, exitText;
+        Text endLine, endTitle, endSub, exitText, statsText;
         Image black;
 
         static bool Solo => PlayerAvatar.All.Count <= 1;
@@ -75,6 +75,7 @@ namespace CoopGame
             endLine.text = "Mühür sarsıldı ama kapı açılmadı.\nArdında bir şey uyanıyor... ve sizi bekliyor.";
             endTitle.text = "ECHOES OF THE KEEP";
             endSub.text = "Kaçış başka bir gecenin hikâyesi.\nDevam edecek...";
+            statsText = Txt(canvas.transform, new Vector2(0.5f, 0.27f), bodyFont, 28, new Color(0.85f, 0.82f, 0.75f, 0f));
             exitText = Txt(canvas.transform, new Vector2(0.5f, 0.16f), titleFont, 40, new Color(0.93f, 0.8f, 0.52f, 0f));
             exitText.text = "MENÜYE DÖN";
             exitText.raycastTarget = true;
@@ -103,7 +104,7 @@ namespace CoopGame
             var me = PlayerAvatar.Local;
             bool here = me != null && new Bounds(hallCenter, hallSize).Contains(me.transform.position);
             if (armed < 0 && PuzzleManager.Instance != null) armed = PuzzleState == PuzzleState.Solved ? 0 : 1;
-            if (armed == 1 && v == Ending && endStart < 0f && here) endStart = Time.time;
+            if (armed == 1 && v == Ending && endStart < 0f && here) { endStart = Time.time; statsText.text = PlayStats.Summary(PuzzleManager.Instance); }
             if (endStart < 0f) return;
             float t = Time.time - endStart;
             if (sealDoor != null)
@@ -117,6 +118,7 @@ namespace CoopGame
             endLine.color = new Color(endLine.color.r, endLine.color.g, endLine.color.b, Mathf.Clamp01((t - 5f) / 1.5f) * Mathf.Clamp01((13f - t) / 1.5f));
             endTitle.color = new Color(endTitle.color.r, endTitle.color.g, endTitle.color.b, Mathf.Clamp01((t - 13.5f) / 2f));
             endSub.color = new Color(endSub.color.r, endSub.color.g, endSub.color.b, Mathf.Clamp01((t - 15.5f) / 2f));
+            statsText.color = new Color(statsText.color.r, statsText.color.g, statsText.color.b, Mathf.Clamp01((t - 16.5f) / 2f));
             exitText.color = new Color(exitText.color.r, exitText.color.g, exitText.color.b, Mathf.Clamp01((t - 18f) / 1.5f));
             if (t > 18f && !endGroup.blocksRaycasts)
             {

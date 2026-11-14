@@ -3,11 +3,11 @@ using UnityEngine.UI;
 
 namespace CoopGame
 {
-    /// <summary>Oyun içi menü (MENÜ düğmesi / Esc): Devam, Günlük, Ayarlar, Ana menüye dön (iki dokunuşla onay). Oyun durmaz (çok oyunculu).</summary>
+    /// <summary>Oyun içi menü (MENÜ düğmesi / Esc): Devam, Günlük, İpucu, Ayarlar, Ana menüye dön (iki dokunuşla onay). Oyun durmaz (çok oyunculu).</summary>
     public class GameMenu : MonoBehaviour
     {
-        [SerializeField] GameObject root, mainView, settingsView, journalView;
-        [SerializeField] Button resume, journal, settings, leave, settingsBack, journalBack, mute;
+        [SerializeField] GameObject root, mainView, settingsView, journalView, hintView;
+        [SerializeField] Button resume, journal, settings, leave, settingsBack, journalBack, mute, hint, hintBack;
 
         static GameMenu inst;
         public static bool Exists => inst != null;
@@ -29,6 +29,8 @@ namespace CoopGame
             settings.onClick.AddListener(() => Show(settingsView));
             settingsBack.onClick.AddListener(() => Show(mainView));
             journalBack.onClick.AddListener(() => Show(mainView));
+            if (hint != null) hint.onClick.AddListener(() => Show(hintView));
+            if (hintBack != null) hintBack.onClick.AddListener(() => Show(mainView));
             if (mute != null)
             {
                 muteLabel = mute.GetComponentInChildren<Text>();
@@ -58,6 +60,7 @@ namespace CoopGame
             mainView.SetActive(view == mainView);
             settingsView.SetActive(view == settingsView);
             journalView.SetActive(view == journalView);
+            if (hintView != null) hintView.SetActive(view == hintView);
             confirmUntil = 0f;
             leaveLabel.text = leaveText;
         }

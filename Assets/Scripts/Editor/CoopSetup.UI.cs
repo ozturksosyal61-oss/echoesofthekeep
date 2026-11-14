@@ -461,7 +461,8 @@ namespace CoopGame.EditorTools
             MakeText(main, "MenuTitle", "MENÜ", 60, new Vector2(0, 330), new Vector2(800, 80), TextAnchor.MiddleCenter, U.head, GoldBright);
             Divider(main, new Vector2(0, 282), 420, 0.5f);
             var resume = MakeButton(main, "ResumeButton", "DEVAM ET", new Vector2(0, 190), new Vector2(560, 100), true, 44);
-            var journal = MakeButton(main, "JournalButton", "GÜNLÜK", new Vector2(0, 80), new Vector2(560, 96), false, 40);
+            var journal = MakeButton(main, "JournalButton", "GÜNLÜK", new Vector2(-142, 80), new Vector2(276, 96), false, 40);
+            var hint = MakeButton(main, "HintButton", "İPUCU", new Vector2(142, 80), new Vector2(276, 96), false, 40);
             var settings = MakeButton(main, "SettingsButton", "AYARLAR", new Vector2(0, -26), new Vector2(560, 96), false, 40);
             var mute = MakeButton(main, "MuteButton", "ARKADAŞINI SESSİZE AL", new Vector2(0, -132), new Vector2(560, 96), false, 32);
             var leave = MakeButton(main, "LeaveButton", "ANA MENÜYE DÖN", new Vector2(0, -250), new Vector2(560, 96), false, 34);
@@ -472,6 +473,8 @@ namespace CoopGame.EditorTools
             BuildSettings(setV, TLp, 70, -60, out var setBack);
             var jrnV = Overlay(pr, "Journal");
             BuildJournal(jrnV, TLp, 70, -60, out var jrnBack);
+            var hintV = Overlay(pr, "Hints");
+            BuildHints(hintV, out var hintBack);
 
             var gm = new GameObject("GameMenuCtl").AddComponent<GameMenu>();
             var so = new SerializedObject(gm);
@@ -479,6 +482,55 @@ namespace CoopGame.EditorTools
             SetRef(so, "mainView", main.gameObject); SetRef(so, "settingsView", setV.gameObject); SetRef(so, "journalView", jrnV.gameObject);
             SetRef(so, "resume", resume); SetRef(so, "journal", journal); SetRef(so, "settings", settings); SetRef(so, "leave", leave);
             SetRef(so, "settingsBack", setBack); SetRef(so, "journalBack", jrnBack); SetRef(so, "mute", mute);
+            SetRef(so, "hintView", hintV.gameObject); SetRef(so, "hint", hint); SetRef(so, "hintBack", hintBack);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>İpucu görünümü (HintPanel): bulmaca adı, 3 kademe satırı, İPUCU AÇ, GERİ.</summary>
+        static void BuildHints(RectTransform p, out Button back)
+        {
+            MakeText(p, "HintTitle", "İPUCU", 60, new Vector2(0, 330), new Vector2(800, 80), TextAnchor.MiddleCenter, U.head, GoldBright);
+            var name = MakeText(p, "HintPuzzle", "", 32, new Vector2(0, 262), new Vector2(860, 50), TextAnchor.MiddleCenter, U.body, Gold, false);
+            name.fontStyle = FontStyle.Italic;
+            Divider(p, new Vector2(0, 228), 420, 0.5f);
+            var lines = new Text[Hints.Levels];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                lines[i] = MakeText(p, "HintLine" + i, "", 28, new Vector2(0, 150 - i * 130), new Vector2(860, 120), TextAnchor.UpperLeft, U.body, Cream, false);
+                lines[i].horizontalOverflow = HorizontalWrapMode.Wrap;
+            }
+            var reveal = MakeButton(p, "HintReveal", "İPUCU AÇ", new Vector2(0, -250), new Vector2(560, 96), true, 38);
+            MakeText(p, "HintNote", "İpucu çözümü söylemez; yolu gösterir. Kullanılan ipuçları oyun sonunda sayılır.", 22, new Vector2(0, -322), new Vector2(860, 40),
+                     TextAnchor.MiddleCenter, U.body, new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
+            back = MakeButton(p, "HintBack", "GERİ", new Vector2(0, -380), new Vector2(200, 70), false, 32);
+            var hp = p.gameObject.AddComponent<HintPanel>();
+            var so = new SerializedObject(hp);
+            SetRef(so, "title", name);
+            SetRefArray(so, "lines", lines);
+            SetRef(so, "reveal", reveal);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Hazır cümleler (QuickChat): sağ üstte SÖZ düğmesi, solunda 2x5 cümle paneli, üst ortada gelen cümle.</summary>
+        static void BuildQuickChat(RectTransform canvas, Vector2 TR, Vector2 TC)
+        {
+            var toggle = MakeButton(canvas, "SayButton", "SÖZ", Vector2.zero, new Vector2(230, 104), false, 38);
+            Corner(toggle.targetGraphic, TR, TR, new Vector2(-56, -270));
+            var panel = MakeImage(canvas, "SayPanel", Vector2.zero, new Vector2(660, 470), U.panel, new Color(1f, 1f, 1f, 0.95f), true);
+            Corner(panel, TR, TR, new Vector2(-310, -30));
+            int n = QuickChat.Phrases.Length;
+            var buttons = new Button[n];
+            for (int i = 0; i < n; i++)
+                buttons[i] = MakeButton(panel.rectTransform, "Say" + i, QuickChat.Phrases[i], new Vector2(-160 + (i % 2) * 320, 172 - (i / 2) * 86), new Vector2(300, 78), false, 28);
+            var toast = MakeText(canvas, "SayToast", "", 40, Vector2.zero, new Vector2(1200, 60), TextAnchor.MiddleCenter, U.head, GoldBright);
+            Corner(toast, TC, TC, new Vector2(0, -200));
+            toast.raycastTarget = false;
+            var qc = new GameObject("QuickChat").AddComponent<QuickChat>();
+            var so = new SerializedObject(qc);
+            SetRef(so, "toggle", toggle);
+            SetRef(so, "panel", panel.gameObject);
+            SetRefArray(so, "buttons", buttons);
+            SetRef(so, "toast", toast);
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -816,6 +868,8 @@ namespace CoopGame.EditorTools
             var cto = new SerializedObject(camToggle);
             SetRef(cto, "button", camBtn);
             cto.ApplyModifiedPropertiesWithoutUndo();
+
+            BuildQuickChat(canvas, TR, TC);
 
             var hud = new GameObject("GameHud").AddComponent<GameHud>();
             var so = new SerializedObject(hud);

@@ -176,6 +176,7 @@ namespace CoopGame
         {
             Set(phaseNode, (int)Phase.Dying);
             Set(timerNode, Now);
+            M.ServerAddDeath();
             Dbg.Puzzle("Sarnıç: boğuldu");
         }
 

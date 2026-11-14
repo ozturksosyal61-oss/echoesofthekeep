@@ -234,5 +234,17 @@ namespace CoopGame
             Dbg.Puzzle("Yetenek " + ability + " ← " + name);
             ServerAbility?.Invoke(this, ability);
         }
+
+        // ---- İpucu sayacı + hazır cümleler ----
+
+        public void RequestHint() => RPC_Hint();
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+        void RPC_Hint() { if (PuzzleManager.Instance != null) PuzzleManager.Instance.ServerAddHint(); }
+
+        public void Say(int phrase) => RPC_Say((byte)phrase);
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        void RPC_Say(byte phrase) => QuickChat.Receive(this, phrase);
     }
 }

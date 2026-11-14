@@ -16,6 +16,7 @@ namespace CoopGame
         void Start()
         {
             session = Session.Runner;
+            Hints.Clear();
             if (session == null) { UnityEngine.SceneManagement.SceneManager.LoadScene(Session.LobbyScene); return; }
             session.AddGlobal(this);
             if (session.IsServer)

@@ -171,6 +171,7 @@ namespace CoopGame
             Set(phaseNode, (int)Phase.Dying);
             Set(litNode, 0);
             Set(timerNode, Now);
+            M.ServerAddDeath();
             Dbg.Puzzle("Mahzen: ölüm (" + why + ")");
         }
 

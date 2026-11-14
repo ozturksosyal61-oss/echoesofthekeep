@@ -28,6 +28,13 @@ namespace CoopGame
         [Networked, Capacity(MaxNodes)] public NetworkArray<int> Values => default;
         [Networked, Capacity(MaxNodes)] public NetworkArray<int> Ticks => default;
 
+        // İstatistik (host sayar, kapanış ekranında gösterilir; PlayStats kaydeder)
+        [Networked] public int Deaths { get; set; }
+        [Networked] public int HintsUsed { get; set; }
+        [Networked] public float PlaySeconds { get; set; }
+        [Networked, Capacity(MaxPuzzles)] public NetworkArray<float> PuzzleSeconds => default;
+        float saveAt;
+
         readonly byte[] seenStates = new byte[MaxPuzzles];
         readonly int[] seenValues = new int[MaxNodes];
 
@@ -40,6 +47,7 @@ namespace CoopGame
             if (HasStateAuthority)
             {   // Menüde seçilen başlangıç: öncekiler sırayla çözülmüş sayılır (kilit açma zinciri sonrakini aktif eder)
                 int start = Mathf.Clamp(Progress.StartPuzzle, 1, Progress.LastPuzzle + 1); // Last+1: hepsi çözülmüş (gezinti)
+                PlayStats.Load(this, start);
                 for (int id = 1; id < start; id++) ServerSetState(id, PuzzleState.Solved);
                 Progress.Save(start - 1);
             }
@@ -68,6 +76,7 @@ namespace CoopGame
             Dbg.Puzzle("Bulmaca " + puzzleId + ": " + old + " → " + s);
             if (s != PuzzleState.Solved) return;
             Progress.Save(puzzleId);
+            PlayStats.Save(this, puzzleId);
             var def = PuzzleDef.Find(puzzleId);
             if (def == null || def.Unlocks == null) return;
             foreach (var u in def.Unlocks)
@@ -85,9 +94,23 @@ namespace CoopGame
         /// <summary>İki tick arasındaki süre (sn).</summary>
         public float TickSeconds(int fromTick, int toTick) => (toTick - fromTick) * Runner.DeltaTime;
 
+        /// <summary>Yalnızca host: ölüm (mahzen, sarnıç, labirent).</summary>
+        public void ServerAddDeath() { if (HasStateAuthority) { Deaths++; PlayStats.Save(this, Progress.Saved); } }
+
+        /// <summary>Yalnızca host: bir oyuncu ipucu açtı.</summary>
+        public void ServerAddHint() { if (HasStateAuthority) { HintsUsed++; PlayStats.Save(this, Progress.Saved); } }
+
         public override void FixedUpdateNetwork()
         {
             if (!HasStateAuthority) return;
+            if (GetState(Progress.LastPuzzle) != PuzzleState.Solved)
+            {   // süre: oyun bitene kadar; bulmaca başına: aktif olduğu sürece
+                float dt = Runner.DeltaTime;
+                PlaySeconds += dt;
+                for (int id = 1; id <= Progress.LastPuzzle; id++)
+                    if (GetState(id) == PuzzleState.Active) PuzzleSeconds.Set(id, PuzzleSeconds[id] + dt);
+                if (Time.unscaledTime >= saveAt) { saveAt = Time.unscaledTime + 30f; PlayStats.Save(this, Progress.Saved); }
+            }
             var nodes = PuzzleNode.All;
             for (int i = 0; i < nodes.Count; i++) nodes[i].ServerFixedUpdate();
         }
