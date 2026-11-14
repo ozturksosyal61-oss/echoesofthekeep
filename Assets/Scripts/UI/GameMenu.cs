@@ -55,10 +55,7 @@ namespace CoopGame
                     PlayerAvatar.RemoteMuted = true;
                     string t = System.DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm") + " UTC";
                     Application.OpenURL("mailto:" + LobbyUI.SupportMail + "?subject=" + System.Uri.EscapeDataString("Oyuncu bildirimi / Player report")
-                        + "&body=" + System.Uri.EscapeDataString("Oda / Room: " + Session.Code + "
-Zaman / Time: " + t + "
-Ne oldu? / What happened?
-"));
+                        + "&body=" + System.Uri.EscapeDataString("Oda / Room: " + Session.Code + "\nZaman / Time: " + t + "\nNe oldu? / What happened?\n"));
                     Session.Leave();
                 });
             }
