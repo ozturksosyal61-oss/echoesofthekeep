@@ -371,6 +371,41 @@ namespace CoopGame.EditorTools
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.renderOutsideSafeArea = false; // içerik çentik/kavisli kenar altına taşmasın
+
+            // Boyut: statik birleştirme kapalı (her dekor kopyasının örgüsünü sahneye ayrı yazıyordu: build raporunda örgü 517 MB).
+            // Işık haritası/probe etkilenmez (ContributeGI bayrağı kalır); çizimleri SRP Batcher toplar. Kullanılmayan örgü kanalları atılır.
+            PlayerSettings.stripUnusedMeshComponents = true;
+            SetStaticBatching(BuildTarget.Android, false);
+            SetStaticBatching(BuildTarget.iOS, false);
+            MirrorIosTextures();
+        }
+
+        /// <summary>iOS doku ayarı Android'in aynısı (ASTC + boyut sınırı); Android ayarı olmayan dokular dokunulmaz.</summary>
+        static void MirrorIosTextures()
+        {
+            int n = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { "Assets/ThirdParty", "Assets/Art", "Assets/Generated" }))
+            {
+                var ti = AssetImporter.GetAtPath(AssetDatabase.GUIDToAssetPath(guid)) as TextureImporter;
+                if (ti == null) continue;
+                var a = ti.GetPlatformTextureSettings("Android");
+                if (!a.overridden) continue;
+                var i = ti.GetPlatformTextureSettings("iPhone");
+                if (i.overridden && i.format == a.format && i.maxTextureSize == a.maxTextureSize) continue;
+                i.overridden = true; i.format = a.format; i.maxTextureSize = a.maxTextureSize; i.compressionQuality = a.compressionQuality;
+                ti.SetPlatformTextureSettings(i);
+                ti.SaveAndReimport();
+                n++;
+            }
+            if (n > 0) Debug.Log("[CoopSetup] iOS doku ayarı eşitlendi: " + n);
+        }
+
+        static void SetStaticBatching(BuildTarget t, bool on)
+        {
+            var m = typeof(PlayerSettings).GetMethod("SetStaticBatchingForPlatform",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            if (m == null) { Debug.LogError("[CoopSetup] SetStaticBatchingForPlatform yok"); return; }
+            m.Invoke(null, new object[] { t, on });
         }
 
         static string Arg(string key)

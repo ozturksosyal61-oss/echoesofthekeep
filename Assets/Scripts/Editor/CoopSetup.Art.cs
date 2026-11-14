@@ -49,11 +49,14 @@ namespace CoopGame.EditorTools
             if (ti.maxTextureSize != maxSize) { ti.maxTextureSize = maxSize; dirty = true; }
             if (ti.anisoLevel != 4) { ti.anisoLevel = 4; dirty = true; }
             var want6 = normal ? TextureImporterFormat.ASTC_5x5 : TextureImporterFormat.ASTC_6x6;
-            var ps = ti.GetPlatformTextureSettings("Android");
-            if (!ps.overridden || ps.format != want6 || ps.maxTextureSize != maxSize)
+            foreach (var plat in new[] { "Android", "iPhone" }) // iOS da Android ile aynı (önceden iOS ayarsızdı)
             {
-                ps.overridden = true; ps.format = want6; ps.maxTextureSize = maxSize;
-                ti.SetPlatformTextureSettings(ps); dirty = true;
+                var ps = ti.GetPlatformTextureSettings(plat);
+                if (!ps.overridden || ps.format != want6 || ps.maxTextureSize != maxSize)
+                {
+                    ps.overridden = true; ps.format = want6; ps.maxTextureSize = maxSize;
+                    ti.SetPlatformTextureSettings(ps); dirty = true;
+                }
             }
             if (dirty) ti.SaveAndReimport();
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
