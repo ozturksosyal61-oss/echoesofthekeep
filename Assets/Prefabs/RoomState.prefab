@@ -86,3 +86,7 @@ MonoBehaviour:
   _States: 
   _Values: 
   _Ticks: 
+  _Deaths: 0
+  _HintsUsed: 0
+  _PlaySeconds: 0
+  _PuzzleSeconds: []
