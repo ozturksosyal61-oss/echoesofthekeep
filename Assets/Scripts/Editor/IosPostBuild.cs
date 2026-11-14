@@ -22,6 +22,14 @@ namespace CoopGame.EditorTools
             string main = proj.GetUnityMainTargetGuid();
             string fw = proj.GetUnityFrameworkTargetGuid();
             proj.AddFrameworkToProject(fw, "GameKit.framework", false);
+            // Gizlilik bildirimi: uygulama paketine de (ana hedef kaynakları) eklenir; Unity'nin framework'e koyduğu kopyaya ek
+            const string privacySrc = "Assets/Plugins/iOS/PrivacyInfo.xcprivacy";
+            if (File.Exists(privacySrc))
+            {
+                File.Copy(privacySrc, Path.Combine(path, "PrivacyInfo.xcprivacy"), true);
+                string guid = proj.FindFileGuidByProjectPath("PrivacyInfo.xcprivacy") ?? proj.AddFile("PrivacyInfo.xcprivacy", "PrivacyInfo.xcprivacy");
+                proj.AddFileToBuild(main, guid);
+            }
             proj.WriteToFile(projPath);
 
             var caps = new ProjectCapabilityManager(projPath, "Unity-iPhone/EchoesOfTheKeep.entitlements", null, main);
