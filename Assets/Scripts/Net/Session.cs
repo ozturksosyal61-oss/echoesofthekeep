@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 namespace CoopGame
 {
-    /// <summary>Oda yaşam döngüsü. Oda kodu = Photon oturum adı (4 hane). Create = Host, Join = Client (oda yoksa hata verir).</summary>
+    /// <summary>Oda yaşam döngüsü. Oda kodu = Photon oturum adı (6 hane; tahminle yabancı girmesin). Create = Host, Join = Client (oda yoksa hata verir).</summary>
     public static class Session
     {
         public const int MaxPlayers = 2;
@@ -20,11 +20,21 @@ namespace CoopGame
         public static int ResumeRole = Roles.None;
         public static Vector3 ResumePos;
 
-        public static string NewCode() => Random.Range(0, 10000).ToString("D4");
+        public const int CodeLength = 6;
+        /// <summary>App Review: bu kodla "Odaya Katıl" tek kişilik inceleme oturumu kurar (iki rol arasında geçiş). İnceleme notlarında yazılı.</summary>
+        public const string ReviewCode = "246810";
+        public static bool Review { get; set; }
+
+        public static string NewCode()
+        {
+            string c;
+            do c = Random.Range(0, 1000000).ToString("D6"); while (c == ReviewCode);
+            return c;
+        }
 
         public static bool IsValidCode(string code)
         {
-            if (code == null || code.Length != 4) return false;
+            if (code == null || code.Length != CodeLength) return false;
             foreach (char c in code) if (c < '0' || c > '9') return false;
             return true;
         }
@@ -93,6 +103,7 @@ namespace CoopGame
                 var r = Runner;
                 Runner = null;
                 Code = null;
+                Review = false;
                 if (r != null)
                 {
                     try { if (r.IsRunning) await r.Shutdown(); } catch (System.Exception e) { Debug.LogWarning("Session.Leave: " + e.Message); }

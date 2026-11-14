@@ -5,7 +5,7 @@ using Fusion;
 
 namespace CoopGame
 {
-    /// <summary>Ana menü: Oda Kur (4 haneli kod üretir, holde gösterilir) ya da Odaya Katıl (kod girme paneli açılır).</summary>
+    /// <summary>Ana menü: Oda Kur (6 haneli kod üretir, holde gösterilir) ya da Odaya Katıl (kod girme paneli açılır).</summary>
     public class LobbyUI : MonoBehaviour
     {
         [SerializeField] InputField codeInput;
@@ -58,7 +58,7 @@ namespace CoopGame
                     ApplyStart();
                 });
             }
-            codeInput.characterLimit = 4;
+            codeInput.characterLimit = Session.CodeLength;
             createButton.onClick.AddListener(() => { if (!busy) { if (startButton != null) ApplyStart(); else Progress.StartPuzzle = 1; StartCoroutine(Flow(true)); } });
             if (continueButton != null)
             {
@@ -174,7 +174,7 @@ namespace CoopGame
             if (creditsPanel != null) creditsPanel.SetActive(false);
             if (friendsPanel != null) friendsPanel.SetActive(false);
             joinPanel.SetActive(join);
-            status.text = join ? "Arkadaşının 4 haneli oda kodunu gir." : "";
+            status.text = join ? "Arkadaşının 6 haneli oda kodunu gir." : "";
             if (join) codeInput.text = "";
         }
 
@@ -192,9 +192,13 @@ namespace CoopGame
         IEnumerator Flow(bool create)
         {
             string code = codeInput.text;
+            if (!create && code == Session.ReviewCode)
+            {   // App Review: tek kişilik oturum (oda kurulur, rol değiştirme açılır)
+                create = true; Session.Review = true; Progress.StartPuzzle = 1;
+            }
             if (!create && !Session.IsValidCode(code))
             {
-                status.text = "Kod 4 haneli olmalı.";
+                status.text = "Kod 6 haneli olmalı.";
                 yield break;
             }
 

@@ -242,6 +242,16 @@ namespace CoopGame
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
         void RPC_Hint() { if (PuzzleManager.Instance != null) PuzzleManager.Instance.ServerAddHint(); }
 
+        /// <summary>İnceleme modu (tek kişi): X ↔ O geçişi; diğer rolün şu anki bulmaca noktasına ışınlanır.</summary>
+        public void RequestSwitchRole() => RPC_SwitchRole();
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+        void RPC_SwitchRole()
+        {
+            if (!Session.Review || All.Count != 1 || RoleIndex == Roles.None) return;
+            ServerAssignRole(RoleIndex == Roles.X ? Roles.O : Roles.X);
+        }
+
         public void Say(int phrase) => RPC_Say((byte)phrase);
 
         [Rpc(RpcSources.InputAuthority, RpcTargets.All)]

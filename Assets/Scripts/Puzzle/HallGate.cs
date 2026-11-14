@@ -30,7 +30,7 @@ namespace CoopGame
             var x = plateX.Occupant(null);
             var o = plateO.Occupant(x);
             // Tek kişilik test (editör / geliştirme sürümü): oturumda tek oyuncu varsa kendi plakasında rolünü alır
-            var solo = (x == null) != (o == null) && PlayerAvatar.All.Count == 1 && (Application.isEditor || Debug.isDebugBuild) ? (x != null ? x : o) : null;
+            var solo = (x == null) != (o == null) && PlayerAvatar.All.Count == 1 && (Application.isEditor || Debug.isDebugBuild || Session.Review) ? (x != null ? x : o) : null;
             if ((x == null || o == null) && solo == null)
             {
                 if (Value != Waiting) ServerSetValue(Waiting);

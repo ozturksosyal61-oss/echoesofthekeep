@@ -281,8 +281,8 @@ namespace CoopGame.EditorTools
             var img = MakeImage(parent, name, pos, dim, U.field, Color.white, true);
             var field = img.gameObject.AddComponent<InputField>();
             var rt = img.rectTransform;
-            var text = MakeText(rt, "Text", "", 84, Vector2.zero, dim - new Vector2(40, 0), TextAnchor.MiddleCenter, U.head, GoldBright, false);
-            var ph = MakeText(rt, "Placeholder", "0000", 84, Vector2.zero, dim - new Vector2(40, 0), TextAnchor.MiddleCenter, U.head,
+            var text = MakeText(rt, "Text", "", 72, Vector2.zero, dim - new Vector2(40, 0), TextAnchor.MiddleCenter, U.head, GoldBright, false);
+            var ph = MakeText(rt, "Placeholder", "000000", 72, Vector2.zero, dim - new Vector2(40, 0), TextAnchor.MiddleCenter, U.head,
                               new Color(Gold.r, Gold.g, Gold.b, 0.22f), false);
             text.supportRichText = false;
             field.targetGraphic = img;
@@ -464,7 +464,8 @@ namespace CoopGame.EditorTools
             var journal = MakeButton(main, "JournalButton", "GÜNLÜK", new Vector2(-142, 80), new Vector2(276, 96), false, 40);
             var hint = MakeButton(main, "HintButton", "İPUCU", new Vector2(142, 80), new Vector2(276, 96), false, 40);
             var settings = MakeButton(main, "SettingsButton", "AYARLAR", new Vector2(0, -26), new Vector2(560, 96), false, 40);
-            var mute = MakeButton(main, "MuteButton", "ARKADAŞINI SESSİZE AL", new Vector2(0, -132), new Vector2(560, 96), false, 32);
+            var mute = MakeButton(main, "MuteButton", "SESSİZE AL", new Vector2(-142, -132), new Vector2(276, 96), false, 30);
+            var report = MakeButton(main, "ReportButton", "BİLDİR / ENGELLE", new Vector2(142, -132), new Vector2(276, 96), false, 26);
             var leave = MakeButton(main, "LeaveButton", "ANA MENÜYE DÖN", new Vector2(0, -250), new Vector2(560, 96), false, 34);
             MakeText(main, "MenuHint", "Oyun durmaz; arkadaşın seni bekliyor olabilir.", 24, new Vector2(0, -350), new Vector2(800, 40), TextAnchor.MiddleCenter, U.body,
                      new Color(Cream.r, Cream.g, Cream.b, 0.5f), false);
@@ -481,7 +482,7 @@ namespace CoopGame.EditorTools
             SetRef(so, "root", dim.gameObject);
             SetRef(so, "mainView", main.gameObject); SetRef(so, "settingsView", setV.gameObject); SetRef(so, "journalView", jrnV.gameObject);
             SetRef(so, "resume", resume); SetRef(so, "journal", journal); SetRef(so, "settings", settings); SetRef(so, "leave", leave);
-            SetRef(so, "settingsBack", setBack); SetRef(so, "journalBack", jrnBack); SetRef(so, "mute", mute);
+            SetRef(so, "settingsBack", setBack); SetRef(so, "journalBack", jrnBack); SetRef(so, "mute", mute); SetRef(so, "report", report);
             SetRef(so, "hintView", hintV.gameObject); SetRef(so, "hint", hint); SetRef(so, "hintBack", hintBack);
             so.ApplyModifiedPropertiesWithoutUndo();
         }

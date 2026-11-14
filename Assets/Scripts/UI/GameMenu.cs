@@ -7,15 +7,20 @@ namespace CoopGame
     public class GameMenu : MonoBehaviour
     {
         [SerializeField] GameObject root, mainView, settingsView, journalView, hintView;
-        [SerializeField] Button resume, journal, settings, leave, settingsBack, journalBack, mute, hint, hintBack;
+        [SerializeField] Button resume, journal, settings, leave, settingsBack, journalBack, mute, hint, hintBack, report;
 
         static GameMenu inst;
         public static bool Exists => inst != null;
         public static bool IsOpen => inst != null && inst.root.activeSelf;
 
-        Text leaveLabel, muteLabel;
+        Text leaveLabel, muteLabel, reportLabel;
+        float reportUntil;
 
-        void MuteText() { if (muteLabel != null) muteLabel.text = PlayerAvatar.RemoteMuted ? "ARKADAŞIN SESİNİ AÇ" : "ARKADAŞINI SESSİZE AL"; }
+        void MuteText()
+        {
+            if (muteLabel == null) return;
+            muteLabel.text = Session.Review ? "ROL DEĞİŞTİR" : PlayerAvatar.RemoteMuted ? "SESİ AÇ" : "SESSİZE AL";
+        }
         string leaveText;
         float confirmUntil;
 
@@ -34,8 +39,23 @@ namespace CoopGame
             if (mute != null)
             {
                 muteLabel = mute.GetComponentInChildren<Text>();
-                mute.onClick.AddListener(() => { PlayerAvatar.RemoteMuted = !PlayerAvatar.RemoteMuted; MuteText(); });
-                MuteText();
+                mute.onClick.AddListener(() =>
+                {
+                    if (Session.Review) { if (PlayerAvatar.Local != null) PlayerAvatar.Local.RequestSwitchRole(); Close(); return; }
+                    PlayerAvatar.RemoteMuted = !PlayerAvatar.RemoteMuted; MuteText();
+                });
+            }
+            if (report != null)
+            {   // Kötüye kullanım (App Store 1.2): iki dokunuşla onay → sesi kapat, bildirim sayfasını aç, odadan çık (engelle)
+                reportLabel = report.GetComponentInChildren<Text>();
+                if (Session.Review) report.gameObject.SetActive(false); // inceleme: tek kişi, bildirecek kimse yok
+                report.onClick.AddListener(() =>
+                {
+                    if (Time.unscaledTime >= reportUntil) { reportUntil = Time.unscaledTime + 3f; reportLabel.text = "EMİN MİSİN?"; return; }
+                    PlayerAvatar.RemoteMuted = true;
+                    Application.OpenURL(LobbyUI.SupportUrl + "?konu=bildir&oda=" + Session.Code + "&t=" + System.DateTime.UtcNow.ToString("yyyyMMddHHmm"));
+                    Session.Leave();
+                });
             }
             leave.onClick.AddListener(() =>
             {
@@ -63,11 +83,15 @@ namespace CoopGame
             if (hintView != null) hintView.SetActive(view == hintView);
             confirmUntil = 0f;
             leaveLabel.text = leaveText;
+            reportUntil = 0f;
+            if (reportLabel != null) reportLabel.text = "BİLDİR / ENGELLE";
+            MuteText();
         }
 
         void Update()
         {
             if (leaveLabel != null && confirmUntil > 0f && Time.unscaledTime >= confirmUntil) { confirmUntil = 0f; leaveLabel.text = leaveText; }
+            if (reportLabel != null && reportUntil > 0f && Time.unscaledTime >= reportUntil) { reportUntil = 0f; reportLabel.text = "BİLDİR / ENGELLE"; }
             if (Input.GetKeyDown(KeyCode.Escape) && !LetterView.IsOpen) Toggle();
         }
     }
