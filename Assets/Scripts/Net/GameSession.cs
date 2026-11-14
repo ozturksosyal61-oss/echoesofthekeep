@@ -11,6 +11,7 @@ namespace CoopGame
         [SerializeField] GameObject roomStatePrefab;
 
         readonly HashSet<PlayerRef> spawned = new HashSet<PlayerRef>();
+        readonly Dictionary<int, Vector3> leftAt = new Dictionary<int, Vector3>(); // kopan oyuncunun rolü → son konumu
         NetworkRunner session;
 
         void Start()
@@ -34,14 +35,24 @@ namespace CoopGame
             // Host çıktı / bağlantı koptu: runner durur.
             if (session != null && Session.Runner == session && !session.IsRunning && !session.IsStarting)
             {
+                var r = session;
                 session = null;
-                Session.Leave();
+                Session.OnRunnerShutdown(r);
             }
         }
 
         void Spawn(PlayerRef player)
         {
             if (!spawned.Add(player)) return;
+            var prefab = avatarPrefab.GetComponent<NetworkObject>();
+            // Host kopmadan sonra odayı yeniden kurdu: kendi rolü ve konumuyla doğar.
+            if (player == session.LocalPlayer && Session.ResumeRole != Roles.None)
+            {
+                int r0 = Session.ResumeRole; Session.ResumeRole = Roles.None;
+                session.SpawnAsync(prefab, Session.ResumePos + Vector3.up * 0.1f, Quaternion.identity, player,
+                                   (runner, obj) => obj.GetComponent<PlayerAvatar>().InitRole(r0));
+                return;
+            }
             // Herkes Lobi Holü'nde doğar; roller plakalarla seçilir (HallGate). Yola çıkıldıktan sonra katılan (yeniden bağlanan)
             // oyuncu boşta kalan rolü alır ve o rolün odasında doğar. SpawnAsync: prefab yüklenene kadar bekler.
             int taken = Roles.None;
@@ -49,11 +60,15 @@ namespace CoopGame
                 if (a != null && a.Object != null && a.Object.IsValid && a.RoleIndex != Roles.None) taken = a.RoleIndex;
             if (taken == Roles.None)
             {
-                session.SpawnAsync(avatarPrefab.GetComponent<NetworkObject>(), Layout.HallSpawn(Roles.Slot(session, player)), Quaternion.identity, player);
+                session.SpawnAsync(prefab, Layout.HallSpawn(Roles.Slot(session, player)), Quaternion.identity, player);
                 return;
             }
             int role = taken == Roles.X ? Roles.O : Roles.X;
-            session.SpawnAsync(avatarPrefab.GetComponent<NetworkObject>(), Layout.Spawn(role), Quaternion.identity, player,
+            // Kaldığı yer: koptuğu konum; yoksa şu anki bulmacanın kontrol noktası; o da yoksa rolün ilk odası.
+            Vector3 pos;
+            if (leftAt.TryGetValue(role, out var lp)) { pos = lp + Vector3.up * 0.1f; leftAt.Remove(role); }
+            else if (!Checkpoint.TryFind(role, Progress.Current(PuzzleManager.Instance), out pos)) pos = Layout.Spawn(role);
+            session.SpawnAsync(prefab, pos, Quaternion.identity, player,
                                (runner, obj) => obj.GetComponent<PlayerAvatar>().InitRole(role));
         }
 
@@ -68,7 +83,10 @@ namespace CoopGame
             spawned.Remove(player);
             foreach (var a in FindObjectsByType<PlayerAvatar>(FindObjectsSortMode.None))
                 if (a.Object != null && a.Object.IsValid && a.Object.InputAuthority == player)
+                {
+                    if (a.RoleIndex != Roles.None) leftAt[a.RoleIndex] = a.transform.position;
                     session.Despawn(a.Object);
+                }
         }
     }
 }

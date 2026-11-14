@@ -14,6 +14,11 @@ namespace CoopGame
 
         public static NetworkRunner Runner { get; private set; }
         public static string Code { get; private set; }
+        public static bool IsHost { get; private set; }
+
+        /// <summary>Kopma sonrası yeniden kurulumda (host) yerel oyuncunun geri alacağı rol/konum. Roles.None: yok.</summary>
+        public static int ResumeRole = Roles.None;
+        public static Vector3 ResumePos;
 
         public static string NewCode() => Random.Range(0, 10000).ToString("D4");
 
@@ -71,6 +76,7 @@ namespace CoopGame
 
             Runner = runner;
             Code = code;
+            IsHost = host;
             return result;
         }
 
@@ -81,6 +87,7 @@ namespace CoopGame
         {
             if (leaving) return; // çift tıklama / OnShutdown aynı anda
             leaving = true;
+            Reconnect.Cancel();
             try
             {
                 var r = Runner;
@@ -99,11 +106,19 @@ namespace CoopGame
             finally { leaving = false; }
         }
 
-        /// <summary>Runner kendiliğinden kapandı (host ayrıldı, bağlantı koptu): menüye dön.</summary>
+        /// <summary>Runner kendiliğinden kapandı (host ayrıldı, bağlantı koptu): oyundaysa yeniden bağlan, değilse menüye dön.</summary>
         public static void OnRunnerShutdown(NetworkRunner r)
         {
             if (leaving || r == null || Runner != r) return;
-            Leave();
+            string code = Code;
+            bool host = IsHost;
+            if (SceneManager.GetActiveScene().name != GameScene || !IsValidCode(code)) { Leave(); return; }
+            var me = PlayerAvatar.Local;
+            int role = me != null ? me.RoleIndex : Roles.None;
+            Vector3 pos = me != null ? me.transform.position : Vector3.zero;
+            Runner = null; // Leave çağrılmaz: sahne yerinde kalır, Reconnect aynı kodla yeniden dener
+            if (r != null) Object.Destroy(r.gameObject);
+            Reconnect.Begin(code, host, role, pos);
         }
     }
 }
