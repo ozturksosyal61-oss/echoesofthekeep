@@ -32,6 +32,7 @@ namespace CoopGame
         /// <summary>App Store Connect'teki adreslerle aynı (gizlilik politikası uygulama içinden de erişilebilir olmalı).</summary>
         static bool Turkish => Application.systemLanguage == SystemLanguage.Turkish;
         public static string PrivacyUrl => Turkish ? "https://oztdigital.com.tr/echoes/gizlilik" : "https://oztdigital.com.tr/echoes/en/privacy";
+        public const string SupportMail = "oztdigitaldestek@gmail.com";
         public static string SupportUrl => Turkish ? "https://oztdigital.com.tr/echoes/destek" : "https://oztdigital.com.tr/echoes/en/support";
         [SerializeField] Button friendsButton, friendsBack, inviteButton;
         [SerializeField] GameObject friendsPanel;

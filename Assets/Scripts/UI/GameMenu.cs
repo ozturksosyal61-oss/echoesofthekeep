@@ -53,7 +53,12 @@ namespace CoopGame
                 {
                     if (Time.unscaledTime >= reportUntil) { reportUntil = Time.unscaledTime + 3f; reportLabel.text = "EMİN MİSİN?"; return; }
                     PlayerAvatar.RemoteMuted = true;
-                    Application.OpenURL(LobbyUI.SupportUrl + "?konu=bildir&oda=" + Session.Code + "&t=" + System.DateTime.UtcNow.ToString("yyyyMMddHHmm"));
+                    string t = System.DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm") + " UTC";
+                    Application.OpenURL("mailto:" + LobbyUI.SupportMail + "?subject=" + System.Uri.EscapeDataString("Oyuncu bildirimi / Player report")
+                        + "&body=" + System.Uri.EscapeDataString("Oda / Room: " + Session.Code + "
+Zaman / Time: " + t + "
+Ne oldu? / What happened?
+"));
                     Session.Leave();
                 });
             }
