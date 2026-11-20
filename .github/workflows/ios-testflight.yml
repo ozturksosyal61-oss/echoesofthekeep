@@ -1,0 +1,99 @@
+# iOS → TestFlight (Mac gerekmez). Actions sekmesi → "iOS TestFlight" → Run workflow.
+# 1) Linux: Unity (GameCI) Xcode projesini üretir.  2) macOS: Xcode arşivler, imzalar (API anahtarı, otomatik), yükler.
+# Gerekli secrets: UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD, APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8
+name: iOS TestFlight
+on:
+  workflow_dispatch:
+    inputs:
+      dev:
+        description: "Development build (test araçları açık; incelemeye GÖNDERME)"
+        type: boolean
+        default: false
+
+env:
+  BUNDLE_ID: com.oztdigital.echoesofthekeep
+
+jobs:
+  unity:
+    name: Unity → Xcode projesi
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Disk aç
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with: { android: true, dotnet: true, haskell: true, large-packages: false, tool-cache: false }
+      - uses: actions/checkout@v4
+      - name: Library önbelleği
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-iOS-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}-${{ github.sha }}
+          restore-keys: |
+            Library-iOS-${{ hashFiles('Packages/packages-lock.json', 'ProjectSettings/ProjectVersion.txt') }}-
+            Library-iOS-
+      - name: Unity build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: iOS
+          buildMethod: CoopGame.EditorTools.CoopSetup.BuildIOS
+          customParameters: -bundleId ${{ env.BUNDLE_ID }} -teamId ${{ secrets.APPLE_TEAM_ID }} ${{ inputs.dev && '-dev' || '' }}
+          versioning: None
+      - name: Xcode projesini sonraki işe aktar
+        uses: actions/cache/save@v4
+        with:
+          path: Builds/iOS
+          key: xcode-${{ github.run_id }}
+
+  xcode:
+    name: Xcode → TestFlight
+    needs: unity
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with: { xcode-version: latest-stable }
+      - uses: actions/cache/restore@v4
+        with:
+          path: Builds/iOS
+          key: xcode-${{ github.run_id }}
+          fail-on-cache-miss: true
+      - name: API anahtarı
+        env: { ASC_KEY_P8: "${{ secrets.ASC_KEY_P8 }}" }
+        run: |
+          mkdir -p ~/keys
+          printf '%s' "$ASC_KEY_P8" > ~/keys/AuthKey.p8
+      - name: Arşiv
+        run: |
+          xcodebuild -project Builds/iOS/Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release \
+            -archivePath "$RUNNER_TEMP/Echoes.xcarchive" -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO archive | tail -n 40
+          test -d "$RUNNER_TEMP/Echoes.xcarchive"
+      - name: İmzala + TestFlight'a yükle
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Echoes.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates -authenticationKeyPath ~/keys/AuthKey.p8 \
+            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER"
+      - name: Temizlik
+        if: always()
+        run: rm -rf ~/keys
